@@ -132,6 +132,7 @@ import com.maxrave.simpmusic.ui.icon.PeopleAlt
 import com.maxrave.simpmusic.ui.icon.PlaylistAdd
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.navigation.destination.home.CreditDestination
+import com.maxrave.simpmusic.ui.navigation.destination.home.OngakuUiDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.DiscordLoginDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.LastfmLoginDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.LoginDestination
@@ -608,12 +609,29 @@ fun SettingScreen(
                 .padding(horizontal = 16.dp)
                 .hazeSource(hazeState),
     ) {
+        // shiroikuma fork: the UI page is the fork's own configuration hub, so it leads the list —
+        // above upstream's own appearance rows, which it supersedes. Also reachable by long-pressing
+        // the settings cog on the home screen.
+        //
+        // This is now item 0, so it carries the 64dp spacer upstream folded into "user_interface"
+        // when that was item 0: the ambient glow's translation tracks item 0's offset exactly and
+        // parks once it scrolls past, so item 0 must be taller than the glow or the branch flips
+        // while the glow is still half-visible.
+        item(key = "shiroikuma_ui") {
+            Column {
+                Spacer(Modifier.height(64.dp))
+                Spacer(Modifier.height(16.dp))
+                SettingItem(
+                    title = "白い熊 音楽乙 UI",
+                    subtitle = "Colours, fonts, sizes, shapes — and Export / Import",
+                    onClick = { navController.navigate(OngakuUiDestination) },
+                )
+            }
+        }
         item(key = "user_interface") {
             Column {
-                // Was its own item. Folded in so item 0 is taller than the glow — the glow's
-                // translation tracks item 0's offset exactly and parks once it scrolls past, and a
-                // 64dp item 0 would have switched branches while the glow was still half-visible.
-                Spacer(Modifier.height(64.dp))
+                // Upstream folds a 64dp spacer in here because this is its item 0. In the fork the
+                // "shiroikuma_ui" row is item 0 and carries it instead, so only the 16dp gap stays.
                 Spacer(Modifier.height(16.dp))
                 Text(text = stringResource(Res.string.user_interface), style = typo().labelMedium, color = MaterialTheme.colorScheme.onBackground)
                 val themeModeLabels =

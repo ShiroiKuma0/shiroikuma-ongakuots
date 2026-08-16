@@ -11,6 +11,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.SkFonts
 import org.jetbrains.compose.resources.Font
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.poppins_medium
@@ -124,5 +126,31 @@ fun typo(
                 ),
             // ...
         )
-    return typo
+    // shiroikuma fork: the UI page's font, size and weight, applied to every style in one place so
+    // the whole app scales together rather than each screen deciding for itself. Off, upstream's
+    // typography is returned untouched.
+    val ui = LocalOngakuUi.current
+    if (!ui.enabled) return typo
+    val custom = SkFonts.family(ui.fontId)
+    val scale = ui.fontScalePct / 100f
+
+    fun TextStyle.sk(heavy: Boolean) =
+        copy(
+            fontFamily = custom ?: fontFamily,
+            fontSize = fontSize * scale,
+            fontWeight = FontWeight(if (heavy) ui.titleWeight else ui.fontWeight),
+        )
+    return typo.copy(
+        titleSmall = typo.titleSmall.sk(true),
+        titleMedium = typo.titleMedium.sk(true),
+        titleLarge = typo.titleLarge.sk(true),
+        bodySmall = typo.bodySmall.sk(false),
+        bodyMedium = typo.bodyMedium.sk(false),
+        bodyLarge = typo.bodyLarge.sk(false),
+        displayLarge = typo.displayLarge.sk(false),
+        headlineMedium = typo.headlineMedium.sk(true),
+        headlineLarge = typo.headlineLarge.sk(true),
+        labelMedium = typo.labelMedium.sk(true),
+        labelSmall = typo.labelSmall.sk(true),
+    )
 }

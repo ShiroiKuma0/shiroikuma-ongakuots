@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
@@ -48,6 +49,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -131,6 +133,7 @@ import com.maxrave.simpmusic.ui.navigation.destination.home.HomeDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.ListenTogetherDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.MoodDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.NotificationDestination
+import com.maxrave.simpmusic.ui.navigation.destination.home.OngakuUiDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.RecentlySongsDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.SettingsDestination
 import com.maxrave.simpmusic.ui.navigation.destination.library.LibraryDynamicPlaylistDestination
@@ -831,7 +834,7 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeTopAppBar(navController: NavController) {
     val hour =
@@ -884,8 +887,21 @@ fun HomeTopAppBar(navController: NavController) {
             }
             // Fourth button, immediately before Settings — the position the design canvas fixes.
             ListenTogetherIconButton { navController.navigate(ListenTogetherDestination) }
-            RippleIconButton(imageVector = SimpIcons.Settings, tint = MaterialTheme.colorScheme.onBackground) {
-                navController.navigate(SettingsDestination)
+            // shiroikuma fork: tap opens Settings; LONG-PRESS opens the 白い熊 音楽乙 UI page
+            // directly. The house convention — the look is tuned often enough that it should not
+            // need walking through Settings first. Hand-rolled rather than RippleIconButton,
+            // because IconButton has no long-press.
+            Box(
+                Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .combinedClickable(
+                        onClick = { navController.navigate(SettingsDestination) },
+                        onLongClick = { navController.navigate(OngakuUiDestination) },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(SimpIcons.Settings, null, tint = MaterialTheme.colorScheme.onBackground)
             }
         },
         colors =

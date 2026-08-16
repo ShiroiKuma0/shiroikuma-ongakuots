@@ -13,6 +13,8 @@ import androidx.compose.material3.RippleConfiguration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.materialkolor.PaletteStyle
@@ -20,6 +22,11 @@ import com.materialkolor.rememberDynamicColorScheme
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.simpmusic.expect.ui.SystemBarAppearanceEffect
 import com.maxrave.simpmusic.expect.ui.platformDynamicColorScheme
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.OngakuUi
+import com.maxrave.simpmusic.shiroikuma.OngakuUiState
+import org.koin.compose.koinInject
 
 /**
  * Semantic colors that sit outside the Material 3 ColorScheme.
@@ -163,21 +170,37 @@ fun AppTheme(
                 style = PaletteStyle.TonalSpot,
             )
         }
-    SystemBarAppearanceEffect(isDark)
+    // shiroikuma fork: the 白い熊 音楽乙 UI theme is the DEFAULT, not an option layered over one.
+    // It is applied last, on top of whatever upstream resolved, so turning it off in the UI page
+    // falls straight back to the stock seed-derived chrome with every edit kept.
+    val ongaku by koinInject<OngakuUiState>().ui.collectAsState()
+    val skScheme = ongaku.applyTo(colorScheme)
+    val skForcedDark = ongaku.applyTo(forcedDarkScheme)
+    val skIsDark = if (ongaku.enabled) true else isDark
+
+    SystemBarAppearanceEffect(skIsDark)
     MaterialExpressiveTheme(
-        colorScheme = colorScheme,
+        colorScheme = skScheme,
         content = {
             CompositionLocalProvider(
                 LocalRippleConfiguration provides SoftRippleConfiguration,
-                LocalContentColor provides colorScheme.onSurfaceVariant,
-                LocalAppColors provides if (isDark) DarkAppColors else LightAppColors,
-                LocalIsDarkTheme provides isDark,
-                LocalForcedDarkColorScheme provides forcedDarkScheme,
+                LocalContentColor provides skScheme.onSurfaceVariant,
+                LocalAppColors provides
+                    if (ongaku.enabled) {
+                        ongaku.applyToAppColors(DarkAppColors)
+                    } else if (isDark) {
+                        DarkAppColors
+                    } else {
+                        LightAppColors
+                    },
+                LocalIsDarkTheme provides skIsDark,
+                LocalForcedDarkColorScheme provides skForcedDark,
                 LocalLiquidGlassEnabled provides liquidGlassEnabled,
+                LocalOngakuUi provides ongaku,
                 content = content,
             )
         },
-        typography = typo(colorScheme),
+        typography = typo(skScheme),
     )
 }
 
@@ -217,6 +240,18 @@ private val SoftRippleConfiguration =
                 hoveredAlpha = 0.03f,
                 pressedAlpha = 0.04f,
             ),
+    )
+
+/**
+ * The semantic colours that sit outside the Material scheme — the like heart, the sung lyric line
+ * and the loading shimmer — taken from our own slots so they are settable on the UI page too.
+ */
+private fun OngakuUi.applyToAppColors(base: AppColors): AppColors =
+    base.copy(
+        favorite = c(ColorSlot.FAVOURITE),
+        lyricActive = c(ColorSlot.LYRIC_ACTIVE),
+        shimmerBackground = c(ColorSlot.SHIMMER_BG),
+        shimmerLine = c(ColorSlot.SHIMMER_LINE),
     )
 
 /**
