@@ -145,7 +145,7 @@
     <string name="albums_inArtist">Альбоми</string>
     <string name="singles_inArtist">Сингли</string>
     <string name="fans_might_also_like_inArtist">Фанатам може також сподобатися</string>
-    <string name="crash_log">В SimpMusic стався збій. Вибачте за цю проблему.\nНадішліть журнал збою розробнику</string>
+    <string name="crash_log">В 白い熊 音楽乙 стався збій. Вибачте за цю проблему.\nНадішліть журнал збою розробнику</string>
     <string name="crash">Збій</string>
     <string name="send">Відправити</string>
     <string name="mail_subject">Повідомити про збій</string>
@@ -201,7 +201,7 @@
     <string name="what_segments_will_be_skipped">Які сегменти будуть пропущені</string>
     <string name="save">Зберегти</string>
     <string name="saved">Збережено</string>
-    <string name="sponsor_block_intro">SponsorBlock — це система краудсорсингу, яка дозволяє пропускати дратівливі фрагменти відео на YouTube.\nДетальніше: https://sponsor.ajay.app/\nУ SimpMusic функція SponsorBlock доступна лише в режимі онлайн</string>
+    <string name="sponsor_block_intro">SponsorBlock — це система краудсорсингу, яка дозволяє пропускати дратівливі фрагменти відео на YouTube.\nДетальніше: https://sponsor.ajay.app/\nУ 白い熊 音楽乙 функція SponsorBlock доступна лише в режимі онлайн</string>
     <string name="skip_sponsor_part_of_video">Пропустити частину відео зі спонсором</string>
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">Виникла неочікувана помилка. Вибачте за незручності.</string>
     <string name="customactivityoncrash_error_activity_restart_app">Перезапустити додаток</string>
@@ -242,7 +242,7 @@
     <string name="saved_to_local_playlist">Збережено в локальному плейлисті</string>
     <string name="if_you_want_to_unsync_this_playlist_please_go_to_local_playlist">якщо ви хочете скасувати синхронізацію цього плейлиста, перейдіть до локального плейлиста</string>
     <string name="log_in_to_get_YouTube_playlist">Увійдіть, щоб отримати YouTube плейлист</string>
-    <string name="sync_playlist_warning">SimpMusic автоматично створить плейлист YouTube Music. Ви впевнені?</string>
+    <string name="sync_playlist_warning">白い熊 音楽乙 автоматично створить плейлист YouTube Music. Ви впевнені?</string>
     <string name="syncing">Синхронізація</string>
     <string name="unsync_playlist_warning">"Скасувати синхронізацію цього плейлиста? Цей плейлист не буде видалено з YouTube Music"</string>
     <string name="unsyncing">Cкасування синхронізації</string>
@@ -259,7 +259,7 @@
     <string name="email">Адреса електронної пошти</string>
     <string name="password">Пароль</string>
     <string name="please_enter_your_email_and_password">Будь ласка, введіть адресу електронної пошти та пароль</string>
-    <string name="translation_language_message">Введіть код мови (наприклад: en) (2 літери). Якщо ви хочете встановити ту саму мову, що й у SimpMusic, залиште поле для редагування порожнім.</string>
+    <string name="translation_language_message">Введіть код мови (наприклад: en) (2 літери). Якщо ви хочете встановити ту саму мову, що й у 白い熊 音楽乙, залиште поле для редагування порожнім.</string>
     <string name="invalid_language_code">Невірний код мови</string>
     <string name="lyrics_provider_youtube">Тексти пісень надані YouTube</string>
     <string name="lyrics_provider_betterlyrics">Текст пісні надано BetterLyrics</string>
@@ -278,7 +278,7 @@
     <string name="older_first">Спочатку старіші</string>
     <string name="newer_first">Спочатку новіші</string>
     <string name="added_date">Дата додавання</string>
-    <string name="credit_app">Простий музичний застосунок з використанням YouTube Music для бекенду \n\nSimpMusic - це проєкт з відкритим вихідним кодом для потокової передачі музики з YouTube та YouTube Music без реклами та відстеження. SimpMusic надає багато можливостей:\n\n - Потокова музика\n - Синхронізовані тексти\n - Персоналізація даних\n - тощо... \n\nSimpMusic завжди безкоштовний і без реклами\n\nСтворено з ❤️ від Tuan Minh Nguyen Duc (maxrave-dev)</string>
+    <string name="credit_app">Простий музичний застосунок з використанням YouTube Music для бекенду \n\n白い熊 音楽乙 - це проєкт з відкритим вихідним кодом для потокової передачі музики з YouTube та YouTube Music без реклами та відстеження. 白い熊 音楽乙 надає багато можливостей:\n\n - Потокова музика\n - Синхронізовані тексти\n - Персоналізація даних\n - тощо... \n\n白い熊 音楽乙 завжди безкоштовний і без реклами\n\nСтворено з ❤️ від Tuan Minh Nguyen Duc (maxrave-dev)</string>
     <string name="issue_tracker">Відстежувач випусків</string>
     <string name="featured_playlists">Рекомендовані плейлисти</string>
     <string name="featured_inArtist">Рекомендовано</string>
@@ -320,7 +320,7 @@
     <string name="enable_spotify_lyrics">Увімкнути Spotify Lyrics</string>
     <string name="spotify_lyrícs_info">Більше текстів пісень без перекладу</string>
     <string name="enable_canvas">Увімкнути Canvas</string>
-    <string name="canvas_info">Показувати Spotify Canvas у SimpMusic</string>
+    <string name="canvas_info">Показувати Spotify Canvas у 白い熊 音楽乙</string>
     <string name="spotify_lyrics_provider">Тексти пісень надані Spotify</string>
     <string name="offline_mode">Автономний режим</string>
     <string name="added_to_youtube_liked">Додано у вподобані на YouTube</string>
@@ -378,7 +378,7 @@
     <string name="loading">Завантаження</string>
     <string name="updating">Оновлення</string>
     <string name="go_to_log_in_page">Перейти на сторінку входу</string>
-    <string name="log_in_warning">YouTube Music тепер вимагає входу для потокової передачі музики, Piped Instance іноді теж не працює. Вам слід увійти на YouTube, щоб отримати кращий досвід роботи з SimpMusic.</string>
+    <string name="log_in_warning">YouTube Music тепер вимагає входу для потокової передачі музики, Piped Instance іноді теж не працює. Вам слід увійти на YouTube, щоб отримати кращий досвід роботи з 白い熊 音楽乙.</string>
     <string name="spotify_canvas_cache">Кеш Spotify Canvas</string>
     <string name="clear_canvas_cache">Очистити кеш Canvas</string>
     <string name="proxy">Проксі</string>
@@ -418,8 +418,8 @@
     <string name="other_version">Інші версії</string>
     <string name="later">Пізніше</string>
     <string name="give_a_star">Дати зірку</string>
-    <string name="enjoying_simpmusic">Подобається SimpMusic</string>
-    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">Якщо вам подобається користуватися SimpMusic, оцініть SimpMusic на GitHub, або залиште свій відгук на</string>
+    <string name="enjoying_simpmusic">Подобається 白い熊 音楽乙</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">Якщо вам подобається користуватися 白い熊 音楽乙, оцініть 白い熊 音楽乙 на GitHub, або залиште свій відгук на</string>
     <string name="if_you_love_my_work_consider">"Якщо ви любите мою роботу, подумайте "</string>
     <string name="buying_me_a_coffee">купити мені каву.</string>
     <string name="fade_audio_effect">Ефект затухання звуку</string>
@@ -479,7 +479,7 @@
     <string name="backup_downloaded">Резервне копіювання завантажених даних</string>
     <string name="backup_downloaded_description">Резервне копіювання всіх завантажених даних композицій</string>
     <string name="auto_backup">Автоматичне резервне копіювання</string>
-    <string name="auto_backup_description">Автоматичне резервне копіювання даних у папку Downloads/SimpMusic</string>
+    <string name="auto_backup_description">Автоматичне резервне копіювання даних у папку Downloads/白い熊 音楽乙</string>
     <string name="backup_frequency">Частота резервного копіювання</string>
     <string name="daily">Щодня</string>
     <string name="weekly">Щотижня</string>
@@ -539,7 +539,7 @@
     <string name="downvote">Невподобати</string>
     <string name="vote_submitted">Дякуємо, що проголосували за цей текст!</string>
     <string name="vote_error">Не вдалося надіслати</string>
-    <string name="open_app">Відкрити SimpMusic</string>
+    <string name="open_app">Відкрити 白い熊 音楽乙</string>
     <string name="close_miniplayer">Закрити міні-плеєр</string>
     <string name="open_miniplayer">Відкрити міні-плеєр</string>
     <string name="quit_app">Вийти</string>

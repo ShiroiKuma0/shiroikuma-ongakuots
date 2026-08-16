@@ -54,7 +54,7 @@ class AutoBackupWorker(
             // Create temp backup file
             val tempBackupFile = createBackupFile(backupDownloaded)
 
-            // Save to Downloads/SimpMusic folder
+            // Save to Downloads/shiroikuma-ongakuots folder
             val success = saveToDownloads(tempBackupFile)
 
             // Delete temp file
@@ -151,14 +151,16 @@ class AutoBackupWorker(
 
     private fun saveToDownloads(backupFile: File): Boolean {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val fileName = "simpmusic_backup_$timestamp.zip"
+        // Fork: our own folder and filename prefix, so our backups never land among (or get
+        // reaped with) the official SimpMusic app's when both are installed.
+        val fileName = "shiroikuma-ongakuots_backup_$timestamp.zip"
 
         return try {
             val contentValues = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, fileName)
                 put(MediaStore.Downloads.MIME_TYPE, "application/zip")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/SimpMusic")
+                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/shiroikuma-ongakuots")
                 }
             }
 
@@ -173,7 +175,7 @@ class AutoBackupWorker(
                         input.copyTo(output)
                     }
                 }
-                Logger.i(TAG, "Backup saved to Downloads/SimpMusic/$fileName")
+                Logger.i(TAG, "Backup saved to Downloads/shiroikuma-ongakuots/$fileName")
                 true
             } ?: false
         } catch (e: Exception) {
@@ -197,9 +199,9 @@ class AutoBackupWorker(
             }
 
             val selectionArgs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                arrayOf("Download/SimpMusic/", "simpmusic_backup_%.zip")
+                arrayOf("Download/shiroikuma-ongakuots/", "shiroikuma-ongakuots_backup_%.zip")
             } else {
-                arrayOf("simpmusic_backup_%.zip")
+                arrayOf("shiroikuma-ongakuots_backup_%.zip")
             }
 
             val sortOrder = "${MediaStore.Downloads.DATE_ADDED} DESC"
@@ -219,7 +221,7 @@ class AutoBackupWorker(
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
                     val name = cursor.getString(nameColumn)
-                    if (name.startsWith("simpmusic_backup_") && name.endsWith(".zip")) {
+                    if (name.startsWith("shiroikuma-ongakuots_backup_") && name.endsWith(".zip")) {
                         backupFiles.add(id to name)
                     }
                 }

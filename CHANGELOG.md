@@ -12,9 +12,49 @@ upstream commit the build sits on, and moves only on a sync. The installed `vers
 
 ## 白い熊 音楽乙 — fork releases
 
-### Unreleased — repository set-up (2026-08-16)
+### 1.7.0+2026-08-15.17-42.g9155f673+002 — 2026-08-16
 
-The fork's scaffolding, before any behavioural change to the app:
+The first build of the fork: `shiroikuma.ongakuots`, versionCode `560002`, arm64-v8a, signed with
+our own key and installable beside the official SimpMusic.
+
+#### Icon and mark
+
+- **Black-yellow traced launcher icon** — SimpMusic's note mark as yellow `#FFFF00` line-art on
+  black `#000000`: the shape is black-filled and yellow-stroked, so it reads as a trace over the
+  black adaptive background. Traced from upstream's own `drawable/monochrome.xml` (the clean
+  single-path logo silhouette), scaled 1.45× about the viewport centre to sit inside the
+  adaptive-icon safe zone under both the circular and the squircle mask.
+- Adaptive foreground and background are our own vectors, so upstream's `ic_launcher_background.xml`
+  is left untouched and never conflicts. `tools/gen-icons.sh` regenerates every raster — the five
+  density launcher sets, the two in-app icons and the store icon — from the one design source,
+  `design/shiroikuma-ongakuots-icon.svg`.
+- The in-app note badge (bottom navigation bar, review dialog) is recoloured from upstream's cyan to
+  house yellow.
+
+#### De-branding
+
+- The app calls itself **白い熊 音楽乙** everywhere, in all 27 locales, and every user-visible GitHub
+  link points at this fork: the Credit screen's source and issue-tracker buttons, the Settings
+  author row, and the star link in the review dialog.
+- Removed as upstream's own promotion, not features of the app: the blog-promo dialog that appeared
+  on the fifth launch, the daily blog-RSS notification worker (also cancelled if left over from an
+  earlier install) and its Settings row, the sponsor row, and the ProductHunt and
+  buymeacoffee.com/maxrave links in the review dialog.
+- **The in-app updater is gone** — the three update rows and the start-up check. It asks
+  `api.github.com/repos/maxrave-dev/SimpMusic` for the latest release, and that URL lives in the
+  `core` submodule, which this fork does not control; it could therefore only ever offer upstream's
+  APK, which cannot install over ours (different signing key).
+- Auto-backups write to `Download/shiroikuma-ongakuots` as `shiroikuma-ongakuots_backup_*.zip`, so
+  they never land among — or get reaped with — the official app's backups.
+- Store listing, README and app icon rebranded; upstream's `FUNDING.yml` removed.
+- **Deliberately kept:** the names of maxrave-dev's own external services this app talks to —
+  *SimpMusic Lyrics*, *SimpMusic Charts* and the `simpmusic.org` playlist converter. Renaming those
+  would misattribute someone else's servers. Upstream's copyright line stays, with our fork line
+  added beneath it, and the Credit screen links to the upstream project.
+
+#### Repository set-up
+
+The scaffolding underneath, before any behavioural change to the app:
 
 - **Forked** `maxrave-dev/SimpMusic` to `ShiroiKuma0/shiroikuma-ongakuots`, with the `core` git
   submodule. `master` mirrors `upstream/dev` (the bleeding default branch, not the `vX.Y.Z` tags on

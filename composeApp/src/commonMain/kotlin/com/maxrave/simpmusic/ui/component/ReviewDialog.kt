@@ -40,7 +40,7 @@ fun ReviewDialog(
         confirmButton = {
             TextButton(onClick = {
                 onDoneReview.invoke()
-                uriHandler.openUri("https://github.com/maxrave-dev/SimpMusic")
+                uriHandler.openUri("https://github.com/ShiroiKuma0/shiroikuma-ongakuots")
             }) {
                 Text(
                     stringResource(Res.string.give_a_star),
@@ -68,34 +68,21 @@ fun ReviewDialog(
             )
         },
         text = {
+            // Fork: upstream's ProductHunt review link and buymeacoffee.com/maxrave donation link
+            // are gone — the star link above points at our own repo, and that is the whole dialog.
             Text(
                 buildAnnotatedString {
-                    append(stringResource(Res.string.if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on))
                     withLink(
                         LinkAnnotation.Url(
-                            "https://www.producthunt.com/products/simpmusic",
+                            "https://github.com/ShiroiKuma0/shiroikuma-ongakuots",
                             TextLinkStyles(style = SpanStyle(textDecoration = TextDecoration.Underline, color = seed)),
                         ) {
                             onDoneReview.invoke()
                             onDismissRequest.invoke()
-                            uriHandler.openUri("https://www.producthunt.com/products/simpmusic")
+                            uriHandler.openUri("https://github.com/ShiroiKuma0/shiroikuma-ongakuots")
                         },
                     ) {
-                        append(" ProductHunt")
-                    }
-                    append("\n")
-                    append(stringResource(Res.string.if_you_love_my_work_consider))
-                    withLink(
-                        LinkAnnotation.Url(
-                            "https://buymeacoffee.com/maxrave",
-                            TextLinkStyles(style = SpanStyle(textDecoration = TextDecoration.Underline, color = seed)),
-                        ) {
-                            onDoneReview.invoke()
-                            onDismissRequest.invoke()
-                            uriHandler.openUri("https://buymeacoffee.com/maxrave")
-                        },
-                    ) {
-                        append(stringResource(Res.string.buying_me_a_coffee))
+                        append(stringResource(Res.string.star_us_on_github))
                     }
                 },
                 textAlign = TextAlign.Center,
