@@ -145,7 +145,7 @@
     <string name="albums_inArtist">專輯</string>
     <string name="singles_inArtist">單曲</string>
     <string name="fans_might_also_like_inArtist">您也可能喜歡</string>
-    <string name="crash_log">SimpMusic當機了\n將當機報告傳送給開發者</string>
+    <string name="crash_log">白い熊 音楽乙當機了\n將當機報告傳送給開發者</string>
     <string name="crash">當機</string>
     <string name="send">傳送</string>
     <string name="mail_subject">回報</string>
@@ -201,7 +201,7 @@
     <string name="what_segments_will_be_skipped">將跳過哪些段</string>
     <string name="save">儲存</string>
     <string name="saved">已儲存</string>
-    <string name="sponsor_block_intro">SponsorBlock是一個免費開源的插件，用於跳過YouTube影片中煩人的部分。\n更多資訊： https://sponsor.ajay.app/\n在SimpMusic中，SponsorBlock僅在裝置線上時可用</string>
+    <string name="sponsor_block_intro">SponsorBlock是一個免費開源的插件，用於跳過YouTube影片中煩人的部分。\n更多資訊： https://sponsor.ajay.app/\n在白い熊 音楽乙中，SponsorBlock僅在裝置線上時可用</string>
     <string name="skip_sponsor_part_of_video">跳過影片中的贊助商部分</string>
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">發生意外錯誤。請稍後再試。</string>
     <string name="customactivityoncrash_error_activity_restart_app">重啟應用程式</string>
@@ -242,7 +242,7 @@
     <string name="saved_to_local_playlist">已儲存到裝置播放清單</string>
     <string name="if_you_want_to_unsync_this_playlist_please_go_to_local_playlist">如果您想取消同步此播放列表，請前往裝置播放列表</string>
     <string name="log_in_to_get_YouTube_playlist">登入以取得YouTube播放清單</string>
-    <string name="sync_playlist_warning">SimpMusic將自動建立YouTube音樂播放清單。 你確定嗎？</string>
+    <string name="sync_playlist_warning">白い熊 音楽乙將自動建立YouTube音樂播放清單。 你確定嗎？</string>
     <string name="syncing">正在同步</string>
     <string name="unsync_playlist_warning">"取消同步此播放清單？ 該播放清單不會從YouTube Music中刪除 "</string>
     <string name="unsyncing">正取消同步</string>
@@ -259,7 +259,7 @@
     <string name="email">電子信箱</string>
     <string name="password">密碼</string>
     <string name="please_enter_your_email_and_password">請輸入您的電子信箱和密碼</string>
-    <string name="translation_language_message">輸入語言代碼（例如：en）（2 個字母）。 如果您想設定與SimpMusic的語言相同，請留空。</string>
+    <string name="translation_language_message">輸入語言代碼（例如：en）（2 個字母）。 如果您想設定與白い熊 音楽乙的語言相同，請留空。</string>
     <string name="invalid_language_code">無效的語言代碼</string>
     <string name="lyrics_provider_youtube">歌詞由Youtube提供</string>
     <string name="lyrics_provider_betterlyrics">歌詞由 BetterLyrics 提供</string>
@@ -278,7 +278,7 @@
     <string name="older_first">由舊至新</string>
     <string name="newer_first">最新作品</string>
     <string name="added_date">已添加日期</string>
-    <string name="credit_app">SimpMusic是一個開放原始碼、零廣告、使用YouTube Music作為後端的簡單音樂應用程式 \n\n用於從YouTube和YouTube Music串流音樂。SimpMusic提供許多功能：\n\n - 串流音樂\n - 同步歌詞\n - 個人化資料\n - 等等... \n\nSimpMusic總是免費，無廣告\n\n由Tuan Minh Nguyen Duc (maxrave) 開發 ❤️</string>
+    <string name="credit_app">白い熊 音楽乙是一個開放原始碼、零廣告、使用YouTube Music作為後端的簡單音樂應用程式 \n\n用於從YouTube和YouTube Music串流音樂。白い熊 音楽乙提供許多功能：\n\n - 串流音樂\n - 同步歌詞\n - 個人化資料\n - 等等... \n\n白い熊 音楽乙總是免費，無廣告\n\n由Tuan Minh Nguyen Duc (maxrave) 開發 ❤️</string>
     <string name="issue_tracker">回報問題</string>
     <string name="featured_playlists">精選播放清單</string>
     <string name="featured_inArtist">已發布</string>
@@ -317,7 +317,7 @@
     <string name="enable_spotify_lyrics">啟用Spotify歌詞</string>
     <string name="spotify_lyrícs_info">更多原始歌詞</string>
     <string name="enable_canvas">啟用Canvas</string>
-    <string name="canvas_info">在SimpMusic中顯示Spotify Canvas</string>
+    <string name="canvas_info">在白い熊 音楽乙中顯示Spotify Canvas</string>
     <string name="spotify_lyrics_provider">歌詞由Spotify提供</string>
     <string name="offline_mode">離線模式</string>
     <string name="added_to_youtube_liked">已新增到YouTube「喜歡的影片」</string>
@@ -375,7 +375,7 @@
     <string name="loading">載入中</string>
     <string name="updating">更新中</string>
     <string name="go_to_log_in_page">前往登入頁面</string>
-    <string name="log_in_warning">前端替代有時無法工作，現在只有您登入Youtube才能在SimpMusic播放音樂。</string>
+    <string name="log_in_warning">前端替代有時無法工作，現在只有您登入Youtube才能在白い熊 音楽乙播放音樂。</string>
     <string name="spotify_canvas_cache">Spotify Canvas快取</string>
     <string name="clear_canvas_cache">清理Spotify Canvas快取</string>
     <string name="proxy">代理</string>
@@ -415,8 +415,8 @@
     <string name="other_version">其他版本</string>
     <string name="later">以後再說</string>
     <string name="give_a_star">給個星吧</string>
-    <string name="enjoying_simpmusic">享受SimpMusic</string>
-    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">如果你享受使用SimpMusic，就在GitHub給個星或者評論吧</string>
+    <string name="enjoying_simpmusic">享受白い熊 音楽乙</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">如果你享受使用白い熊 音楽乙，就在GitHub給個星或者評論吧</string>
     <string name="if_you_love_my_work_consider">"若你認可我的工作，考慮 "</string>
     <string name="buying_me_a_coffee">請我喝杯咖啡。</string>
     <string name="fade_audio_effect">淡入/淡出音頻效果</string>
@@ -476,7 +476,7 @@
     <string name="backup_downloaded">備份已下載的資料</string>
     <string name="backup_downloaded_description">備份所有已下載歌曲的資料</string>
     <string name="auto_backup">自動備份</string>
-    <string name="auto_backup_description">自動將資料備份到 Downloads/SimpMusic 資料夾</string>
+    <string name="auto_backup_description">自動將資料備份到 Downloads/白い熊 音楽乙 資料夾</string>
     <string name="backup_frequency">備用頻率</string>
     <string name="daily">每天</string>
     <string name="weekly">每週</string>
@@ -536,7 +536,7 @@
     <string name="downvote">倒讚</string>
     <string name="vote_submitted">感謝你的投票！</string>
     <string name="vote_error">提交失敗</string>
-    <string name="open_app">打開 SimpMusic</string>
+    <string name="open_app">打開 白い熊 音楽乙</string>
     <string name="close_miniplayer">關閉迷你播放器</string>
     <string name="open_miniplayer">開啟迷你播放器</string>
     <string name="quit_app">退出app</string>

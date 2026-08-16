@@ -71,8 +71,12 @@ other Android forks (kxkb, Jami, 自由作業板, Inure, ArcaneChat, FairEmail, 
 | In-app version | fork version fed to `BuildKonfig` | `composeApp/build.gradle.kts` `buildkonfig` block |
 | Signing shim | `keystore.properties` → `signingConfigs["shiroikuma"]` | `androidApp/build.gradle.kts` |
 | Build tail | `BUILD_NUMBER`, `LAST_BUILT_VERSION_CODE`, `isFullBuild=false` | `gradle.properties` |
-| Icon | black-yellow traced launcher icon (yellow `#FFFF00` line-art on black `#000000`, adaptive) | `androidApp/src/main/res/mipmap-*`, `drawable-v24/ic_launcher_foreground.xml` |
-| De-branding | our name + our GitHub links everywhere user-visible | `CreditScreen.kt`, `SettingScreen.kt`, `ReviewDialog.kt`, strings |
+| Icon | black-yellow traced launcher icon — yellow `#FFFF00` line-art on black `#000000`, traced from upstream's `drawable/monochrome.xml` | `design/shiroikuma-ongakuots-icon.svg` (source), `drawable/ic_launcher_ongakuots_{foreground,background}.xml`, `mipmap-anydpi-v26/*`, rasters via `tools/gen-icons.sh` |
+| In-app mark | the note badge recoloured to house yellow | `composeApp/.../composeResources/drawable/mono.xml` |
+| De-branding | our name + our GitHub links everywhere user-visible, in all 27 locales | `values*/strings.xml`, `CreditScreen.kt`, `SettingScreen.kt`, `ReviewDialog.kt`, `README.md`, fastlane metadata |
+| Upstream promotion removed | blog-promo dialog, blog-RSS notification worker, sponsor / ProductHunt / buymeacoffee links | `HomeScreen.kt`, `MainActivity.kt`, `ReviewDialog.kt`, `SettingScreen.kt` |
+| In-app updater removed | the three update rows and the start-up check — the release URL lives in the `core` submodule and could only offer upstream's APK, which cannot install over ours | `SettingScreen.kt`, `MainActivity.kt` |
+| Own backup folder | `Download/shiroikuma-ongakuots`, `shiroikuma-ongakuots_backup_*.zip` | `AutoBackupWorker.kt` |
 
 ## Skills
 
