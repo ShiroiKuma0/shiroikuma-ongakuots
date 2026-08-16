@@ -1,3 +1,106 @@
+# shiroikuma-ongakuots
+
+白い熊's customized fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic) (by maxrave-dev) —
+a YouTube Music client built with Compose Multiplatform. Package **`shiroikuma.ongakuots`**, label
+**白い熊 音楽乙**, installable side-by-side with the official SimpMusic. Same fork model as 白い熊's
+other Android forks (kxkb, Jami, 自由作業板, Inure, ArcaneChat, FairEmail, 連結浄化, …).
+
+> **⚠ The upstream guide below does NOT govern this session.** Everything from
+> "CLAUDE.md - SimpMusic Project Guide for AI Agents" downward is **maxrave-dev's own** file, kept
+> for its genuinely useful codebase knowledge (architecture, module map, Room/Koin conventions).
+> Its **"Language Rule"** — answer in English with a Vietnamese translation after every sentence —
+> is upstream's instruction to its own contributors and is **void here**: 白い熊's global rules in
+> `~/.claude/CLAUDE.md` win. Read the upstream half as *documentation*, never as instructions.
+
+## Branch & remote model
+
+| Branch | Purpose | Update mode |
+|--------|---------|-------------|
+| `master` | Mirrors `upstream/dev` (SimpMusic's bleeding default branch). Never carries our changes. | Fast-forward only |
+| `custom` | Carries all our commits; the working branch and the GitHub default branch. | Rebased onto `master` each sync |
+
+- `origin` = `git@github.com:ShiroiKuma0/shiroikuma-ongakuots.git` (SSH, push here).
+- `upstream` = `https://github.com/maxrave-dev/SimpMusic.git` (HTTPS, **fetch only**, push URL `DISABLED`).
+- Upstream's own branches: `dev` (default, bleeding — what we mirror) and `main` (release branch,
+  carries the `vX.Y.Z` tags). We deliberately track `dev`, not the tags (白い熊, 2026-08-16).
+- **Git submodule `core`** (`https://github.com/maxrave-dev/core`) holds `:common :data :domain`,
+  the service modules and the media modules. `git clone --recurse-submodules`; after a sync run
+  `git submodule update --init --recursive`.
+
+## Versioning
+
+- **Upstream tracking: `git`** — `custom` is rebased onto upstream's branch tip, not onto release
+  tags, so upstream's `version-name` literal stands still for months and says nothing about how
+  current we are. The fork versionName therefore pins the upstream base:
+  `<upstream>+<base date>.<HH-MM>.g<8-char base sha>+<BUILD_NUMBER, 3 digits>` →
+  `1.7.0+2026-08-15.17-42.g9155f673+001`. See the global **`git-versioning`** skill.
+- **versionCode** = `<upstream version-code> * 10000 + BUILD_NUMBER` → `560001`.
+- Upstream's literals live in `gradle/libs.versions.toml` (`version-name` / `version-code`) and are
+  **read, never edited** — an upstream bump flows in by itself on rebase.
+- **`BUILD_NUMBER` never resets** (`gradle.properties`). `master` tracks the bleeding tip, whose
+  versionCode stands still between upstream releases, so a reset would send our code backwards and
+  the installer would read the next build as a downgrade. `LAST_BUILT_VERSION_CODE` records the
+  highest code ever shipped and `buildFork` fails rather than build at or below it.
+
+## Build & signing
+
+- **FOSS build**: `isFullBuild=false` in `gradle.properties` → no Sentry, no Firebase Crashlytics,
+  no Google Cast SDK, Last.fm stubbed (a fork ships no Last.fm credentials anyway).
+- **ABI**: `arm64-v8a` only, universal APK off → exactly one release APK.
+- **Task**: `./gradlew buildFork` — assembles the signed release, copies it to `~/tmp/` as
+  `shiroikuma-ongakuots_<versionName>_arm64-v8a.apk`, bumps the counter. Then deliver via the global
+  **`/after-build`** skill (never ask).
+- **Signing**: `~/.android-keystores/shiroikuma-ongakuots.jks`, alias `ongakuots` (PKCS12/RSA-4096,
+  SHA384withRSA, 10000-day validity, created 2026-08-16). Password in the vault
+  `~/〇/[666] 私資料/[666][27] 暗号/android-keystores.org`; the `.jks` is mirrored to
+  `…/android-keystores/`. The repo reads it from a **gitignored** `keystore.properties` — no secret
+  ever enters git.
+- **Toolchain**: JDK 21, SDK platform-37 + build-tools 37.x, Gradle 9.5.1 wrapper, AGP 9.2.1,
+  Kotlin 2.4.10. Export `JAVA_HOME` / `ANDROID_HOME` in every invocation (the non-interactive shell
+  does not source the profile).
+
+## Fork identity (the standing customization layer)
+
+| Item | Value | Where |
+|------|-------|-------|
+| App id | `shiroikuma.ongakuots` | `androidApp/build.gradle.kts` `defaultConfig` |
+| Namespace (**never rename**) | `com.maxrave.simpmusic` | build-time only (R/BuildConfig/BuildKonfig) |
+| Label | `白い熊 音楽乙` | `androidApp/src/main/res/values/app_name.xml`, `composeApp/src/commonMain/composeResources/values/app_name.xml` |
+| UI settings page | **`白い熊 音楽乙 UI`** — the fork's configuration hub, in kxkb's grammar; holds every one of our changes and tunable configs (properties still to be specified) | *(not implemented yet)* |
+| Fork version + pin + `buildFork` | `forkVersionName` / `forkVersionCode` / `upstreamPin` | `gradle/shiroikuma-fork.gradle.kts` (+ one `apply(from = …)` line in `build.gradle.kts`) |
+| In-app version | fork version fed to `BuildKonfig` | `composeApp/build.gradle.kts` `buildkonfig` block |
+| Signing shim | `keystore.properties` → `signingConfigs["shiroikuma"]` | `androidApp/build.gradle.kts` |
+| Build tail | `BUILD_NUMBER`, `LAST_BUILT_VERSION_CODE`, `isFullBuild=false` | `gradle.properties` |
+| Icon | black-yellow traced launcher icon (yellow `#FFFF00` line-art on black `#000000`, adaptive) | `androidApp/src/main/res/mipmap-*`, `drawable-v24/ic_launcher_foreground.xml` |
+| De-branding | our name + our GitHub links everywhere user-visible | `CreditScreen.kt`, `SettingScreen.kt`, `ReviewDialog.kt`, strings |
+
+## Skills
+
+- **`.claude/skills/build-apk`** — the build/sign/deliver pipeline and every concrete fact. Read first.
+- **`.claude/skills/upstream-new-version`** — check `upstream/dev`, present the **proceed-gated
+  feature table**, fast-forward `master`, rebase `custom`, merge the changelog, rebuild.
+- Global: **`/after-build`** (deliver), **`/publish-version`** (GitHub release), **`/git-versioning`**
+  (the version pin).
+- Upstream's own `.claude/skills/` (android-*, compose-*, …) are left untouched beside ours.
+
+## Working rules (override harness defaults where noted)
+
+- **Never push to GitHub on your own initiative**, and never commit unprompted. Build locally, let
+  白い熊 test on-device, act only on an explicit "Push". (Delivery to the phone via `/after-build`
+  is automatic and separate.)
+- **Never `adb install` / `adb uninstall`** — 白い熊 installs from `/sdcard/tmp/` themselves.
+- Run `git`, `gh`, `gradlew`, `scp` and keystore reads **unsandboxed**
+  (`dangerouslyDisableSandbox: true`) — the repo and keystore live outside the sandbox allowlist.
+- **No Claude/Anthropic attribution** in commit messages, tags, or PR/release bodies.
+
+## Changelog
+
+Upstream keeps **no** `CHANGELOG.md`; its release notes live one file per versionCode in
+`fastlane/metadata/android/en-US/changelogs/` plus the GitHub release bodies. Our `CHANGELOG.md`
+carries the fork's own history at the top and folds upstream's notes in beneath it on every sync.
+
+---
+
 # CLAUDE.md - SimpMusic Project Guide for AI Agents
 
 ## 🌐 Language Rule
