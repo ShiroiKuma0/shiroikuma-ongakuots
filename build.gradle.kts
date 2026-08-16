@@ -23,6 +23,10 @@ plugins {
     alias(libs.plugins.compose.hotReload) apply false
 }
 
+// shiroikuma fork: version pin (upstream-base date/time/sha), fork versionCode and the buildFork
+// pipeline. Kept in its own file so upstream never touches it — see gradle/shiroikuma-fork.gradle.kts.
+apply(from = "gradle/shiroikuma-fork.gradle.kts")
+
 tasks.register<Delete>("Clean") {
     delete(rootProject.layout.buildDirectory)
 }

@@ -821,13 +821,11 @@ buildkonfig {
     packageName = "com.maxrave.simpmusic"
     exposeObjectWithName = "BuildKonfig"
     defaultConfigs {
-        val versionName =
-            libs.versions.version.name
-                .get()
-        val versionCode =
-            libs.versions.version.code
-                .get()
-                .toInt()
+        // shiroikuma fork: the version shown in-app is the fork version (upstream + upstream-base
+        // pin + our build counter), computed once in gradle/shiroikuma-fork.gradle.kts. Upstream's
+        // literals in gradle/libs.versions.toml are read there, never edited.
+        val versionName = rootProject.extra["forkVersionName"] as String
+        val versionCode = rootProject.extra["forkVersionCode"] as Int
         buildConfigField(STRING, "versionName", versionName)
         buildConfigField(INT, "versionCode", "$versionCode")
 

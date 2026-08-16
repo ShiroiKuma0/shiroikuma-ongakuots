@@ -7,6 +7,20 @@ val isFullBuild: Boolean =
         false
     }
 
+// shiroikuma fork: the version pin and the fork versionCode are computed once in
+// gradle/shiroikuma-fork.gradle.kts (applied by the root build) and read back here, so upstream's
+// own literals in gradle/libs.versions.toml are never edited.
+val forkVersionName = rootProject.extra["forkVersionName"] as String
+val forkVersionCode = rootProject.extra["forkVersionCode"] as Int
+
+// shiroikuma fork: release signing from a gitignored keystore.properties at the repo root, so no
+// secret ever enters git. Absent file -> unsigned release APK (which will not install).
+val forkKeystoreProps =
+    Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.sentry.gradle)
@@ -14,22 +28,20 @@ plugins {
 }
 
 android {
-    val abis = arrayOf("armeabi-v7a", "arm64-v8a", "x86_64")
+    // shiroikuma fork: arm64-v8a only -> one deterministic APK and a much faster build.
+    val abis = arrayOf("arm64-v8a")
 
     namespace = "com.maxrave.simpmusic"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.maxrave.simpmusic"
+        // shiroikuma fork: distinct applicationId so it installs side-by-side with official
+        // SimpMusic. The `namespace` above stays com.maxrave.simpmusic — build-time only.
+        applicationId = "shiroikuma.ongakuots"
         minSdk = 26
         targetSdk = 36
-        versionCode =
-            libs.versions.version.code
-                .get()
-                .toInt()
-        versionName =
-            libs.versions.version.name
-                .get()
+        versionCode = forkVersionCode
+        versionName = forkVersionName
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
 
@@ -69,9 +81,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters.add("x86_64")
-            abiFilters.add("armeabi-v7a")
+            // shiroikuma fork: arm64-v8a only (see `abis` above).
             abiFilters.add("arm64-v8a")
+        }
+    }
+
+    // shiroikuma fork: sign the release with our own stable key so reinstalls land in place.
+    signingConfigs {
+        if (forkKeystoreProps.getProperty("storeFile") != null) {
+            create("shiroikuma") {
+                storeFile = file(forkKeystoreProps.getProperty("storeFile"))
+                storePassword = forkKeystoreProps.getProperty("storePassword")
+                keyAlias = forkKeystoreProps.getProperty("keyAlias")
+                keyPassword = forkKeystoreProps.getProperty("keyPassword")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+            }
+        } else {
+            println("shiroikuma: no keystore.properties — the release APK will be UNSIGNED.")
         }
     }
 
@@ -83,6 +111,8 @@ android {
 
     buildTypes {
         release {
+            // shiroikuma fork: our own signing key (null when keystore.properties is missing).
+            signingConfig = signingConfigs.findByName("shiroikuma")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -91,9 +121,14 @@ android {
             )
             splits {
                 abi {
-                    isEnable = true
+                    // shiroikuma fork: ABI splitting off entirely. `defaultConfig.ndk.abiFilters`
+                    // already narrows the build to arm64-v8a (and does so for debug builds too),
+                    // and AGP refuses to have the same ABI in both places — "Conflicting
+                    // configuration : 'arm64-v8a' in ndk abiFilters cannot be present when splits
+                    // abi filters are set". One filter, one release APK for buildFork to pick up.
+                    isEnable = false
                     reset()
-                    isUniversalApk = true
+                    isUniversalApk = false
                     include(*abis)
                 }
             }
