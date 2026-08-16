@@ -81,6 +81,10 @@ kotlin {
             api(libs.koin.android)
             implementation(libs.koin.androidx.compose)
 
+            // shiroikuma fork: the UI page's Export / Import writes into a SAF tree the user grants
+            // once, which DocumentFile is the readable way to walk.
+            implementation(libs.documentfile)
+
             implementation(libs.jetbrains.ui.tooling.preview)
             implementation(libs.constraintlayout.compose)
 
