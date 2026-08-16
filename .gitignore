@@ -19,6 +19,10 @@ crowdin.yml
 .kotlin/
 .idea
 /simpmusic.jks
+
+# shiroikuma fork: release-signing secrets and our own scratch dir — never committed
+/keystore.properties
+/.scratch/
 /ffmpeg-kit/build/
 
 #dev files
