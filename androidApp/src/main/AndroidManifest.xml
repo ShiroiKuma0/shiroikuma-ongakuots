@@ -258,6 +258,14 @@
             android:name="androidx.car.app.minCarApiLevel"
             android:value="8" />
 
+        <!-- 白い熊 音楽乙: the Auto colour theme. CarColor.PRIMARY / SECONDARY resolve to the four
+             carColor* attributes in this style (declared in :media3, which owns the car app code),
+             so every template element the app tints comes out in the house yellow. The host still
+             draws its own backgrounds and text colours — that part is not ours to set. -->
+        <meta-data
+            android:name="androidx.car.app.theme"
+            android:resource="@style/ShiroikumaCarAppTheme" />
+
         <service
             android:name="com.maxrave.media3.carapp.SimpMusicCarAppService"
             android:exported="true"

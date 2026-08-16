@@ -19,6 +19,7 @@ import com.maxrave.data.di.loader.loadAllModules
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.di.viewModelModule
+import com.maxrave.simpmusic.shiroikuma.shiroikumaModule
 import com.maxrave.simpmusic.service.backup.AutoBackupScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +58,10 @@ class SimpMusicApplication :
             androidContext(this@SimpMusicApplication)
             loadAllModules()
             loadKoinModules(viewModelModule)
+            // The fork's own module. Separate from viewModelModule, which MainActivity unloads and
+            // reloads on every onCreate — OngakuUiState owns the theme collector and must outlive
+            // an activity recreation.
+            loadKoinModules(shiroikumaModule)
         }
         // provide custom configuration
         val workConfig =

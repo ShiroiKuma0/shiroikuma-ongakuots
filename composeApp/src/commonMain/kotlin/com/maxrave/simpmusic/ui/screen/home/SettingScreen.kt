@@ -126,6 +126,7 @@ import com.maxrave.simpmusic.ui.icon.PeopleAlt
 import com.maxrave.simpmusic.ui.icon.PlaylistAdd
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.navigation.destination.home.CreditDestination
+import com.maxrave.simpmusic.ui.navigation.destination.home.OngakuUiDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.DiscordLoginDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.LastfmLoginDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.LoginDestination
@@ -544,6 +545,19 @@ fun SettingScreen(
     ) {
         item {
             Spacer(Modifier.height(64.dp))
+        }
+        // shiroikuma fork: the UI page is the fork's own configuration hub, so it leads the list —
+        // above upstream's own appearance rows, which it supersedes. Also reachable by long-pressing
+        // the settings cog on the home screen.
+        item(key = "shiroikuma_ui") {
+            Column {
+                Spacer(Modifier.height(16.dp))
+                SettingItem(
+                    title = "白い熊 音楽乙 UI",
+                    subtitle = "Colours, fonts, sizes, shapes — and Export / Import",
+                    onClick = { navController.navigate(OngakuUiDestination) },
+                )
+            }
         }
         item(key = "user_interface") {
             Column {
