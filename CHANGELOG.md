@@ -10,78 +10,173 @@ Fork versions read `<upstream>+<base date>.<HH-MM UTC>.g<sha8>+<build>`: the mid
 upstream commit the build sits on, and moves only on a sync. The installed `versionCode` is
 `<upstream code> * 10000 + <build>`, independent of the pin.
 
-## 白い熊 音楽乙 — fork releases
+## 白い熊 音楽乙 1.7.0+2026-08-15.17-42.g9155f673+008 — 2026-08-17
 
-### 1.7.0+2026-08-15.17-42.g9155f673+002 — 2026-08-16
+The first published build, on upstream **1.7.0** at `upstream/dev` `9155f673` (2026-08-15 17:42 UTC).
+versionCode `560008`, `arm64-v8a`. Everything the fork adds, in full — later entries are deltas.
 
-The first build of the fork: `shiroikuma.ongakuots`, versionCode `560002`, arm64-v8a, signed with
-our own key and installable beside the official SimpMusic.
+### Identity & packaging
 
-#### Icon and mark
-
-- **Black-yellow traced launcher icon** — SimpMusic's note mark as yellow `#FFFF00` line-art on
-  black `#000000`: the shape is black-filled and yellow-stroked, so it reads as a trace over the
-  black adaptive background. Traced from upstream's own `drawable/monochrome.xml` (the clean
-  single-path logo silhouette), scaled 1.45× about the viewport centre to sit inside the
-  adaptive-icon safe zone under both the circular and the squircle mask.
-- Adaptive foreground and background are our own vectors, so upstream's `ic_launcher_background.xml`
-  is left untouched and never conflicts. `tools/gen-icons.sh` regenerates every raster — the five
-  density launcher sets, the two in-app icons and the store icon — from the one design source,
-  `design/shiroikuma-ongakuots-icon.svg`.
-- The in-app note badge (bottom navigation bar, review dialog) is recoloured from upstream's cyan to
-  house yellow.
-
-#### De-branding
-
-- The app calls itself **白い熊 音楽乙** everywhere, in all 27 locales, and every user-visible GitHub
-  link points at this fork: the Credit screen's source and issue-tracker buttons, the Settings
-  author row, and the star link in the review dialog.
-- Removed as upstream's own promotion, not features of the app: the blog-promo dialog that appeared
-  on the fifth launch, the daily blog-RSS notification worker (also cancelled if left over from an
-  earlier install) and its Settings row, the sponsor row, and the ProductHunt and
-  buymeacoffee.com/maxrave links in the review dialog.
-- **The in-app updater is gone** — the three update rows and the start-up check. It asks
-  `api.github.com/repos/maxrave-dev/SimpMusic` for the latest release, and that URL lives in the
-  `core` submodule, which this fork does not control; it could therefore only ever offer upstream's
-  APK, which cannot install over ours (different signing key).
-- Auto-backups write to `Download/shiroikuma-ongakuots` as `shiroikuma-ongakuots_backup_*.zip`, so
-  they never land among — or get reaped with — the official app's backups.
-- Store listing, README and app icon rebranded; upstream's `FUNDING.yml` removed.
-- **Deliberately kept:** the names of maxrave-dev's own external services this app talks to —
-  *SimpMusic Lyrics*, *SimpMusic Charts* and the `simpmusic.org` playlist converter. Renaming those
-  would misattribute someone else's servers. Upstream's copyright line stays, with our fork line
-  added beneath it, and the Credit screen links to the upstream project.
-
-#### Repository set-up
-
-The scaffolding underneath, before any behavioural change to the app:
-
-- **Forked** `maxrave-dev/SimpMusic` to `ShiroiKuma0/shiroikuma-ongakuots`, with the `core` git
-  submodule. `master` mirrors `upstream/dev` (the bleeding default branch, not the `vX.Y.Z` tags on
-  `main`); `custom` carries every commit below and is rebased onto `master` on each sync.
-- **Side-by-side install**: `applicationId` `shiroikuma.ongakuots`, label **白い熊 音楽乙**. The
+- **`shiroikuma.ongakuots`**, label **白い熊 音楽乙**, installable beside the official SimpMusic. The
   Kotlin namespace stays `com.maxrave.simpmusic` — build-time only, and renaming it would break
   BuildKonfig, Room and Koin for nothing.
-- **Fork versioning** (`gradle/shiroikuma-fork.gradle.kts`, applied by one line in the root build):
-  `versionName = <upstream>+<upstream-base date>.<HH-MM UTC>.g<sha8>+<build, 3 digits>` and
-  `versionCode = <upstream code> * 10000 + <build>`. Upstream's own literals in
-  `gradle/libs.versions.toml` are read, never edited, so an upstream bump flows in on rebase by
-  itself. `:androidApp` and `:composeApp` read the same computed values, so the version shown in-app
-  matches the APK exactly. First build: `1.7.0+2026-08-15.17-42.g9155f673+001`, versionCode `560001`.
-- **`buildFork`** — one task that assembles the signed release, copies it to
-  `~/tmp/shiroikuma-ongakuots_<versionName>_arm64-v8a.apk`, bumps `BUILD_NUMBER` and records
-  `LAST_BUILT_VERSION_CODE`. The counter never resets, and the task refuses to build at or below the
-  highest code already shipped.
-- **Signing**: our own PKCS12/RSA-4096 key (`shiroikuma-ongakuots.jks`, alias `ongakuots`), read
-  from a gitignored `keystore.properties`. Upstream ships no Gradle signing config at all — its CI
-  signs externally with `apksigner` — so this is new code, deliberately kept as a shim that never
-  touches upstream's own build logic.
+- **Black-yellow traced launcher icon**: yellow `#FFFF00` line-art on black, the shape black-filled
+  and yellow-stroked so it reads as a trace over the black adaptive background. Traced from
+  upstream's own `drawable/monochrome.xml`, scaled 1.45× about the viewport centre so the whole mark
+  stays inside the safe zone under both the circular and the squircle mask. Our own adaptive
+  foreground and background vectors, so upstream's stays untouched and never conflicts.
+  `tools/gen-icons.sh` regenerates the five density launcher sets, both in-app icons and the store
+  icon from one source, `design/shiroikuma-ongakuots-icon.svg`.
 - **FOSS build** (`isFullBuild=false`): no Sentry, no Firebase Crashlytics, no Google Cast SDK,
   Last.fm stubbed. Nothing phones home.
 - **arm64-v8a only**, ABI splitting off — one deterministic APK and a far shorter build.
-- **Fork documentation**: our `CLAUDE.md` section above upstream's own guide (whose "answer in
-  English + Vietnamese" language rule is explicitly void here), plus the `build-apk` and
-  `upstream-new-version` skills beside upstream's `.claude/skills/`.
+- **Fork versioning** in `gradle/shiroikuma-fork.gradle.kts`: versionName carries the upstream-base
+  pin (date, HH-MM UTC and 8-char sha of the merge-base), versionCode is `<upstream> * 10000 +
+  BUILD_NUMBER`. Upstream's literals in `gradle/libs.versions.toml` are read, never edited, so an
+  upstream bump flows in on rebase by itself. `:androidApp` and `:composeApp` read the same computed
+  values, so the version shown in-app matches the APK exactly.
+- **`./gradlew buildFork`** — assembles the signed release, copies it to `~/tmp/` under the house
+  filename, bumps the counter, and refuses to build at or below the highest code already shipped.
+- **Own signing key** (PKCS12/RSA-4096) read from a gitignored `keystore.properties`. Upstream ships
+  no Gradle signing config at all, so this is a shim beside its build logic rather than an edit to it.
+- The **`core` submodule is forked too** (`ShiroiKuma0/shiroikuma-ongakuots-core`), because the
+  Android Auto code lives there.
+
+### 白い熊 音楽乙 UI — the fork's configuration hub
+
+- A settings page in the kxkb grammar: bold headings underlined to their own text width, a thin
+  full-width hairline opening each section, a 24 dp-per-level indent ladder, and row padding that is
+  itself a setting (default 2 dp), so the page is tight and its density control previews itself.
+- Reached by **long-pressing the settings cog** on the home screen, and from a row at the top of
+  Settings above upstream's own appearance rows.
+- **23 colour slots** in seven groups (surfaces, text, accent, lines, player, semantic, Android
+  Auto), each carrying a black-yellow default and a line saying what it actually paints. Colours are
+  stored in a map keyed by slot id, so an untouched slot falls back and adding one later needs no
+  migration.
+- **The picker**: four RGBA sliders under a live preview, with the one-click swatch row above them
+  prefilled with the slot's own default followed by every colour picked before.
+- **Typography**: font, a size percentage applied to every text style at once, and weight 100–900.
+- **Shape & density**: corner roundness and border thickness (both reaching 0), icon size, row spacing.
+- **Live previews** for colours, type, shape and icons — and the whole app repaints as a slider
+  moves, because the page edits the very state the app renders from. Writes land in memory first and
+  persist after, so nothing waits on a DataStore round-trip.
+- **Reset** returns every colour, font, size and shape to stock black-yellow in one row.
+
+### External fonts
+
+- Import any font file through the picker; it is copied into the app's own store rather than
+  referenced in place, because a SAF grant on someone else's file does not survive a reboot.
+- Every option in the picker is **drawn in its own glyphs**.
+- Imported fonts are carried by the backup, and can be removed from the picker.
+
+### The black-yellow theme, app-wide
+
+The house look is the **default**, not an option layered over one; the master switch falls back to
+stock Material with every edit kept.
+
+- `OngakuUi.applyTo()` expresses our chrome as a Material 3 `ColorScheme`, so every stock composable
+  is restyled without being touched, and the semantic colours outside that scheme (like heart, sung
+  lyric, shimmer) are mapped too.
+- **`surfaceTint` pinned to the surface.** Material lightens an elevated surface by blending the tint
+  into it; with the accent there, every card, sheet and app bar drifted off black. A raised surface is
+  now raised by its border.
+- **The immersive screens' hardcoded set replaced.** `rememberSurfaceDarkColors()` and
+  `typo(forceDark)` carry literal `#242424` / `Color.White` / `#A8A8A8` values that no colour scheme
+  can reach — the reason the artist, album, playlist and player screens stayed grey-on-white.
+- **`toImmersiveBackground()`** derived the album/playlist/artist page background from the cover's
+  dominant colour and merely darkened it, so a grey-blue sleeve gave a grey-blue page. Flat black now.
+- **The player's palette gradient** did the same for the now-playing sheet, header included. Flat now.
+- **~110 `Color.White` literals** routed through the theme across the player and the five immersive
+  screens, plus the seven hand-rolled `if (forceDark) Color.White` content colours in the row
+  composables, and `seed` (upstream's light blue) on active shuffle/repeat.
+- **Lyrics**: a line *not* being sung is yellow and the line being sung is white, word-by-word
+  included — the current line is marked by going white against yellow rather than by everything else
+  going faint. Three module-level dim greys replaced.
+- **The like heart** was a drawable carrying its own pink that nothing tinted; it takes the Favourite
+  slot now.
+- **The transport button is traced, not filled**: `PlayCircle`/`PauseCircle` are filled *disc*
+  glyphs, so tinting one could only give a solid puck. It is a black circle with an accent ring and a
+  bare glyph.
+- **Borders**: the player's cards, the collapsed toolbar and all 18 `AlertDialog` sites carry the
+  house frame — Material gives a dialog no border and no global hook, so it goes on each call site,
+  and on the `Surface` inside for the three `BasicAlertDialog`s where a border on the window would
+  trace the wrong rectangle.
+- **Side rules** on the content strip beside the navigation rail and on the player sheet, drawn
+  *after* the content — `drawBehind` puts them under the children, where every opaque background
+  covers them.
+- The mini-player pill is black with a yellow border instead of following the artwork palette; the
+  seek bar takes the Played and Remaining slots; the in-app note badge is yellow.
+
+### Export / Import
+
+- A **category ZIP** — `manifest.json` plus one entry or entry tree per category: the UI theme,
+  imported fonts, all app settings, the library and listening history, and downloaded audio (off by
+  default, being large and re-downloadable). Import **merges**: a category absent from an archive is
+  skipped rather than cleared.
+- The entry names for settings, library and downloads are deliberately **upstream's own**, so an
+  archive written here restores through stock SimpMusic's Restore and stock archives restore here.
+- The panel follows the Kōjiki flow: a SAF folder box that is **red until set** and yellow after, the
+  newest archive in it queried as the panel opens, a flat checklist between accent hairlines, and the
+  ArcaneChat pill bar — Cancel alone left, Import and Export grouped right.
+- Written `.part` and renamed only once closed, so a killed export leaves nothing a later restore
+  would mistake for a real backup.
+- Success raises a yellow-bordered dialog whose acknowledgement closes the panel **and** the UI page;
+  failures leave both open. A restore that needs a fresh process offers **Restart now** or **Later**.
+- The engine is headless — it takes an `OutputStream` and a progress callback — so the panel and the
+  automation drive one implementation.
+
+### 保存復元 backup automation
+
+The sister-app export contract, so 白い熊 自由作業盤 can back this app up as part of a batch.
+
+- Three actions on one exported receiver with no `android:permission` — the caller cannot hold one,
+  so the token is the gate: `EXPORT_STATE`, `LIST_CATEGORIES`, `CANCEL_EXPORT`.
+- The receiver does **no work**: `goAsync()` does not extend the broadcast window, and a receiver
+  that outstays it is ANR'd and killed mid-export, losing the archive *and* the reply. It gates and
+  hands off to a **foreground service** (`dataSync`, partial wakelock, `startForeground` within 5 s).
+- **Exactly one terminal reply** per request, `AtomicBoolean`-guarded, as a fresh broadcast with
+  `FLAG_INCLUDE_STOPPED_PACKAGES` — never a binder and never the ordered-broadcast result, both of
+  which EMUI drops between third-party apps. `automation disabled` and `bad token` are distinct.
+- **Progress** carries the category id in `item`, `current`/`total` as the position being written,
+  unit `区分`, and real bytes from a counting stream; throttled to 500 ms, each one a heartbeat.
+- **Cancel** is fire-and-forget and safe at any time — a silent no-op when nothing is running,
+  otherwise a volatile flag the write loop checks between entries, so the export unwinds at a
+  boundary and deletes its partial. The panel's own button routes through the same path and reads
+  **Stop** while an export runs.
+- **Directory precedence**: the `path` extra → the configured SAF folder → `ERROR:no-directory`.
+  All-Files-Access is checked rather than discovered by failing, so an absolute path with no grant
+  and no configured folder answers exactly `ERROR:no-storage-access`.
+- **Token**: 24 `SecureRandom` bytes, hex, generated lazily, compared constant-time, in its own prefs
+  file that is never exported. The switch defaults **off**, and both rows sit inside the
+  Export/Import section per the contract.
+
+### Android Auto
+
+- A car theme resource makes `CarColor.PRIMARY`/`SECONDARY` the house yellow.
+- A runtime colour follows the two Auto slots on the UI page, mirrored into two plain hex DataStore
+  keys so `:media3` never has to parse a Compose theme.
+- Applied to the search FAB's background and, through a `ForegroundCarColorSpan`, to the now-playing
+  row marker — the two places the templates let an app choose a colour. Everything else on an Auto
+  screen is the host's, by driver-distraction rule.
+
+### De-branding
+
+- The app names itself **白い熊 音楽乙** across all 27 locales, and every user-visible GitHub link
+  points at this fork: the Credit screen's source and issue buttons, the Settings author row, the
+  review dialog's star link.
+- **Removed** as upstream's own promotion: the blog-promo dialog on the fifth launch, the daily
+  blog-RSS notification worker (and any left-over instance is cancelled on start) and its setting,
+  the sponsor row, and the ProductHunt and buymeacoffee links.
+- **The in-app updater is gone** — three Settings rows and the start-up check. It asks GitHub for the
+  newest *upstream* release, and that URL lives in the `core` submodule; it could only ever offer an
+  APK that cannot install over ours.
+- Auto-backups write to `Download/shiroikuma-ongakuots` as `shiroikuma-ongakuots_backup_*.zip`, so
+  they never land among — or get reaped with — the official app's.
+- README, store listing and title rebranded; upstream's `FUNDING.yml` removed.
+- **Deliberately kept**: the names of maxrave-dev's own external services this app talks to —
+  *SimpMusic Lyrics*, *SimpMusic Charts* and the `simpmusic.org` playlist converter. Renaming those
+  would misattribute someone else's servers. Upstream's copyright line stays with our fork line
+  beneath it, and the Credit screen links to the upstream project.
 
 ## Upstream — SimpMusic
 
