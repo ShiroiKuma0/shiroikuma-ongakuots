@@ -7,6 +7,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.maxrave.simpmusic.ui.icon.Pause
@@ -18,7 +19,7 @@ fun RippleIconButton(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     fillMaxSize: Boolean = false,
-    tint: Color = Color.White,
+    tint: Color = skOnPlayer(),
     onClick: () -> Unit,
 ) {
     IconButton(
@@ -38,7 +39,7 @@ fun RippleIconButton(
 fun PlayPauseButton(
     isPlaying: Boolean,
     modifier: Modifier = Modifier,
-    tint: Color = Color.White,
+    tint: Color = skOnPlayer(),
     onClick: () -> Unit,
 ) {
     RippleIconButton(

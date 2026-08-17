@@ -87,6 +87,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kmpalette.loader.rememberNetworkLoader
 import com.kmpalette.rememberDominantColorState
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.common.CHART_SUPPORTED_COUNTRY
 import com.maxrave.common.Config
 import com.maxrave.domain.data.model.browse.album.Track
@@ -410,6 +411,7 @@ fun HomeScreen(
             mutableStateOf(false)
         }
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             title = {
                 Text(stringResource(Res.string.warning))
             },

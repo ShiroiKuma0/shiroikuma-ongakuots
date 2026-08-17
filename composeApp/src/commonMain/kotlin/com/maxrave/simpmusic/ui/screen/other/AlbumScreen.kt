@@ -72,6 +72,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.toBitmap
 import com.kmpalette.rememberPaletteState
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.utils.toSongEntity
@@ -357,7 +358,7 @@ fun AlbumScreen(
                                                     Text(
                                                         text = uiState.title,
                                                         style = typo().titleLarge,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         maxLines = 2,
                                                         textAlign = TextAlign.Center,
                                                     )
@@ -365,7 +366,7 @@ fun AlbumScreen(
                                                     Text(
                                                         text = uiState.artist.name,
                                                         style = typo().titleSmall,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         textAlign = TextAlign.Center,
                                                         modifier =
                                                             Modifier.clickable {
@@ -434,7 +435,7 @@ fun AlbumScreen(
                                                     Icon(
                                                         imageVector = SimpIcons.MoreVert,
                                                         contentDescription = "More",
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                     )
                                                 }
                                             }
@@ -476,7 +477,7 @@ fun AlbumScreen(
                                                 Text(
                                                     text = uiState.title,
                                                     style = typo().titleLarge,
-                                                    color = Color.White,
+                                                    color = skOnPlayer(),
                                                     maxLines = 2,
                                                 )
                                                 Column(
@@ -486,7 +487,7 @@ fun AlbumScreen(
                                                     Text(
                                                         text = uiState.artist.name,
                                                         style = typo().titleSmall,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         modifier =
                                                             Modifier.clickable {
                                                                 uiState.artist.id?.let { channelId ->
@@ -530,14 +531,14 @@ fun AlbumScreen(
                                                             Modifier
                                                                 .size(48.dp)
                                                                 .clip(CircleShape)
-                                                                .background(Color.White.copy(alpha = 0.12f))
+                                                                .background(skOnPlayer().copy(alpha = 0.12f))
                                                                 .clickable { viewModel.shuffle() },
                                                         contentAlignment = Alignment.Center,
                                                     ) {
                                                         Icon(
                                                             imageVector = SimpIcons.Shuffle,
                                                             contentDescription = "Shuffle",
-                                                            tint = Color.White,
+                                                            tint = skOnPlayer(),
                                                             modifier = Modifier.size(22.dp),
                                                         )
                                                     }
@@ -547,7 +548,7 @@ fun AlbumScreen(
                                                                 .height(48.dp)
                                                                 .widthIn(min = 110.dp)
                                                                 .clip(CircleShape)
-                                                                .background(Color.White)
+                                                                .background(skOnPlayer())
                                                                 .clickable {
                                                                     if (isThisPlaying) {
                                                                         sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -580,7 +581,7 @@ fun AlbumScreen(
                                                             Modifier
                                                                 .size(48.dp)
                                                                 .clip(CircleShape)
-                                                                .background(Color.White.copy(alpha = 0.12f)),
+                                                                .background(skOnPlayer().copy(alpha = 0.12f)),
                                                         contentAlignment = Alignment.Center,
                                                     ) {
                                                         Crossfade(targetState = uiState.downloadState) { state ->
@@ -644,7 +645,7 @@ fun AlbumScreen(
                                                                     ) {
                                                                         Icon(
                                                                             imageVector = SimpIcons.DownloadForOffline,
-                                                                            tint = Color.White,
+                                                                            tint = skOnPlayer(),
                                                                             contentDescription = "Download",
                                                                             modifier = Modifier.size(22.dp),
                                                                         )
@@ -794,7 +795,7 @@ fun AlbumScreen(
                                                         (uiState.trackCount).toString(),
                                                         uiState.length,
                                                     ),
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 style = typo().bodyMedium,
                                                 modifier = Modifier.padding(vertical = 8.dp),
                                             )
@@ -834,7 +835,7 @@ fun AlbumScreen(
                                     HorizontalDivider(
                                         modifier = Modifier.padding(start = 72.dp, end = 16.dp),
                                         thickness = 0.5.dp,
-                                        color = Color.White.copy(alpha = 0.12f),
+                                        color = skOnPlayer().copy(alpha = 0.12f),
                                     )
                                 }
                             }

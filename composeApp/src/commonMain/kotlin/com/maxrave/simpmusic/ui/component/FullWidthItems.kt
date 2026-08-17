@@ -73,6 +73,7 @@ import com.maxrave.domain.data.type.PlaylistType
 import com.maxrave.domain.repository.SongRepository
 import com.maxrave.domain.utils.connectArtists
 import com.maxrave.domain.utils.toListName
+import com.maxrave.simpmusic.shiroikuma.skContentColor
 import com.maxrave.simpmusic.ui.icon.Add
 import com.maxrave.simpmusic.ui.icon.DownloadForOffline
 import com.maxrave.simpmusic.ui.icon.DragHandle
@@ -118,7 +119,7 @@ fun SongFullWidthItems(
     rightView: @Composable (() -> Unit)? = null,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val contentColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val contentColor = skContentColor(forceDark)
     val subtitleColor = if (forceDark) Color(0xC4FFFFFF) else MaterialTheme.colorScheme.onSurfaceVariant
     val maxOffset = 360f
     val coroutineScope = rememberCoroutineScope()
@@ -356,7 +357,7 @@ fun SuggestItems(
     onAddClickListener: (() -> Unit)? = null,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val contentColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val contentColor = skContentColor(forceDark)
     val subtitleColor = if (forceDark) Color(0xC4FFFFFF) else MaterialTheme.colorScheme.onSurfaceVariant
     val composition by rememberLottieComposition {
         LottieCompositionSpec.JsonString(
@@ -470,7 +471,7 @@ fun PlaylistFullWidthItems(
     modifier: Modifier = Modifier,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val contentColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val contentColor = skContentColor(forceDark)
     val subtitleColor = if (forceDark) Color(0xC4FFFFFF) else MaterialTheme.colorScheme.onSurfaceVariant
     Box(
         modifier =
@@ -646,7 +647,7 @@ fun ArtistFullWidthItems(
     modifier: Modifier = Modifier,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val contentColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val contentColor = skContentColor(forceDark)
     val subtitleColor = if (forceDark) Color(0xC4FFFFFF) else MaterialTheme.colorScheme.onSurfaceVariant
     val (name: String, thumbnails: String?) =
         when (data) {

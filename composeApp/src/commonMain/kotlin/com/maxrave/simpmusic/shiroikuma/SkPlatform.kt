@@ -98,3 +98,28 @@ expect fun SkExportImportPanel(
  */
 @Composable
 expect fun rememberSkFontImporter(onImported: (String) -> Unit): () -> Unit
+
+/**
+ * The 保存復元 automation gate, as the UI page needs it.
+ *
+ * The contract puts these two controls **inside the Export/Import section**, directly under the
+ * export rows — not in a section of their own — so every sister app looks the same and 白い熊 finds
+ * the switch where backup lives.
+ */
+expect object SkAutomation {
+    fun enabled(): Boolean
+
+    fun setEnabled(on: Boolean)
+
+    /** Generated lazily on first read, so the row always has something to show. */
+    fun token(): String
+
+    fun regenerate(): String
+
+    /** `80922d8c…4c49a87c` — enough to recognise, not enough to use. */
+    fun abbreviated(token: String): String
+}
+
+/** Copy to the clipboard and say so — the token row's whole interaction. */
+@Composable
+expect fun rememberSkCopier(): (label: String, text: String) -> Unit

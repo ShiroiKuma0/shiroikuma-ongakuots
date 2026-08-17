@@ -84,6 +84,7 @@ import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.HorizontalScrollBar
 import com.maxrave.simpmusic.getPlatform
+import com.maxrave.simpmusic.shiroikuma.skContentColor
 import com.maxrave.simpmusic.ui.navigation.destination.list.AlbumDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.PlaylistDestination
@@ -310,7 +311,7 @@ fun HomeItemContentPlaylist(
     thumbSize: Dp = 160.dp,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val titleColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val titleColor = skContentColor(forceDark)
     Box(
         Modifier
             .wrapContentSize()
@@ -745,7 +746,7 @@ fun HomeItemVideo(
     data: Content,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val titleColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val titleColor = skContentColor(forceDark)
     Box(
         Modifier
             .fillMaxSize()
@@ -831,7 +832,7 @@ fun HomeItemArtist(
     data: Content,
     forceDark: Boolean = LocalForceDarkText.current,
 ) {
-    val titleColor = if (forceDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val titleColor = skContentColor(forceDark)
     Box(
         Modifier
             .fillMaxSize()

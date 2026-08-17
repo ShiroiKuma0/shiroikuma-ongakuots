@@ -24,6 +24,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -123,6 +124,8 @@ import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.VolumeOff
 import com.maxrave.simpmusic.ui.icon.VolumeUp
 import com.maxrave.simpmusic.ui.theme.LocalIsDarkTheme
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent
@@ -159,11 +162,18 @@ fun MiniPlayer(
     val luminanceAnimation = remember { Animatable(0f) }
 
     val isDarkTheme = LocalIsDarkTheme.current
+    // shiroikuma fork: with our theme on the pill is ours — black, yellow border, yellow text and
+    // icons — instead of following the artwork palette and its luminance. The artwork colour is a
+    // fine default and a poor one here: it is whatever the cover happens to be, so the pill was the
+    // one grey thing left on a black screen.
+    val skUi = LocalOngakuUi.current
     val textColor by animateColorAsState(
         // With liquid glass the surface follows the theme (light = frosted white → black text);
         // without it, the surface is the artwork colour, so follow the backdrop luminance.
         targetValue =
-            if (isLiquidGlassEnabled == DataStoreManager.TRUE) {
+            if (skUi.enabled) {
+                skUi.c(ColorSlot.TEXT)
+            } else if (isLiquidGlassEnabled == DataStoreManager.TRUE) {
                 if (isDarkTheme) Color.White else Color.Black
             } else if (luminanceAnimation.value > 0.6f) {
                 Color.Black
@@ -304,12 +314,29 @@ fun MiniPlayer(
     }
 
     if (getPlatform() == Platform.Android) {
+        val skPillColor =
+            when {
+                skUi.enabled -> skUi.c(ColorSlot.PLAYER_BG)
+                isLiquidGlassEnabled == DataStoreManager.TRUE -> Color.Transparent
+                else -> background.value
+            }
         Card(
-            shape = if (isLiquidGlassEnabled == DataStoreManager.TRUE) CircleShape else RoundedCornerShape(12.dp),
+            shape =
+                when {
+                    skUi.enabled -> RoundedCornerShape(skUi.cornerRadiusDp.dp)
+                    isLiquidGlassEnabled == DataStoreManager.TRUE -> CircleShape
+                    else -> RoundedCornerShape(12.dp)
+                },
+            border =
+                if (skUi.enabled && skUi.borderWidthDp > 0) {
+                    BorderStroke(skUi.borderWidthDp.dp, skUi.c(ColorSlot.BORDER))
+                } else {
+                    null
+                },
             colors =
                 CardDefaults.cardColors(
-                    containerColor = if (isLiquidGlassEnabled == DataStoreManager.TRUE) Color.Transparent else background.value,
-                    disabledContainerColor = if (isLiquidGlassEnabled == DataStoreManager.TRUE) Color.Transparent else background.value,
+                    containerColor = skPillColor,
+                    disabledContainerColor = skPillColor,
                 ),
             modifier =
                 modifier

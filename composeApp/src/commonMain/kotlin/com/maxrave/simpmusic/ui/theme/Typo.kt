@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.simpmusic.shiroikuma.SkFonts
 import org.jetbrains.compose.resources.Font
@@ -39,8 +40,23 @@ fun typo(
 
     // Titles were pure white, everything else muted gray (#A8A8A8) in the old dark-only palette.
     // forceDark keeps that; otherwise both come from the scheme (theme-aware light/dark).
-    val titleColor = if (forceDark) Color.White else colorScheme.onBackground
-    val bodyColor = if (forceDark) Color(0xFFA8A8A8) else colorScheme.onSurfaceVariant
+    //
+    // shiroikuma fork: the forceDark pair is hardcoded and therefore invisible to any colour
+    // scheme, which is what left every immersive screen white-on-grey while the app was otherwise
+    // black-yellow. With our theme on, both come from the UI page's slots in both branches.
+    val skUi = LocalOngakuUi.current
+    val titleColor =
+        when {
+            skUi.enabled -> skUi.c(ColorSlot.TEXT)
+            forceDark -> Color.White
+            else -> colorScheme.onBackground
+        }
+    val bodyColor =
+        when {
+            skUi.enabled -> skUi.c(ColorSlot.TEXT_DIM)
+            forceDark -> Color(0xFFA8A8A8)
+            else -> colorScheme.onSurfaceVariant
+        }
 
     val typo =
         Typography(
@@ -129,7 +145,7 @@ fun typo(
     // shiroikuma fork: the UI page's font, size and weight, applied to every style in one place so
     // the whole app scales together rather than each screen deciding for itself. Off, upstream's
     // typography is returned untouched.
-    val ui = LocalOngakuUi.current
+    val ui = skUi
     if (!ui.enabled) return typo
     val custom = SkFonts.family(ui.fontId)
     val scale = ui.fontScalePct / 100f

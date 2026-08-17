@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.simpmusic.ui.theme.typo
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.Res
@@ -61,6 +62,7 @@ fun ShareSavedLyricsDialog(
     }
 
     AlertDialog(
+        modifier = Modifier.skDialogFrame(),
         properties =
             DialogProperties(
                 dismissOnBackPress = false,

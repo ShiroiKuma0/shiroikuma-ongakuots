@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.maxrave.domain.mediaservice.handler.ControlState
 import com.maxrave.domain.mediaservice.handler.RepeatState
 import com.maxrave.simpmusic.ui.icon.PauseCircle
+import com.maxrave.simpmusic.ui.icon.PlayArrow
+import com.maxrave.simpmusic.ui.icon.Pause
+import androidx.compose.foundation.border
 import com.maxrave.simpmusic.ui.icon.PlayCircle
 import com.maxrave.simpmusic.ui.icon.Repeat
 import com.maxrave.simpmusic.ui.icon.RepeatOne
@@ -29,6 +32,9 @@ import com.maxrave.simpmusic.ui.icon.Shuffle
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.SkipNext
 import com.maxrave.simpmusic.ui.icon.SkipPrevious
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.ui.theme.seed
 import com.maxrave.simpmusic.viewModel.UIEvent
 
@@ -36,9 +42,13 @@ import com.maxrave.simpmusic.viewModel.UIEvent
 fun PlayerControlLayout(
     controllerState: ControlState,
     isSmallSize: Boolean = false,
-    contentColor: Color = Color.White,
+    contentColor: Color = skOnPlayer(),
     onUIEvent: (UIEvent) -> Unit,
 ) {
+    // Active shuffle / repeat were tinted with `seed`, upstream's light-blue brand colour, which is
+    // the one thing on the transport row no colour scheme reaches. Ours is the accent.
+    val skUi = LocalOngakuUi.current
+    val activeTint = if (skUi.enabled) skUi.c(ColorSlot.ACCENT) else seed
     val height = if (isSmallSize) 48.dp else 96.dp
     val smallIcon = if (isSmallSize) 20.dp to 28.dp else 32.dp to 42.dp
     val mediumIcon = if (isSmallSize) 28.dp to 38.dp else 42.dp to 52.dp
@@ -78,7 +88,7 @@ fun PlayerControlLayout(
                     } else {
                         Icon(
                             imageVector = SimpIcons.Shuffle,
-                            tint = seed,
+                            tint = activeTint,
                             contentDescription = "",
                             modifier = Modifier.size(smallIcon.first),
                         )
@@ -127,7 +137,30 @@ fun PlayerControlLayout(
                 contentAlignment = Alignment.Center,
             ) {
                 Crossfade(targetState = controllerState.isPlaying) { isPlaying ->
-                    if (!isPlaying) {
+                    // PlayCircle / PauseCircle are FILLED disc glyphs, so tinting them yellow gave a
+                    // solid yellow puck. The house button is traced instead: black inside, the glyph
+                    // and the ring both in the accent (白い熊, 2026-08-16). Stock keeps the discs.
+                    if (skUi.enabled) {
+                        Box(
+                            Modifier
+                                .size(bigIcon.first)
+                                .clip(CircleShape)
+                                .background(skUi.c(ColorSlot.BG))
+                                .border(
+                                    (skUi.borderWidthDp.coerceAtLeast(1)).dp,
+                                    skUi.c(ColorSlot.BORDER),
+                                    CircleShape,
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = if (isPlaying) SimpIcons.Pause else SimpIcons.PlayArrow,
+                                tint = contentColor,
+                                contentDescription = "",
+                                modifier = Modifier.size(bigIcon.first * 0.5f),
+                            )
+                        }
+                    } else if (!isPlaying) {
                         Icon(
                             imageVector = SimpIcons.PlayCircle,
                             tint = contentColor,
@@ -198,7 +231,7 @@ fun PlayerControlLayout(
                         RepeatState.All -> {
                             Icon(
                                 imageVector = SimpIcons.Repeat,
-                                tint = seed,
+                                tint = activeTint,
                                 contentDescription = "",
                                 modifier = Modifier.size(smallIcon.first),
                             )
@@ -207,7 +240,7 @@ fun PlayerControlLayout(
                         RepeatState.One -> {
                             Icon(
                                 imageVector = SimpIcons.RepeatOne,
-                                tint = seed,
+                                tint = activeTint,
                                 contentDescription = "",
                                 modifier = Modifier.size(smallIcon.first),
                             )

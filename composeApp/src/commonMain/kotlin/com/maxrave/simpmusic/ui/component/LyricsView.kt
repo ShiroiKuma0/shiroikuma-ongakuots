@@ -94,6 +94,9 @@ import com.maxrave.simpmusic.extension.ParsedRichSyncLine
 import com.maxrave.simpmusic.extension.animateScrollAndCentralizeItem
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.hsvToColor
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.skLyricsBackground
 import com.maxrave.simpmusic.extension.parseRichSyncWords
 import com.maxrave.simpmusic.ui.icon.Info
 import com.maxrave.simpmusic.ui.icon.MoreVert
@@ -128,6 +131,36 @@ private const val MIN_WIPE_MS = 150
 private val DimOriginalColor = Color.LightGray.copy(alpha = 0.35f)
 private val DimTranslatedColor = Color(0xFF97971A).copy(alpha = 0.3f)
 private val DimRichPendingColor = Color.LightGray.copy(alpha = 0.6f)
+
+// shiroikuma fork: the three dim colours above are module-level literals, so no colour scheme ever
+// reached them — the lyrics stayed grey on a black sheet. With our theme on, a line that is NOT
+// being sung is the house yellow and the line that IS stays white: white against yellow is what
+// marks the current line, rather than bright against faint. 白い熊, 2026-08-16.
+@Composable
+private fun dimOriginal(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT) else DimOriginalColor
+}
+
+@Composable
+private fun dimTranslated(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT_DIM) else DimTranslatedColor
+}
+
+/** The not-yet-sung tail of the line being sung, in a word-by-word lyric. */
+@Composable
+private fun dimRichPending(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT) else DimRichPendingColor
+}
+
+/** The sung line, and the sung words within it. Deliberately white even in the house theme. */
+@Composable
+private fun lyricCurrent(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE) else Color.White
+}
 
 private data class TimedLineIndex(
     val index: Int,
@@ -241,7 +274,7 @@ fun LyricsView(
     onLineClick: (Float) -> Unit,
     modifier: Modifier = Modifier,
     showScrollShadows: Boolean = false,
-    backgroundColor: Color = Color(0xFF242424),
+    backgroundColor: Color = skLyricsBackground(),
 ) {
     val listState = rememberLazyListState()
     val current by timeLine.collectAsStateWithLifecycle()
@@ -376,13 +409,13 @@ fun LyricsLineItem(
                 Text(
                     text = originalWords,
                     style = typo().headlineLarge,
-                    color = if (isCurrent) Color.White else DimOriginalColor,
+                    color = if (isCurrent) lyricCurrent() else dimOriginal(),
                 )
                 if (translatedWords != null) {
                     Text(
                         text = translatedWords,
                         style = typo().bodyMedium,
-                        color = if (isCurrent) Color.Yellow else DimTranslatedColor,
+                        color = if (isCurrent) Color.Yellow else dimTranslated(),
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -397,13 +430,13 @@ fun LyricsLineItem(
             Text(
                 text = originalWords,
                 style = typo().headlineMedium,
-                color = DimOriginalColor,
+                color = dimOriginal(),
             )
             if (translatedWords != null) {
                 Text(
                     text = translatedWords,
                     style = typo().bodyMedium,
-                    color = DimTranslatedColor,
+                    color = dimTranslated(),
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -475,7 +508,7 @@ fun RichSyncLyricsLineItem(
             Text(
                 text = translatedWords,
                 style = typo().bodyMedium,
-                color = if (isCurrent) Color.Yellow else DimTranslatedColor,
+                color = if (isCurrent) Color.Yellow else dimTranslated(),
             )
         }
 
@@ -501,7 +534,7 @@ private fun AnimatedWord(
         )
 
     if (!isCurrent) {
-        Text(text = word, style = style, color = DimOriginalColor)
+        Text(text = word, style = style, color = dimOriginal())
         return
     }
 
@@ -545,12 +578,12 @@ private fun AnimatedWord(
 
     Box {
         // Bottom layer: dimmed pending color, drawn for the whole word.
-        Text(text = word, style = style, color = DimRichPendingColor)
+        Text(text = word, style = style, color = dimRichPending())
         // Top layer: white, clipped horizontally so only the wiped portion shows.
         Text(
             text = word,
             style = style,
-            color = Color.White,
+            color = lyricCurrent(),
             modifier =
                 Modifier.drawWithContent {
                     clipRect(right = size.width * progress) {
@@ -567,7 +600,7 @@ private fun AnimatedWord(
 fun FullscreenLyricsSheet(
     sharedViewModel: SharedViewModel,
     navController: NavController,
-    color: Color = Color(0xFF242424),
+    color: Color = skLyricsBackground(),
     onDismiss: () -> Unit,
 ) {
     val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
@@ -818,7 +851,7 @@ fun FullscreenLyricsSheet(
                         Text(
                             text = screenDataState.nowPlayingTitle,
                             style = typo().labelSmall,
-                            color = Color.White,
+                            color = lyricCurrent(),
                             maxLines = 1,
                             modifier =
                                 Modifier
@@ -932,7 +965,7 @@ fun FullscreenLyricsSheet(
                                 Text(
                                     text = stringResource(Res.string.unavailable),
                                     style = typo().bodyMedium,
-                                    color = Color.White,
+                                    color = lyricCurrent(),
                                     textAlign = TextAlign.Center,
                                 )
                             }

@@ -58,3 +58,18 @@ actual fun SkExportImportPanel(
 
 @Composable
 actual fun rememberSkFontImporter(onImported: (String) -> Unit): () -> Unit = {}
+
+actual object SkAutomation {
+    actual fun enabled(): Boolean = false
+
+    actual fun setEnabled(on: Boolean) = Unit
+
+    actual fun token(): String = ""
+
+    actual fun regenerate(): String = ""
+
+    actual fun abbreviated(token: String): String = token
+}
+
+@Composable
+actual fun rememberSkCopier(): (String, String) -> Unit = { _, _ -> }

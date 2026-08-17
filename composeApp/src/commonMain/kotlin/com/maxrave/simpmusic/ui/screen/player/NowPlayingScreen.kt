@@ -173,6 +173,11 @@ import com.maxrave.simpmusic.ui.icon.SubtitlesOff
 import com.maxrave.simpmusic.ui.icon.ThumbsUpDown
 import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.player.FullscreenDestination
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.skCardFrame
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skSideBorders
 import com.maxrave.simpmusic.ui.theme.blackMoreOverlay
 import com.maxrave.simpmusic.ui.theme.overlay
 import com.maxrave.simpmusic.ui.theme.typo
@@ -468,15 +473,24 @@ fun NowPlayingScreenContent(
         }
     }
 
+    // shiroikuma fork: the player's backdrop is a settable slot rather than the fixed near-black
+    // #121212. Resolved once here so the gradient's end colour, the fade target and the area below
+    // the gradient stay exactly equal — a seam between them is visible on a flat black.
+    val skUi = LocalOngakuUi.current
+    val playerBackdrop = if (skUi.enabled) skUi.c(ColorSlot.PLAYER_BG) else PlayerBackdropColor
+
     LaunchedEffect(Unit) {
         snapshotFlow { paletteState.palette }
             .distinctUntilChanged()
             .collectLatest {
                 spotShadowColor = it.getColorFromPalette()
-                startColor.animateTo(it.getColorFromPalette())
+                // With our theme on the player sits on flat black rather than a ramp out of the
+                // cover's dominant colour — that ramp is what kept the whole sheet grey-blue, and
+                // nothing drawn on it could then be relied on to read.
+                startColor.animateTo(if (skUi.enabled) playerBackdrop else it.getColorFromPalette())
                 // Lands on the same backdrop colour the fade and the area below the gradient
                 // use, so the palette ramp resolves into the surface instead of a black patch.
-                endColor.animateTo(PlayerBackdropColor)
+                endColor.animateTo(playerBackdrop)
             }
     }
 
@@ -548,8 +562,14 @@ fun NowPlayingScreenContent(
         label = "rainbowHue",
     )
     val rainbowColor = hsvToColor(rainbowHue, 1f, 1f)
+    val skSeek = LocalOngakuUi.current
     val sliderTrackColor by animateColorAsState(
-        targetValue = if (timelineState.isCrossfading) rainbowColor else Color.White,
+        targetValue =
+            when {
+                timelineState.isCrossfading -> rainbowColor
+                skSeek.enabled -> skSeek.c(ColorSlot.PROGRESS)
+                else -> Color.White
+            },
         animationSpec = tween(300),
         label = "sliderCrossfadeColor",
     )
@@ -768,7 +788,7 @@ fun NowPlayingScreenContent(
     if (screenDataState.lyricsData != null && controllerState.isPlaying) {
         KeepScreenOn()
     }
-    Box {
+    Box(Modifier.skSideBorders()) {
         Column(
             Modifier
                 .verticalScroll(
@@ -785,7 +805,7 @@ fun NowPlayingScreenContent(
                             // is drawn over just the first screen height. Using background() for
                             // the gradient instead would stretch it across the entire content,
                             // which is what made it run on forever while scrolling.
-                            .background(PlayerBackdropColor)
+                            .background(playerBackdrop)
                             .drawBehind {
                                 val gradientHeight = screenInfo.hPX.toFloat()
                                 val area = Size(size.width, gradientHeight)
@@ -811,8 +831,8 @@ fun NowPlayingScreenContent(
                                 drawRect(
                                     brush =
                                         smoothScrimBrush(
-                                            from = PlayerBackdropColor.copy(alpha = 0f),
-                                            to = PlayerBackdropColor,
+                                            from = playerBackdrop.copy(alpha = 0f),
+                                            to = playerBackdrop,
                                             startY = 0f,
                                             // Reaches full opacity at 95% and is held there by Clamp,
                                             // same as the old `0.95f to PlayerBackdropColor` stop.
@@ -1157,7 +1177,7 @@ fun NowPlayingScreenContent(
                                                                 Icon(
                                                                     imageVector = SimpIcons.Fullscreen,
                                                                     contentDescription = "",
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                 )
                                                             }
                                                             Row(
@@ -1182,7 +1202,7 @@ fun NowPlayingScreenContent(
                                                                 ) {
                                                                     Icon(
                                                                         imageVector = SimpIcons.Replay5,
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                         contentDescription = "",
                                                                         modifier =
                                                                             Modifier
@@ -1206,7 +1226,7 @@ fun NowPlayingScreenContent(
                                                                 ) {
                                                                     Icon(
                                                                         imageVector = SimpIcons.Forward5,
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                         contentDescription = "",
                                                                         modifier =
                                                                             Modifier
@@ -1230,7 +1250,7 @@ fun NowPlayingScreenContent(
                                                                                 SimpIcons.Subtitles
                                                                             },
                                                                         contentDescription = "",
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                     )
                                                                 }
                                                             }
@@ -1330,12 +1350,12 @@ fun NowPlayingScreenContent(
                             Text(
                                 text = stringResource(Res.string.now_playing_upper),
                                 style = typo().bodyMedium,
-                                color = Color.White,
+                                color = skOnPlayer(),
                             )
                             Text(
                                 text = screenDataState.playlistName,
                                 style = typo().labelMedium,
-                                color = Color.White,
+                                color = skOnPlayer(),
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 modifier =
@@ -1356,7 +1376,7 @@ fun NowPlayingScreenContent(
                             Icon(
                                 imageVector = dismissIcon,
                                 contentDescription = "",
-                                tint = Color.White,
+                                tint = skOnPlayer(),
                             )
                         }
                     },
@@ -1367,7 +1387,7 @@ fun NowPlayingScreenContent(
                             Icon(
                                 imageVector = SimpIcons.MoreVert,
                                 contentDescription = "",
-                                tint = Color.White,
+                                tint = skOnPlayer(),
                             )
                         }
                     },
@@ -1455,7 +1475,7 @@ fun NowPlayingScreenContent(
                                     Text(
                                         text = lineText,
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                         maxLines = 1,
                                         modifier =
                                             Modifier
@@ -1521,7 +1541,7 @@ fun NowPlayingScreenContent(
                                                 text = screenDataState.nowPlayingTitle,
                                                 style = typo().titleMedium,
                                                 maxLines = 1,
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 modifier =
                                                     Modifier
                                                         .fillMaxWidth()
@@ -1596,7 +1616,7 @@ fun NowPlayingScreenContent(
                                                             sharedViewModel.addToYouTubeLiked()
                                                         },
                                                     ) {
-                                                        Icon(imageVector = SimpIcons.CheckCircle, tint = Color.White, contentDescription = "")
+                                                        Icon(imageVector = SimpIcons.CheckCircle, tint = skOnPlayer(), contentDescription = "")
                                                     }
                                                 } else {
                                                     IconButton(
@@ -1613,7 +1633,7 @@ fun NowPlayingScreenContent(
                                                     ) {
                                                         Icon(
                                                             imageVector = SimpIcons.AddCircleOutline,
-                                                            tint = Color.White,
+                                                            tint = skOnPlayer(),
                                                             contentDescription = "",
                                                         )
                                                     }
@@ -1726,7 +1746,8 @@ fun NowPlayingScreenContent(
                                                                 SliderDefaults.colors().copy(
                                                                     thumbColor = sliderTrackColor,
                                                                     activeTrackColor = sliderTrackColor,
-                                                                    inactiveTrackColor = Color.Transparent,
+                                                                    inactiveTrackColor =
+                                                                        if (skSeek.enabled) skSeek.c(ColorSlot.PROGRESS_TRACK) else Color.Transparent,
                                                                 ),
                                                             thumbTrackGapSize = 0.dp,
                                                             drawTick = { _, _ -> },
@@ -1751,7 +1772,8 @@ fun NowPlayingScreenContent(
                                                                 SliderDefaults.colors().copy(
                                                                     thumbColor = sliderTrackColor,
                                                                     activeTrackColor = sliderTrackColor,
-                                                                    inactiveTrackColor = Color.Transparent,
+                                                                    inactiveTrackColor =
+                                                                        if (skSeek.enabled) skSeek.c(ColorSlot.PROGRESS_TRACK) else Color.Transparent,
                                                                 ),
                                                             enabled = true,
                                                         )
@@ -1834,14 +1856,14 @@ fun NowPlayingScreenContent(
                                                     showInfoBottomSheet = true
                                                 },
                                             ) {
-                                                Icon(imageVector = SimpIcons.Info, tint = Color.White, contentDescription = "")
+                                                Icon(imageVector = SimpIcons.Info, tint = skOnPlayer(), contentDescription = "")
                                             }
                                             // Cyan rather than colorScheme.primary: this screen is force-dark whatever
                                             // the app theme is, so a light-theme primary would sink into the black
                                             // backdrop. Mirrors the `if (forceDark) Color.Cyan` rule in FullWidthItems.
                                             PlatformCastButton(
                                                 modifier = Modifier.size(24.dp),
-                                                tint = if (castState.isRemote) Color.Cyan else Color.White,
+                                                tint = if (castState.isRemote) Color.Cyan else skOnPlayer(),
                                             )
                                             AnimatedVisibility(visible = castState.isRemote) {
                                                 Text(
@@ -1875,7 +1897,7 @@ fun NowPlayingScreenContent(
                                             ) {
                                                 Icon(
                                                     imageVector = SimpIcons.PlaylistAdd,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "Add to Playlist",
                                                 )
                                             }
@@ -1893,7 +1915,7 @@ fun NowPlayingScreenContent(
                                             ) {
                                                 Icon(
                                                     imageVector = SimpIcons.QueueMusic,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "",
                                                 )
                                             }
@@ -1976,7 +1998,7 @@ fun NowPlayingScreenContent(
                                                                     ).focusable(),
                                                             text = lineText,
                                                             style = typo().bodyMedium,
-                                                            color = Color.White,
+                                                            color = skOnPlayer(),
                                                             maxLines = 1,
                                                         )
                                                         val translatedLineText =
@@ -2044,7 +2066,7 @@ fun NowPlayingScreenContent(
                                                         text = screenDataState.nowPlayingTitle,
                                                         style = typo().titleMedium,
                                                         maxLines = 1,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         modifier =
                                                             Modifier
                                                                 .fillMaxWidth()
@@ -2121,7 +2143,7 @@ fun NowPlayingScreenContent(
                                                             ) {
                                                                 Icon(
                                                                     imageVector = SimpIcons.CheckCircle,
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                     contentDescription = "",
                                                                 )
                                                             }
@@ -2140,7 +2162,7 @@ fun NowPlayingScreenContent(
                                                             ) {
                                                                 Icon(
                                                                     imageVector = SimpIcons.AddCircleOutline,
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                     contentDescription = "",
                                                                 )
                                                             }
@@ -2171,6 +2193,7 @@ fun NowPlayingScreenContent(
                             ElevatedCard(
                                 onClick = {},
                                 shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.skCardFrame(RoundedCornerShape(8.dp)),
                                 colors =
                                     CardDefaults.elevatedCardColors().copy(
                                         containerColor = startColor.value,
@@ -2182,7 +2205,7 @@ fun NowPlayingScreenContent(
                                         Text(
                                             text = stringResource(Res.string.lyrics),
                                             style = typo().labelMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                         )
                                         if (screenDataState.lyricsData?.translatedLyrics?.second == LyricsProvider.AI) {
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -2211,7 +2234,7 @@ fun NowPlayingScreenContent(
                                                     Icon(
                                                         imageVector = SimpIcons.ThumbsUpDown,
                                                         contentDescription = stringResource(Res.string.rate_lyrics),
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                         modifier = Modifier.size(16.dp),
                                                     )
                                                 }
@@ -2229,7 +2252,7 @@ fun NowPlayingScreenContent(
                                                         .height(20.dp)
                                                         .wrapContentWidth(),
                                             ) {
-                                                Text(text = stringResource(Res.string.show), color = Color.White)
+                                                Text(text = stringResource(Res.string.show), color = skOnPlayer())
                                             }
                                         }
                                     }
@@ -2328,8 +2351,11 @@ fun NowPlayingScreenContent(
                                 shape = RoundedCornerShape(8.dp),
                                 colors =
                                     CardDefaults.elevatedCardColors().copy(
-                                        containerColor = Color(0xFF212121),
+                                        // shiroikuma fork: the artist card followed neither the
+                                        // scheme nor the backdrop — it was the one #212121 left.
+                                        containerColor = if (skUi.enabled) skUi.c(ColorSlot.SURFACE) else Color(0xFF212121),
                                     ),
+                                modifier = Modifier.skCardFrame(RoundedCornerShape(8.dp)),
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     // Artwork occupies the top of the card; only the section
@@ -2378,7 +2404,7 @@ fun NowPlayingScreenContent(
                                         Text(
                                             text = stringResource(Res.string.artists),
                                             style = typo().labelMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                             modifier =
                                                 Modifier
                                                     .align(Alignment.TopStart)
@@ -2394,13 +2420,13 @@ fun NowPlayingScreenContent(
                                         Text(
                                             text = screenDataState.songInfoData?.author ?: "",
                                             style = typo().titleMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = screenDataState.songInfoData?.subscribers ?: "",
                                             style = typo().bodySmall,
-                                            color = Color.White.copy(alpha = 0.7f),
+                                            color = skOnPlayer().copy(alpha = 0.7f),
                                         )
                                     }
                                 }
@@ -2411,6 +2437,7 @@ fun NowPlayingScreenContent(
                             ElevatedCard(
                                 onClick = {},
                                 shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.skCardFrame(RoundedCornerShape(8.dp)),
                                 colors =
                                     CardDefaults.elevatedCardColors().copy(
                                         containerColor = startColor.value,
@@ -2425,7 +2452,7 @@ fun NowPlayingScreenContent(
                                     Text(
                                         text = stringResource(Res.string.published_at, screenDataState.songInfoData?.uploadDate ?: ""),
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
@@ -2435,7 +2462,7 @@ fun NowPlayingScreenContent(
                                                 "%,d".format(screenDataState.songInfoData?.viewCount),
                                             ),
                                         style = typo().labelMedium,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
@@ -2451,7 +2478,7 @@ fun NowPlayingScreenContent(
                                     Text(
                                         text = stringResource(Res.string.description),
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     DescriptionView(
@@ -2509,7 +2536,8 @@ fun NowPlayingScreenContent(
                     Modifier
                         .clipToBounds()
                         .wrapContentHeight()
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .skCardFrame(RectangleShape),
             ) {
                 Box(
                     modifier =
@@ -2535,7 +2563,7 @@ fun NowPlayingScreenContent(
                                 Text(
                                     text = screenDataState.nowPlayingTitle,
                                     style = typo().bodyMedium,
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     maxLines = 1,
                                     modifier =
                                         Modifier
@@ -2617,7 +2645,7 @@ fun NowPlayingScreenContent(
                                         color = Color.Transparent,
                                         shape = RoundedCornerShape(4.dp),
                                     ),
-                            color = Color.White,
+                            color = skOnPlayer(),
                             trackColor = Color.Gray.copy(alpha = 0.4f),
                             strokeCap = StrokeCap.Round,
                             drawStopIndicator = {},

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.documentfile.provider.DocumentFile
+import com.maxrave.simpmusic.shiroikuma.automation.ExportControl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -143,6 +144,10 @@ actual fun SkExportImportPanel(
             result = PanelResult(false, "Export failed", "No backup folder set.")
             return
         }
+        if (!ExportControl.begin(null)) {
+            result = PanelResult(false, "Export failed", "An export is already running.")
+            return
+        }
         busy = true
         scope.launch {
             val r =
@@ -158,9 +163,9 @@ actual fun SkExportImportPanel(
                             val count =
                                 context.contentResolver.openOutputStream(part.uri).use { out ->
                                     requireNotNull(out) { "Could not write to the backup folder." }
-                                    SkBackup.export(cats, out, onProgress = { p ->
-                                        progress = "${p.cat.label}  ${p.index}/${p.total}"
-                                    })
+                                    SkBackup.export(cats, out, ExportControl::isCancelled) { p ->
+                                        progress = "区分 ${p.index}/${p.total} — ${p.cat.label}"
+                                    }
                                 }
                             if (!part.renameTo(name)) error("Could not finish writing $name.")
                             val bytes = dir.findFile(name)?.length() ?: 0L
@@ -171,6 +176,7 @@ actual fun SkExportImportPanel(
                         }
                     }
                 }
+            ExportControl.end()
             busy = false
             progress = ""
             result =
@@ -179,7 +185,13 @@ actual fun SkExportImportPanel(
                         latest = SkLatestBackup(name, bytes)
                         PanelResult(true, "Export finished", "$name\n${skHumanSize(bytes)} · $count categories")
                     },
-                    onFailure = { PanelResult(false, "Export failed", it.message ?: "Unknown error") },
+                    onFailure = {
+                        if (it is SkBackup.Cancelled) {
+                            PanelResult(false, "Export cancelled", "The partial file was removed.")
+                        } else {
+                            PanelResult(false, "Export failed", it.message ?: "Unknown error")
+                        }
+                    },
                 )
         }
     }
@@ -262,7 +274,12 @@ actual fun SkExportImportPanel(
             Spacer(Modifier.height(14.dp))
             // ArcaneChat button bar: Cancel alone left, the two actions grouped right.
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                SkPill("Cancel", enabled = !busy, onClick = onDismiss)
+                // While an export is running, Cancel STOPS it rather than only closing the panel:
+                // the contract requires exactly one unwind path, and it is the one that deletes the
+                // partial file. With nothing running it is the ordinary dismiss.
+                SkPill(if (busy) "Stop" else "Cancel") {
+                    if (busy) ExportControl.requestCancel() else onDismiss()
+                }
                 Spacer(Modifier.weight(1f))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     SkPill("Import", enabled = !busy) {

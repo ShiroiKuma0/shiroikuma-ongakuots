@@ -57,6 +57,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import com.kmpalette.palette.graphics.Palette
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.domain.data.model.ui.ScreenSizeInfo
 import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.getPlatform
@@ -470,7 +472,13 @@ fun Palette?.getColorFromPalette(): Color {
  * lighter the source, the harder it is pulled toward black, so white text stays readable on any
  * artwork.
  */
+@Composable
 fun Palette?.toImmersiveBackground(): Color {
+    // shiroikuma fork: this is the grey on the album, playlist and artist pages — upstream derives
+    // the page background from the cover's dominant colour and merely darkens it, so a grey-blue
+    // sleeve gives a grey-blue page. With our theme on the page is flat black, like everywhere else.
+    val sk = LocalOngakuUi.current
+    if (sk.enabled) return sk.c(ColorSlot.BG)
     val p = this ?: return Color.Black
     val rgb =
         p.getDominantColor(0).takeIf { it != 0 }

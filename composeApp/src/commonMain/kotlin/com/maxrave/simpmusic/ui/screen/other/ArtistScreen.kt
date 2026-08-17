@@ -78,6 +78,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.common.Config
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.data.model.home.Content
@@ -210,7 +211,7 @@ fun ArtistScreen(
 
     // Accent color for the action buttons, sourced from the artist name-logo image's dominant
     // color (hidden catalog). Falls back to white until the logo loads (or if none exists).
-    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: Color.White
+    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: skOnPlayer()
 
     val hazeState = rememberHazeState(blurEnabled = true)
     val lazyState = rememberLazyListState()
@@ -369,7 +370,7 @@ fun ArtistScreen(
                                                     Text(
                                                         text = state.data.title ?: stringResource(Res.string.unknown),
                                                         style = typo().titleLarge,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         maxLines = 2,
                                                         textAlign = TextAlign.Center,
                                                     )
@@ -539,7 +540,7 @@ fun ArtistScreen(
                                             Icon(
                                                 imageVector = SimpIcons.ArrowBackIosNew,
                                                 contentDescription = "Back",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                                 modifier = Modifier.size(20.dp),
                                             )
                                         }
@@ -580,14 +581,14 @@ fun ArtistScreen(
                                     Text(
                                         text = state.data.subscribers ?: stringResource(Res.string.unknown),
                                         style = typo().bodySmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                         textAlign = TextAlign.Start,
                                         modifier = Modifier.weight(1f),
                                     )
                                     Text(
                                         text = state.data.playCount ?: stringResource(Res.string.unknown),
                                         style = typo().bodySmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                         textAlign = TextAlign.End,
                                         modifier = Modifier.weight(1f),
                                     )
@@ -601,7 +602,7 @@ fun ArtistScreen(
                                             val canvas = canvasUrl ?: return@Row
                                             LimitedBorderAnimationView(
                                                 isAnimated = true,
-                                                brush = Brush.sweepGradient(listOf(Color.Transparent, Color.White)),
+                                                brush = Brush.sweepGradient(listOf(Color.Transparent, skOnPlayer())),
                                                 backgroundColor = Color.Transparent,
                                                 contentPadding = 2.dp,
                                                 borderWidth = 1.dp,
@@ -619,7 +620,7 @@ fun ArtistScreen(
                                                             .border(
                                                                 width = 0.5.dp,
                                                                 color =
-                                                                    Color.White.copy(
+                                                                    skOnPlayer().copy(
                                                                         alpha = 0.8f,
                                                                     ),
                                                                 shape = RoundedCornerShape(4.dp),
@@ -652,7 +653,7 @@ fun ArtistScreen(
                                     }
                                     LimitedBorderAnimationView(
                                         isAnimated = !isFollowed,
-                                        brush = Brush.sweepGradient(listOf(Color.Gray, Color.White)),
+                                        brush = Brush.sweepGradient(listOf(Color.Gray, skOnPlayer())),
                                         backgroundColor = Color.Transparent,
                                         contentPadding = 0.dp,
                                         borderWidth = 2.dp,
@@ -670,14 +671,14 @@ fun ArtistScreen(
                                                 },
                                                 colors =
                                                     ButtonDefaults.outlinedButtonColors().copy(
-                                                        contentColor = Color.White,
+                                                        contentColor = skOnPlayer(),
                                                         containerColor = Color.Transparent,
                                                     ),
                                             ) {
                                                 if (isFollowed) {
-                                                    Text(text = stringResource(Res.string.followed), color = Color.White)
+                                                    Text(text = stringResource(Res.string.followed), color = skOnPlayer())
                                                 } else {
-                                                    Text(text = stringResource(Res.string.follow), color = Color.White)
+                                                    Text(text = stringResource(Res.string.follow), color = skOnPlayer())
                                                 }
                                             }
                                         }
@@ -707,7 +708,7 @@ fun ArtistScreen(
                                             ButtonDefaults
                                                 .textButtonColors()
                                                 .copy(
-                                                    contentColor = Color.White,
+                                                    contentColor = skOnPlayer(),
                                                 ),
                                     ) {
                                         Row(
@@ -784,7 +785,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.popular),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -800,7 +801,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -856,7 +857,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.singles),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -877,7 +878,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -924,7 +925,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.albums),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -945,7 +946,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -992,7 +993,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.videos),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -1012,7 +1013,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -1078,7 +1079,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.featured_inArtist),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier =
                             Modifier
                                 .weight(1f)
@@ -1126,7 +1127,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.related_artists),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier =
                             Modifier
                                 .weight(1f)
@@ -1185,7 +1186,7 @@ private fun ArtistSections(
             Text(
                 text = stringResource(Res.string.description),
                 style = typo().labelMedium,
-                color = Color.White,
+                color = skOnPlayer(),
                 modifier =
                     Modifier
                         .weight(1f)

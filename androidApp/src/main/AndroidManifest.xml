@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- 白い熊 音楽乙: the 保存復元 automation export runs in a foreground service. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -291,6 +293,29 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/new_app_widget_info" />
         </receiver>
+
+        <!-- 白い熊 音楽乙 — the 保存復元 state-export automation.
+             The receiver is exported and carries NO android:permission: the caller cannot hold one,
+             so the token is the gate. It does no work itself — a manifest receiver that outstays the
+             broadcast window is ANR'd and killed mid-export — and hands off to the service below,
+             which is not exported and is reached only through the receiver. That is also why CANCEL
+             is an action on the receiver rather than a call into the service: a third-party app
+             cannot start a non-exported service. -->
+        <receiver
+            android:name="com.maxrave.simpmusic.shiroikuma.automation.StateExportReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="shiroikuma.ongakuots.action.EXPORT_STATE" />
+                <action android:name="shiroikuma.ongakuots.action.LIST_CATEGORIES" />
+                <action android:name="shiroikuma.ongakuots.action.CANCEL_EXPORT" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.maxrave.simpmusic.shiroikuma.automation.StateExportService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
     </application>
 
 </manifest>
