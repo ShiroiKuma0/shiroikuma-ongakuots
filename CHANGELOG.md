@@ -10,6 +10,62 @@ Fork versions read `<upstream>+<base date>.<HH-MM UTC>.g<sha8>+<build>`: the mid
 upstream commit the build sits on, and moves only on a sync. The installed `versionCode` is
 `<upstream code> * 10000 + <build>`, independent of the pin.
 
+## 白い熊 音楽乙 1.7.0+2026-08-15.17-42.g9155f673+010 — 2026-08-17
+
+Still on upstream **1.7.0** at `upstream/dev` `9155f673` — upstream has not moved, so the pin is
+unchanged and only the build counter did. versionCode `560010`. Everything here is the delta
+since `+008`; build `+009` was not published.
+
+### The last white surface
+
+- **The fullscreen video player** was the one immersive screen the theming sweep never reached: 17
+  `Color.White` sites — the transport tints, both sliders' thumb and track, the title and the
+  overlay icons — plus `Color.DarkGray` on the unavailable previous/next, which is the same class of
+  literal. It rendered white-on-artwork while the rest of the app was already black-yellow.
+
+### Traced action buttons
+
+- The album and playlist **Play pill** and the round **shuffle / download** actions were filled
+  solid, so tinting the fill with the accent gave a solid yellow lozenge rather than the house look.
+  They are traced now — black inside, border around, accent content — matching the player's
+  transport button.
+- The **artist page** needed more than a swap: upstream sources those three circles' accent from the
+  artist's name-logo *image*, so they came out in whatever colour that artwork happened to be. With
+  the theme on it resolves to the border colour, and the filled "following" state stops filling.
+
+### Fork behaviour, settable
+
+A new **Fork behaviour** section on the UI page, above Colours, in three groups:
+
+- **Backgrounds** — flat player backdrop · flat page backgrounds
+- **Controls** — traced transport button · traced action buttons · house mini player
+- **Edges** — band side rules · frames (separate from border *thickness*, which sizes them)
+
+Each defaults to the fork's behaviour and restores upstream's when turned off, so the section is also
+a way to see exactly what the fork changed, one switch at a time. Each flag is read by the helper
+that already owned that decision, or at the single call site that does.
+
+Deliberately **not** switchable, and recorded as such: the removed in-app updater and the removed
+blog-promo dialog and blog-RSS worker are removals rather than preferences — the updater can only
+ever offer upstream's APK, which cannot install over ours — and Cast and Last.fm are gated by
+`isFullBuild` at **build** time, so they cannot be runtime switches.
+
+### Documentation
+
+- The **`core` submodule being our fork** is now recorded in `CLAUDE.md` and both skills, with the
+  sync step, the push order (core before the parent, since the parent records a sha in it) and the
+  trap that `git submodule sync` rewrites core's `origin` to the HTTPS URL. Previously the docs still
+  described it as upstream's, so a sync would have left it stale — or a later change would have
+  repointed it and silently dropped the Android Auto work.
+- The **theming architecture** is written down as the four mechanisms that no colour scheme reaches
+  — Material's `surfaceTint`, the hardcoded force-dark set, the artwork-derived page backgrounds, and
+  `drawBehind` painting side rules under the content — since those are what a rebase can silently
+  undo, alongside the mechanical literal layer and which helper each goes through.
+- The **regression greps are verified rather than asserted**: two must print nothing, three must
+  print a hit. Stock fallbacks now carry an explicit `// sk-stock-fallback` marker that the grep
+  excludes, so a future one opts out by saying what it is instead of the grep growing a list of
+  special cases.
+
 ## 白い熊 音楽乙 1.7.0+2026-08-15.17-42.g9155f673+008 — 2026-08-17
 
 The first published build, on upstream **1.7.0** at `upstream/dev` `9155f673` (2026-08-15 17:42 UTC).
