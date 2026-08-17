@@ -31,14 +31,14 @@ description: Build the signed release APK of shiroikuma-ongakuots (白い熊 音
 | Custom applicationId | `shiroikuma.ongakuots` |
 | Custom app label | `白い熊 音楽乙` |
 | Kotlin namespace (**UNCHANGED**) | `com.maxrave.simpmusic` — R/BuildConfig/BuildKonfig package; never rename |
-| UI settings page | `白い熊 音楽乙 UI` (name fixed 2026-08-16; contents still to be specified) |
+| UI settings page | `白い熊 音楽乙 UI` — built; see `CLAUDE.md` for its sections and the theming architecture |
 | Build flavour | FOSS — `isFullBuild=false` (no Sentry, no Crashlytics, no Cast SDK, Last.fm stubbed) |
 | Target ABI | `arm64-v8a` only, universal APK off → exactly one release APK |
 | Gradle task | `./gradlew buildFork` |
 | Built APK dir | `androidApp/build/outputs/apk/release/` |
 | Delivered APK | `~/tmp/shiroikuma-ongakuots_<versionName>_arm64-v8a.apk` → `/sdcard/tmp/` |
 | Keystore | `~/.android-keystores/shiroikuma-ongakuots.jks`, alias `ongakuots` |
-| Git submodule | **`core`** (`maxrave-dev/core`) — `:common :data :domain` + service + media modules |
+| Git submodule | **`core`** — OUR fork `ShiroiKuma0/shiroikuma-ongakuots-core` (branch `custom`); `:common :data :domain` + service + media modules, **and the Android Auto code** |
 | Build JDK | OpenJDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64` |
 | Android SDK | `~/android-sdk`, platform `android-37`, build-tools `37.0.0` |
 | Gradle / AGP / Kotlin | 9.5.1 wrapper / 9.2.1 / 2.4.10 |
@@ -148,10 +148,16 @@ so the string is formed once and the in-app version matches the APK exactly.
 
 ## Traps specific to this project
 
-- **The `core` submodule is not optional.** `settings.gradle.kts` resolves `:common :data :domain`,
-  the service modules and the media modules out of `core/`. An un-initialised submodule fails
-  configuration with "project ':common' … does not exist". Fix:
+- **The `core` submodule is not optional, and it is OURS.** `settings.gradle.kts` resolves
+  `:common :data :domain`, the service modules and the media modules out of `core/`. An
+  un-initialised submodule fails configuration with "project ':common' … does not exist". Fix:
   `git submodule update --init --recursive`.
+  It points at **`ShiroiKuma0/shiroikuma-ongakuots-core`**, not upstream — it carries the Android
+  Auto colours. Never repoint `.gitmodules` back at `maxrave-dev/core`. Note that
+  `git submodule sync` rewrites `core`'s `origin` to the HTTPS URL in `.gitmodules` and a push then
+  asks for a username; restore it with
+  `git -C core remote set-url origin git@github.com:ShiroiKuma0/shiroikuma-ongakuots-core.git`.
+  When both repos have changes, **push `core` first** — the parent records a sha in it.
 - **Never flip `isFullBuild` back to `true`** without a reason: the repo carries no
   `google-services.json`, and the full path wants a `SENTRY_AUTH_TOKEN`, a Sentry DSN and Last.fm
   credentials from `local.properties`. FOSS is both the private and the buildable path.

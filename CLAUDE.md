@@ -23,9 +23,27 @@ other Android forks (kxkb, Jami, 自由作業板, Inure, ArcaneChat, FairEmail, 
 - `upstream` = `https://github.com/maxrave-dev/SimpMusic.git` (HTTPS, **fetch only**, push URL `DISABLED`).
 - Upstream's own branches: `dev` (default, bleeding — what we mirror) and `main` (release branch,
   carries the `vX.Y.Z` tags). We deliberately track `dev`, not the tags (白い熊, 2026-08-16).
-- **Git submodule `core`** (`https://github.com/maxrave-dev/core`) holds `:common :data :domain`,
-  the service modules and the media modules. `git clone --recurse-submodules`; after a sync run
-  `git submodule update --init --recursive`.
+### The `core` submodule is OUR fork too — do not point it back at upstream
+
+The `core` submodule holds `:common :data :domain`, the service modules and the media modules —
+**and the whole Android Auto surface** (`media/media3/.../carapp/`, seven files). Theming Auto is
+impossible from this repo alone, so `maxrave-dev/core` is forked as well (白い熊, 2026-08-16):
+
+| | |
+|---|---|
+| Submodule URL (`.gitmodules`) | `https://github.com/ShiroiKuma0/shiroikuma-ongakuots-core`, branch `custom` |
+| Inside `core`: `origin` | `git@github.com:ShiroiKuma0/shiroikuma-ongakuots-core.git` (SSH, push here) |
+| Inside `core`: `upstream` | `https://github.com/maxrave-dev/core` (fetch only, push URL `DISABLED`) |
+| Inside `core`: `master` | mirrors `upstream/multiplatform`, fast-forward only |
+| Inside `core`: `custom` | our commits, rebased onto `master`; the GitHub default branch |
+
+- `git clone --recurse-submodules`; after a sync run `git submodule update --init --recursive`.
+- **`git submodule sync` rewrites `core`'s `origin` from `.gitmodules`**, which is the HTTPS URL, and
+  a push then fails asking for a username. Fix with
+  `git -C core remote set-url origin git@github.com:ShiroiKuma0/shiroikuma-ongakuots-core.git`.
+  `.gitmodules` deliberately keeps the HTTPS URL so an anonymous clone still works.
+- **The parent repo records a commit sha in our core fork.** Push `core` FIRST, then the parent —
+  a pushed pointer to an unpushed core commit is a broken clone for anyone else.
 
 ## Versioning
 
@@ -77,6 +95,69 @@ other Android forks (kxkb, Jami, 自由作業板, Inure, ArcaneChat, FairEmail, 
 | Upstream promotion removed | blog-promo dialog, blog-RSS notification worker, sponsor / ProductHunt / buymeacoffee links | `HomeScreen.kt`, `MainActivity.kt`, `ReviewDialog.kt`, `SettingScreen.kt` |
 | In-app updater removed | the three update rows and the start-up check — the release URL lives in the `core` submodule and could only offer upstream's APK, which cannot install over ours | `SettingScreen.kt`, `MainActivity.kt` |
 | Own backup folder | `Download/shiroikuma-ongakuots`, `shiroikuma-ongakuots_backup_*.zip` | `AutoBackupWorker.kt` |
+| 白い熊 音楽乙 UI page | the fork's configuration hub — 23 colour slots in 7 groups, fonts, sizes, shapes, Export/Import, automation | `shiroikuma/OngakuUiScreen.kt` + `OngakuUi.kt` + `OngakuUiState.kt` + `OngakuPickers.kt` + `OngakuSurfaces.kt` |
+| Entry points | long-press the home settings cog; a row at the top of Settings | `HomeScreen.kt` `HomeTopAppBar`, `SettingScreen.kt` item `shiroikuma_ui` |
+| Category ZIP backup | headless engine + the Kōjiki panel | `shiroikuma/SkBackup.android.kt`, `SkExportImportPanel.android.kt` |
+| 保存復元 automation | receiver + foreground service + token | `shiroikuma/automation/{StateExportReceiver,StateExportService,ExportControl,AutomationAuth}.kt` |
+| Android Auto colours | car theme + runtime slots | **in `core`**: `media/media3/.../carapp/SkCarColors.kt`, `res/values/shiroikuma_car.xml`; manifest `androidx.car.app.theme` |
+
+## The theming architecture — read this before chasing a grey
+
+The house look reaches stock SimpMusic through `OngakuUi.applyTo()`, which expresses our slots as a
+Material 3 `ColorScheme`, so ordinary composables are restyled without being touched. What cost a
+whole evening was everything that does **not** read that scheme. Four causes, each of which made a
+whole class of surface stay grey or white, and each of which a rebase can silently reintroduce:
+
+1. **`surfaceTint`.** Material lightens an elevated surface by blending the tint into it. Setting it
+   to the accent drifted every card, sheet and app bar off black. It is pinned to `surface`, making
+   the overlay a no-op — a raised surface is raised by its **border**, not by turning grey.
+2. **The force-dark literals.** `rememberSurfaceDarkColors()` (`SurfaceDarkColors.kt`) and
+   `typo(forceDark = true)` (`Typo.kt`) hardcode `#242424` / `Color.White` / `#A8A8A8` for the
+   immersive screens — artist, album, playlist, the player, and every sheet opened from them. No
+   colour scheme reaches those. Both now branch on `LocalOngakuUi.enabled` first.
+3. **Artwork-derived backgrounds.** `Palette?.toImmersiveBackground()` (`UIExt.kt`) derives the
+   album/playlist/artist page colour from the cover's dominant swatch and merely darkens it, and the
+   player ramps its backdrop out of the same palette. A grey-blue sleeve therefore gave a grey-blue
+   page. Both are flat `PLAYER_BG`/`BG` with our theme on.
+4. **Draw order.** `skSideBorders()` originally used `drawBehind`, which paints *under* the
+   children — every opaque background covered the rules, so they appeared only in the gaps where
+   nothing happened to paint. It uses `drawWithContent` and draws them after the content. **Any
+   overlay we add on a container must do the same.**
+
+Beyond the causes there is a **mechanical layer**: ~110 `Color.White` literals across the player and
+the five immersive screens, the hand-rolled `if (forceDark) Color.White` content colours in
+`AdapterItems`/`FullWidthItems`, the lyrics' three module-level dim greys, the filled-heart drawable
+that nothing tinted, and `seed` on active shuffle/repeat. These go through `skOnPlayer()`,
+`skContentColor()`, `dimOriginal()`/`lyricCurrent()` and the accent respectively. **If upstream adds
+one more literal of the same shape, git merges it cleanly and the fork silently loses ground** —
+which is what the regression greps in `upstream-new-version` exist to catch.
+
+Two shape rules worth keeping: `ElevatedCard` has **no** `border` parameter (it separates itself by
+elevation tint, invisible on flat black), so cards are framed through `Modifier.skCardFrame()`; and
+`PlayCircle`/`PauseCircle` are filled **disc** glyphs, so the transport button is drawn as a black
+circle + accent ring + bare `PlayArrow`/`Pause` glyph rather than by tinting the disc.
+
+Lyrics carry a deliberate inversion: a line **not** being sung is yellow and the line being sung is
+**white** (`LYRIC_ACTIVE`), word-by-word included — the current line is marked by going white
+against yellow rather than by everything else going faint (白い熊, 2026-08-16).
+
+### Known gaps — theming work that is NOT done
+
+Recorded so the next session picks them up rather than rediscovering them:
+
+- **`ui/screen/player/FullscreenPlayer.kt` was never swept** — 17 `Color.White` sites (transport
+  tints, the two sliders' thumb/track, the title and the overlay icons). The fullscreen video player
+  therefore still renders white-on-artwork while the rest of the app is black-yellow. The fix is the
+  same mechanical one applied everywhere else: route them through `skOnPlayer()`, and drop the
+  `FullscreenPlayer.kt` exclusion from the regression grep in `upstream-new-version`.
+- **The album/artist filled action buttons** (the white "Play" pill, the filled shuffle circle) take
+  the accent as their fill with black content, rather than the traced black/ring treatment 白い熊
+  specified for the transport button. Not yet confirmed either way with them.
+- **The UI page holds the appearance layer only.** 白い熊's original instruction was that it hold
+  "all our changes and modifiable configs"; the fork's *behavioural* changes are not switchable
+  there — the removed in-app updater, the removed blog-promo dialog and blog-RSS worker, the FOSS
+  build's stubbed Cast and Last.fm, traced-vs-filled transport, and the side rules (currently only
+  on/off via border thickness, which also moves every card frame). Open with 白い熊.
 
 ## Skills
 
