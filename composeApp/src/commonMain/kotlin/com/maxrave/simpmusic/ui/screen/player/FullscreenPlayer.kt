@@ -61,6 +61,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.maxrave.simpmusic.shiroikuma.skDisabledOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.common.Config.MAIN_PLAYER
 import com.maxrave.simpmusic.expect.ui.MediaPlayerViewWithSubtitle
 import com.maxrave.simpmusic.extension.artworkScrimBrush
@@ -239,12 +241,12 @@ fun FullscreenPlayer(
                                 Icon(
                                     SimpIcons.KeyboardDoubleArrowLeft,
                                     "",
-                                    tint = Color.White,
+                                    tint = skOnPlayer(),
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     stringResource(Res.string.five_seconds),
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     style = typo().bodyMedium,
                                 )
                             }
@@ -290,14 +292,14 @@ fun FullscreenPlayer(
                             ) {
                                 Text(
                                     stringResource(Res.string.five_seconds),
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     style = typo().bodyMedium,
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Icon(
                                     SimpIcons.KeyboardDoubleArrowRight,
                                     "",
-                                    tint = Color.White,
+                                    tint = skOnPlayer(),
                                 )
                             }
                         }
@@ -396,7 +398,7 @@ fun FullscreenPlayer(
                             ) {
                                 Icon(
                                     imageVector = SimpIcons.SkipPrevious,
-                                    tint = if (controllerState.isPreviousAvailable) Color.White else Color.DarkGray,
+                                    tint = if (controllerState.isPreviousAvailable) skOnPlayer() else skDisabledOnPlayer(),
                                     contentDescription = "",
                                     modifier =
                                         Modifier
@@ -421,7 +423,7 @@ fun FullscreenPlayer(
                             ) {
                                 Icon(
                                     imageVector = SimpIcons.Replay5,
-                                    tint = Color.White,
+                                    tint = skOnPlayer(),
                                     contentDescription = "",
                                     modifier =
                                         Modifier
@@ -448,7 +450,7 @@ fun FullscreenPlayer(
                                     if (it) {
                                         Icon(
                                             imageVector = SimpIcons.Pause,
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                             contentDescription = "",
                                             modifier =
                                                 Modifier
@@ -457,7 +459,7 @@ fun FullscreenPlayer(
                                     } else {
                                         Icon(
                                             imageVector = SimpIcons.PlayArrow,
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                             contentDescription = "",
                                             modifier =
                                                 Modifier
@@ -484,7 +486,7 @@ fun FullscreenPlayer(
                             ) {
                                 Icon(
                                     imageVector = SimpIcons.Forward5,
-                                    tint = Color.White,
+                                    tint = skOnPlayer(),
                                     contentDescription = "",
                                     modifier =
                                         Modifier
@@ -510,7 +512,7 @@ fun FullscreenPlayer(
                             ) {
                                 Icon(
                                     imageVector = SimpIcons.SkipNext,
-                                    tint = if (controllerState.isNextAvailable) Color.White else Color.DarkGray,
+                                    tint = if (controllerState.isNextAvailable) skOnPlayer() else skDisabledOnPlayer(),
                                     contentDescription = "",
                                     modifier =
                                         Modifier
@@ -612,8 +614,8 @@ fun FullscreenPlayer(
                                                 sliderState = sliderState,
                                                 colors =
                                                     SliderDefaults.colors().copy(
-                                                        thumbColor = Color.White,
-                                                        activeTrackColor = Color.White,
+                                                        thumbColor = skOnPlayer(),
+                                                        activeTrackColor = skOnPlayer(),
                                                         inactiveTrackColor = Color.Transparent,
                                                     ),
                                                 thumbTrackGapSize = 0.dp,
@@ -637,8 +639,8 @@ fun FullscreenPlayer(
                                                     },
                                                 colors =
                                                     SliderDefaults.colors().copy(
-                                                        thumbColor = Color.White,
-                                                        activeTrackColor = Color.White,
+                                                        thumbColor = skOnPlayer(),
+                                                        activeTrackColor = skOnPlayer(),
                                                         inactiveTrackColor = Color.Transparent,
                                                     ),
                                                 enabled = true,
@@ -698,7 +700,7 @@ fun FullscreenPlayer(
                                             if (it) {
                                                 Icon(
                                                     imageVector = SimpIcons.SubtitlesOff,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "",
                                                     modifier =
                                                         Modifier
@@ -707,7 +709,7 @@ fun FullscreenPlayer(
                                             } else {
                                                 Icon(
                                                     imageVector = SimpIcons.Subtitles,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "",
                                                     modifier =
                                                         Modifier
@@ -735,7 +737,7 @@ fun FullscreenPlayer(
                                     ) {
                                         Icon(
                                             imageVector = SimpIcons.FullscreenExit,
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                             contentDescription = "",
                                             modifier =
                                                 Modifier

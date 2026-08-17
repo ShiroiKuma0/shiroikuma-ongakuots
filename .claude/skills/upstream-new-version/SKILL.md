@@ -221,8 +221,7 @@ grep -rn "Color\.White" composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/u
     composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/screen/other \
     composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/screen/library \
   | grep -v "mutableStateOf(Color.White)" \
-  | grep -v "else -> Color.White" \
-  | grep -v "FullscreenPlayer.kt"
+  | grep -v "sk-stock-fallback"
 
 # the hand-rolled force-dark content colour — must go through skContentColor()
 grep -rn "if (forceDark) Color.White" composeApp/src/commonMain/kotlin --include=*.kt \
@@ -233,11 +232,10 @@ grep -rn "if (forceDark) Color.White" composeApp/src/commonMain/kotlin --include
 
 - `mutableStateOf(Color.White)` — a `remember` lambda, where a `@Composable` call is illegal; it is
   a shadow colour, not content.
-- `else -> Color.White` — the *stock* branch of our own `when`, i.e. the literal this fork replaces
-  when the theme is switched off. Removing it would break the escape hatch.
-- `FullscreenPlayer.kt` — **a known gap, not an exception.** 17 sites there were never swept (see
-  "Known gaps" in `CLAUDE.md`); drop this exclusion the moment they are, and the grep goes back to
-  covering the whole player.
+- `// sk-stock-fallback` — the *stock* branch of one of our own conditionals, i.e. the literal this
+  fork replaces when the theme is switched off. Removing it would break the escape hatch. The marker
+  is deliberate and self-documenting: a new stock fallback opts out by **saying** it is one, so the
+  grep never has to grow a list of special cases.
 - `OngakuSurfaces.kt` — the doc comment on `skContentColor()` quotes the pattern it replaces.
 
 These two must then print **nothing**. The next three must each print a hit — they are the four causes

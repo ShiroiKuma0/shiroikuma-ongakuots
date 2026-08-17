@@ -74,6 +74,9 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kyant.backdrop.highlight.Highlight
 import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.common.Config
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.data.model.home.Content
@@ -212,7 +215,16 @@ fun ArtistScreen(
 
     // Accent color for the action buttons, sourced from the artist name-logo image's dominant
     // color (hidden catalog). Falls back to white until the logo loads (or if none exists).
-    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: skOnPlayer()
+    val skUiArtist = LocalOngakuUi.current
+    // shiroikuma fork: upstream takes the action-button accent from the artist's name-logo image,
+    // so the three circles came out in whatever colour that artwork happened to be. With our theme
+    // on they are traced in the house border colour like every other action in the fork.
+    val artistAccent =
+        if (skUiArtist.enabled) {
+            skUiArtist.c(ColorSlot.BORDER)
+        } else {
+            artistLogo?.bgColorHex?.hexToColorOrNull() ?: Color.White // sk-stock-fallback
+        }
 
     val hazeState = rememberHazeState(blurEnabled = true)
     val lazyState = rememberLazyListState()

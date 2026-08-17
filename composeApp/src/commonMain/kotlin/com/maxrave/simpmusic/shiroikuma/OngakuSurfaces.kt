@@ -144,7 +144,7 @@ fun skLyricsBackground(): Color {
 @Composable
 fun Modifier.skCardFrame(shape: Shape): Modifier {
     val ui = LocalOngakuUi.current
-    return if (ui.enabled && ui.borderWidthDp > 0) {
+    return if (ui.enabled && ui.frames && ui.borderWidthDp > 0) {
         this.border(ui.borderWidthDp.dp, ui.c(ColorSlot.BORDER), shape)
     } else {
         this
@@ -161,7 +161,7 @@ fun Modifier.skCardFrame(shape: Shape): Modifier {
 @Composable
 fun Modifier.skSideBorders(): Modifier {
     val ui = LocalOngakuUi.current
-    if (!ui.enabled || ui.borderWidthDp <= 0) return this
+    if (!ui.enabled || !ui.sideRules || ui.borderWidthDp <= 0) return this
     val color = ui.c(ColorSlot.BORDER)
     val width = ui.borderWidthDp.dp
     // drawWithContent, NOT drawBehind: everything inside this container paints an opaque background
@@ -186,7 +186,7 @@ fun Modifier.skSideBorders(): Modifier {
 @Composable
 fun Modifier.skDialogFrame(): Modifier {
     val ui = LocalOngakuUi.current
-    if (!ui.enabled) return this
+    if (!ui.enabled || !ui.frames) return this
     val shape = RoundedCornerShape(ui.cornerRadiusDp.dp)
     return this.border(ui.borderWidthDp.dp.coerceAtLeast(1.dp), ui.c(ColorSlot.BORDER), shape)
 }
@@ -201,5 +201,43 @@ fun Modifier.skDialogFrame(): Modifier {
 @Composable
 fun skDialogBorder(): BorderStroke? {
     val ui = LocalOngakuUi.current
-    return if (ui.enabled) BorderStroke(ui.borderWidthDp.dp.coerceAtLeast(1.dp), ui.c(ColorSlot.BORDER)) else null
+    return if (ui.enabled && ui.frames) BorderStroke(ui.borderWidthDp.dp.coerceAtLeast(1.dp), ui.c(ColorSlot.BORDER)) else null
+}
+
+/** The unavailable transport control — `Color.DarkGray` upstream, our disabled text slot here. */
+@Composable
+fun skDisabledOnPlayer(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT_DISABLED) else Color.DarkGray
+}
+
+/**
+ * A traced action control: black inside, the border colour around it — the same treatment as the
+ * player's transport button, applied to the round and pill-shaped actions on the album, artist and
+ * playlist pages.
+ *
+ * Upstream fills these solid (a white pill, a white-at-12% circle). Tinting the fill with the accent
+ * gives a solid yellow lozenge, which is not what the house look is; tracing them keeps the page
+ * black and lets the border carry the shape (白い熊, 2026-08-16).
+ */
+@Composable
+fun Modifier.skTracedAction(
+    shape: Shape,
+    stockFill: Color,
+): Modifier {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled && ui.tracedActions) {
+        this
+            .background(ui.c(ColorSlot.BG), shape)
+            .border(ui.borderWidthDp.dp.coerceAtLeast(1.dp), ui.c(ColorSlot.BORDER), shape)
+    } else {
+        this.background(stockFill, shape)
+    }
+}
+
+/** Content drawn on a traced action — yellow on our black, black on upstream's white fill. */
+@Composable
+fun skOnAction(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled && ui.tracedActions) ui.c(ColorSlot.TEXT) else Color.Black
 }

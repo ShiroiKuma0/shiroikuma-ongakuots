@@ -141,23 +141,29 @@ Lyrics carry a deliberate inversion: a line **not** being sung is yellow and the
 **white** (`LYRIC_ACTIVE`), word-by-word included — the current line is marked by going white
 against yellow rather than by everything else going faint (白い熊, 2026-08-16).
 
-### Known gaps — theming work that is NOT done
+### Fork behaviour is settable, not baked in
 
-Recorded so the next session picks them up rather than rediscovering them:
+白い熊's standing instruction is that the UI page hold **all our changes and modifiable configs**, so
+the fork's behavioural departures from stock are switches under **Fork behaviour** rather than
+decisions hardcoded: flat player backdrop, flat page backgrounds, traced transport button, traced
+action buttons, house mini player, band side rules, and frames. Each defaults to the fork's
+behaviour and restores upstream's when turned off — which also makes the section a way to see
+exactly what the fork changed, one switch at a time.
 
-- **`ui/screen/player/FullscreenPlayer.kt` was never swept** — 17 `Color.White` sites (transport
-  tints, the two sliders' thumb/track, the title and the overlay icons). The fullscreen video player
-  therefore still renders white-on-artwork while the rest of the app is black-yellow. The fix is the
-  same mechanical one applied everywhere else: route them through `skOnPlayer()`, and drop the
-  `FullscreenPlayer.kt` exclusion from the regression grep in `upstream-new-version`.
-- **The album/artist filled action buttons** (the white "Play" pill, the filled shuffle circle) take
-  the accent as their fill with black content, rather than the traced black/ring treatment 白い熊
-  specified for the transport button. Not yet confirmed either way with them.
-- **The UI page holds the appearance layer only.** 白い熊's original instruction was that it hold
-  "all our changes and modifiable configs"; the fork's *behavioural* changes are not switchable
-  there — the removed in-app updater, the removed blog-promo dialog and blog-RSS worker, the FOSS
-  build's stubbed Cast and Last.fm, traced-vs-filled transport, and the side rules (currently only
-  on/off via border thickness, which also moves every card frame). Open with 白い熊.
+Each flag is read by the helper that already owns that decision (`skCardFrame`, `skSideBorders`,
+`skDialogFrame`/`skDialogBorder`, `skTracedAction`/`skOnAction`) or at the one call site that does
+(`toImmersiveBackground`, the player backdrop, `PlayerControlLayout`, `MiniPlayer`). **A new
+behavioural change gets a flag at the same time it gets its code** — that is the rule, not a
+nice-to-have.
+
+### Known gaps
+
+- The **removed upstream surfaces** — the in-app updater, the blog-promo dialog, the blog-RSS
+  worker — are deliberately *not* switchable: the updater can only ever offer upstream's APK, which
+  cannot install over ours, and the other two are upstream's own promotion. They are removals, not
+  preferences.
+- **Cast and Last.fm** are gated by `isFullBuild` at **build** time, so they cannot be runtime
+  switches. Flipping them means a rebuild (see the FOSS note above).
 
 ## Skills
 
