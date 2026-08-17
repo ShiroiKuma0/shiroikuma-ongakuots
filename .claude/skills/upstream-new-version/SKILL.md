@@ -61,15 +61,37 @@ git diff --name-only master..upstream/dev > /tmp/upstream-touched.txt
 git diff --name-only master..custom | grep -Fxf /tmp/upstream-touched.txt
 ```
 
-Also check the **`core` submodule**: it is a separate repo and moves independently.
+### The `core` submodule is a SECOND fork — sync it the same way
+
+`core` is not upstream's submodule any more: it is `ShiroiKuma0/shiroikuma-ongakuots-core`, with the
+same `master` (mirroring `upstream/multiplatform`) / `custom` model, and it carries the Android Auto
+colours. **Never repoint `.gitmodules` back at `maxrave-dev/core`** — that silently drops our work.
 
 ```bash
-git diff master..upstream/dev -- core          # a changed submodule pointer shows here
+git diff master..upstream/dev -- core          # a moved submodule pointer shows here
+git -C core fetch upstream
+git -C core log --oneline master..upstream/multiplatform
 ```
 
-If it moved, `git submodule update --init --recursive` after the rebase, and read that repo's log
-too — a large share of SimpMusic's real work (data layer, scraper, media) happens there and is
-invisible in the main repo's `git log`.
+A large share of SimpMusic's real work (data layer, scraper, media) happens in that repo and is
+invisible in the main repo's `git log`, so read it for the Step 2 table as well.
+
+When it has moved, sync it **before** the parent, in its own directory:
+
+```bash
+git -C core checkout master && git -C core merge --ff-only upstream/multiplatform
+git -C core checkout custom && git -C core rebase master
+```
+
+Two traps:
+
+- **`git submodule sync` rewrites `core`'s `origin` from `.gitmodules`** (the HTTPS URL), and the
+  push then fails asking for a username. Restore it with
+  `git -C core remote set-url origin git@github.com:ShiroiKuma0/shiroikuma-ongakuots-core.git`.
+- **Push `core` first, then the parent.** The parent records a commit sha in our core fork, so a
+  pushed pointer to an unpushed core commit is a broken clone for everyone else.
+
+Then `git submodule update --init --recursive` and commit the moved pointer with the rest.
 
 ## Step 2 — ⛔ PROCEED GATE: the new-features table (MANDATORY, before any branch moves)
 
@@ -164,6 +186,15 @@ moves by itself, so the next build picks up the new date and sha automatically.
 | Single ABI | `abis = arrayOf("arm64-v8a")`, `ndk.abiFilters` arm64 only, `splits.abi.isEnable = false` | `androidApp/build.gradle.kts` |
 | Black-yellow icon | yellow line-art on black, adaptive | `androidApp/src/main/res/mipmap-*`, `drawable-v24/ic_launcher_foreground.xml` |
 | De-branding | our name + our GitHub links everywhere user-visible | `CreditScreen.kt`, `SettingScreen.kt`, `ReviewDialog.kt`, strings |
+| 白い熊 音楽乙 UI page | 23 colour slots, fonts, sizes, shapes, Export/Import, automation rows | `shiroikuma/OngakuUiScreen.kt` + `OngakuUi*.kt` + `OngakuPickers.kt` + `OngakuSurfaces.kt` |
+| Page entry points | long-press the home cog; top row of Settings | `HomeScreen.kt` `HomeTopAppBar`, `SettingScreen.kt` item `shiroikuma_ui` |
+| Theme reaches the app | `applyTo()` → ColorScheme; `surfaceTint` pinned to `surface` | `shiroikuma/OngakuUi.kt`, `ui/theme/Theme.kt` |
+| Force-dark literals overridden | the immersive `#242424`/white/grey set | `ui/component/SurfaceDarkColors.kt`, `ui/theme/Typo.kt` |
+| Artwork backgrounds flattened | album/playlist/artist page, player backdrop | `extension/UIExt.kt` `toImmersiveBackground`, `NowPlayingScreen.kt` |
+| Side rules draw ON TOP | `drawWithContent`, never `drawBehind` | `shiroikuma/OngakuSurfaces.kt` `skSideBorders` |
+| Category ZIP backup | headless engine + Kōjiki panel | `shiroikuma/SkBackup.android.kt`, `SkExportImportPanel.android.kt` |
+| 保存復元 automation | receiver, foreground service, token, cancel | `shiroikuma/automation/*.kt` + manifest receiver/service |
+| Android Auto colours | **in the `core` fork** | `core/media/media3/.../carapp/SkCarColors.kt`, `res/values/shiroikuma_car.xml` |
 | Fork doc on top | our block above upstream's guide | `CLAUDE.md` |
 
 ### Regression greps — the checks a rebase will NOT flag
@@ -181,6 +212,48 @@ grep -rn ">SimpMusic<" androidApp/src composeApp/src/commonMain/composeResources
 
 # our FOSS build must stay telemetry-free: no Sentry/Crashlytics init outside the gated modules
 grep -rn "isFullBuild" gradle.properties
+
+# THE theming regression. Every one of these is a literal no colour scheme reaches, so upstream
+# adding one more of the same shape merges cleanly and the fork silently loses ground — which is
+# exactly how the player and the immersive screens stayed grey after the theme was "done".
+# A hit is not automatically wrong; it means: route it through skOnPlayer() / skContentColor().
+grep -rn "Color\.White" composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/screen/player \
+    composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/screen/other \
+    composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/screen/library \
+  | grep -v "mutableStateOf(Color.White)" \
+  | grep -v "else -> Color.White" \
+  | grep -v "FullscreenPlayer.kt"
+
+# the hand-rolled force-dark content colour — must go through skContentColor()
+grep -rn "if (forceDark) Color.White" composeApp/src/commonMain/kotlin --include=*.kt \
+  | grep -v "shiroikuma/OngakuSurfaces.kt"
+```
+
+**The three exclusions are deliberate, and each is load-bearing:**
+
+- `mutableStateOf(Color.White)` — a `remember` lambda, where a `@Composable` call is illegal; it is
+  a shadow colour, not content.
+- `else -> Color.White` — the *stock* branch of our own `when`, i.e. the literal this fork replaces
+  when the theme is switched off. Removing it would break the escape hatch.
+- `FullscreenPlayer.kt` — **a known gap, not an exception.** 17 sites there were never swept (see
+  "Known gaps" in `CLAUDE.md`); drop this exclusion the moment they are, and the grep goes back to
+  covering the whole player.
+- `OngakuSurfaces.kt` — the doc comment on `skContentColor()` quotes the pattern it replaces.
+
+These two must then print **nothing**. The next three must each print a hit — they are the four causes
+that made whole classes of surface stay grey, and losing one silently undoes the theme:
+
+```bash
+# elevation tint pinned, or every card drifts off black again
+grep -n "surfaceTint = surface" composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/shiroikuma/OngakuUi.kt
+
+# side rules drawn AFTER the content, never behind it
+grep -n "drawWithContent" composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/shiroikuma/OngakuSurfaces.kt
+
+# the force-dark sets and the artwork background still branch on our theme
+grep -c "LocalOngakuUi" composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/component/SurfaceDarkColors.kt \
+    composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/ui/theme/Typo.kt \
+    composeApp/src/commonMain/kotlin/com/maxrave/simpmusic/extension/UIExt.kt
 ```
 
 Then confirm the build script still evaluates:
@@ -217,9 +290,14 @@ than patching blindly.
 Let 白い熊 install and test on-device. Only on their explicit **"Push"**:
 
 ```bash
+git -C core push origin master                 # the submodule FIRST — see below
+git -C core push --force-with-lease origin custom
 git push origin master
 git push --force-with-lease origin custom     # history was rewritten by the rebase
 ```
+
+**`core` before the parent, always.** The parent records a commit sha in our core fork; pushing a
+pointer to a commit that is not yet on GitHub gives everyone else a clone that cannot check out.
 
 `--force-with-lease`, never bare `--force`. Then update the base-version examples in `build-apk` and
 in this skill if they have drifted, and treat the sync as incomplete until they match.
