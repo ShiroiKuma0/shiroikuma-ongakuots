@@ -13,7 +13,7 @@ no telemetry at all.
 
 Installs **side-by-side** with the official SimpMusic (app id `shiroikuma.ongakuots`).
 
-**📥 Latest release: [`1.7.0+2026-08-15.17-42.g9155f673+008`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
+**📥 Latest release: [`1.7.0+2026-08-15.17-42.g9155f673+010`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
 
 </div>
 
@@ -44,6 +44,15 @@ Not a theme you switch on — the default. Black surfaces, yellow text, yellow b
 the player and its traced transport button, the lyrics, the immersive artist/album/playlist pages,
 every dialog, the mini player, the navigation rail, the seek bar. The master switch falls back to
 stock Material with every edit kept, so the two can be compared without losing work.
+
+---
+
+## 🎛 Every fork change is a switch
+
+The page holds not just how the fork *looks* but what it **does** differently. Flat player backdrop,
+flat page backgrounds, traced transport button, traced action buttons, house mini player, band side
+rules, frames — each defaults to the fork's behaviour and restores upstream's when turned off. So the
+section doubles as a way to see exactly what this fork changed, one switch at a time.
 
 ---
 
@@ -102,6 +111,7 @@ daily blog-RSS notification worker, and its sponsor and review links are gone to
 | Look | black / yellow `#FFFF00`, fully settable in-app | Material You from a seed colour |
 | Fonts | any imported file, previewed in its own glyphs | bundled Poppins |
 | Backup | category ZIP + headless automation | single backup/restore file |
+| Fork changes | each one a switch, revertible to upstream's behaviour | n/a |
 | Telemetry | **none** | opt-out crash reporting in the full build |
 | In-app updater | removed | checks upstream's GitHub releases |
 | ABI | `arm64-v8a` only | armeabi-v7a + arm64-v8a + x86_64 |
