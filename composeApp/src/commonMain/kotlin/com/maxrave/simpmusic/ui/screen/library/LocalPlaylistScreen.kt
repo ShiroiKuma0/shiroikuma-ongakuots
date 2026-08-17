@@ -102,6 +102,8 @@ import coil3.request.crossfade
 import coil3.toBitmap
 import com.kmpalette.rememberPaletteState
 import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.skOnAction
 import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.common.LOCAL_PLAYLIST_ID
 import com.maxrave.domain.data.entities.DownloadState
@@ -825,7 +827,7 @@ fun LocalPlaylistScreen(
                                                 Modifier
                                                     .size(48.dp)
                                                     .clip(CircleShape)
-                                                    .background(skOnPlayer().copy(alpha = 0.12f))
+                                                    .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f))
                                                     .clickable {
                                                         viewModel.onUIEvent(LocalPlaylistUIEvent.ShuffleClick)
                                                     },
@@ -844,7 +846,7 @@ fun LocalPlaylistScreen(
                                                     .height(48.dp)
                                                     .widthIn(min = 110.dp)
                                                     .clip(CircleShape)
-                                                    .background(skOnPlayer())
+                                                    .skTracedAction(CircleShape, skOnPlayer())
                                                     .clickable {
                                                         if (isThisPlaying) {
                                                             sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -863,13 +865,13 @@ fun LocalPlaylistScreen(
                                                             SimpIcons.PlayArrow
                                                         },
                                                     contentDescription = null,
-                                                    tint = Color.Black,
+                                                    tint = skOnAction(),
                                                     modifier = Modifier.size(22.dp),
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
                                                     text = if (isThisPlaying) "Pause" else "Play",
-                                                    color = Color.Black,
+                                                    color = skOnAction(),
                                                     style = typo().labelLarge,
                                                 )
                                             }
@@ -879,7 +881,7 @@ fun LocalPlaylistScreen(
                                                 Modifier
                                                     .size(48.dp)
                                                     .clip(CircleShape)
-                                                    .background(skOnPlayer().copy(alpha = 0.12f)),
+                                                    .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f)),
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Crossfade(targetState = downloadState) { state ->
@@ -1202,7 +1204,7 @@ fun LocalPlaylistScreen(
                                                 modifier =
                                                     Modifier
                                                         .clip(CircleShape)
-                                                        .background(skOnPlayer().copy(alpha = 0.12f))
+                                                        .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f))
                                                         .clickable {
                                                             sortBottomSheetShow = true
                                                         }.padding(vertical = 8.dp, horizontal = 14.dp),

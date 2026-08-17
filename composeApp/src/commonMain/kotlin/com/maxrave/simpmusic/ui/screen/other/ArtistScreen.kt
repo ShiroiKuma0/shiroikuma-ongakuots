@@ -79,6 +79,9 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.common.Config
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.data.model.home.Content
@@ -211,7 +214,16 @@ fun ArtistScreen(
 
     // Accent color for the action buttons, sourced from the artist name-logo image's dominant
     // color (hidden catalog). Falls back to white until the logo loads (or if none exists).
-    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: skOnPlayer()
+    val skUiArtist = LocalOngakuUi.current
+    // shiroikuma fork: upstream takes the action-button accent from the artist's name-logo image,
+    // so the three circles came out in whatever colour that artwork happened to be. With our theme
+    // on they are traced in the house border colour like every other action in the fork.
+    val artistAccent =
+        if (skUiArtist.enabled) {
+            skUiArtist.c(ColorSlot.BORDER)
+        } else {
+            artistLogo?.bgColorHex?.hexToColorOrNull() ?: Color.White // sk-stock-fallback
+        }
 
     val hazeState = rememberHazeState(blurEnabled = true)
     val lazyState = rememberLazyListState()
@@ -450,7 +462,7 @@ fun ArtistScreen(
                                                 Modifier
                                                     .size(64.dp)
                                                     .clip(CircleShape)
-                                                    .background(artistAccent)
+                                                    .skTracedAction(CircleShape, artistAccent)
                                                     .clickable {
                                                         val param = state.data.shuffleParam
                                                         if (param != null) {
@@ -476,7 +488,9 @@ fun ArtistScreen(
                                                 Modifier
                                                     .size(48.dp)
                                                     .clip(CircleShape)
-                                                    .background(if (isFollowed) artistAccent else Color.Transparent)
+                                                    .background(
+                                                        if (isFollowed && !skUiArtist.enabled) artistAccent else Color.Transparent,
+                                                    )
                                                     .border(1.5.dp, artistAccent, CircleShape)
                                                     .clickable {
                                                         viewModel.updateFollowed(
@@ -489,7 +503,7 @@ fun ArtistScreen(
                                             Icon(
                                                 imageVector = if (isFollowed) SimpIcons.Check else SimpIcons.PersonAdd,
                                                 contentDescription = if (isFollowed) "Followed" else "Follow",
-                                                tint = if (isFollowed) mutedPaletteBg else artistAccent,
+                                                tint = if (isFollowed && !skUiArtist.enabled) mutedPaletteBg else artistAccent,
                                                 modifier = Modifier.size(22.dp),
                                             )
                                         }

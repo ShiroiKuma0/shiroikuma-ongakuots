@@ -477,7 +477,8 @@ fun NowPlayingScreenContent(
     // #121212. Resolved once here so the gradient's end colour, the fade target and the area below
     // the gradient stay exactly equal — a seam between them is visible on a flat black.
     val skUi = LocalOngakuUi.current
-    val playerBackdrop = if (skUi.enabled) skUi.c(ColorSlot.PLAYER_BG) else PlayerBackdropColor
+    val playerBackdrop =
+        if (skUi.enabled && skUi.flatPlayerBackdrop) skUi.c(ColorSlot.PLAYER_BG) else PlayerBackdropColor
 
     LaunchedEffect(Unit) {
         snapshotFlow { paletteState.palette }
@@ -487,7 +488,9 @@ fun NowPlayingScreenContent(
                 // With our theme on the player sits on flat black rather than a ramp out of the
                 // cover's dominant colour — that ramp is what kept the whole sheet grey-blue, and
                 // nothing drawn on it could then be relied on to read.
-                startColor.animateTo(if (skUi.enabled) playerBackdrop else it.getColorFromPalette())
+                startColor.animateTo(
+                    if (skUi.enabled && skUi.flatPlayerBackdrop) playerBackdrop else it.getColorFromPalette(),
+                )
                 // Lands on the same backdrop colour the fade and the area below the gradient
                 // use, so the palette ramp resolves into the surface instead of a black patch.
                 endColor.animateTo(playerBackdrop)
@@ -568,7 +571,7 @@ fun NowPlayingScreenContent(
             when {
                 timelineState.isCrossfading -> rainbowColor
                 skSeek.enabled -> skSeek.c(ColorSlot.PROGRESS)
-                else -> Color.White
+                else -> Color.White // sk-stock-fallback
             },
         animationSpec = tween(300),
         label = "sliderCrossfadeColor",

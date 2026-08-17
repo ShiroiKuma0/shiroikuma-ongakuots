@@ -478,7 +478,7 @@ fun Palette?.toImmersiveBackground(): Color {
     // the page background from the cover's dominant colour and merely darkens it, so a grey-blue
     // sleeve gives a grey-blue page. With our theme on the page is flat black, like everywhere else.
     val sk = LocalOngakuUi.current
-    if (sk.enabled) return sk.c(ColorSlot.BG)
+    if (sk.enabled && sk.flatPageBackground) return sk.c(ColorSlot.BG)
     val p = this ?: return Color.Black
     val rgb =
         p.getDominantColor(0).takeIf { it != 0 }

@@ -86,6 +86,8 @@ import coil3.request.crossfade
 import coil3.toBitmap
 import com.kmpalette.rememberPaletteState
 import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.skOnAction
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.utils.toSongEntity
@@ -711,7 +713,7 @@ fun PlaylistScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(skOnPlayer().copy(alpha = 0.12f))
+                                                                        .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f))
                                                                         .clickable {
                                                                             viewModel.onUIEvent(PlaylistUIEvent.Shuffle)
                                                                         },
@@ -731,7 +733,7 @@ fun PlaylistScreen(
                                                                     .height(48.dp)
                                                                     .widthIn(min = 110.dp)
                                                                     .clip(CircleShape)
-                                                                    .background(skOnPlayer())
+                                                                    .skTracedAction(CircleShape, skOnPlayer())
                                                                     .clickable {
                                                                         if (isThisPlaying) {
                                                                             sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -746,13 +748,13 @@ fun PlaylistScreen(
                                                                     imageVector =
                                                                         if (isThisPlaying) SimpIcons.Pause else SimpIcons.PlayArrow,
                                                                     contentDescription = null,
-                                                                    tint = Color.Black,
+                                                                    tint = skOnAction(),
                                                                     modifier = Modifier.size(22.dp),
                                                                 )
                                                                 Spacer(modifier = Modifier.width(4.dp))
                                                                 Text(
                                                                     text = if (isThisPlaying) "Pause" else "Play",
-                                                                    color = Color.Black,
+                                                                    color = skOnAction(),
                                                                     style = typo().labelLarge,
                                                                 )
                                                             }
@@ -763,7 +765,7 @@ fun PlaylistScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(skOnPlayer().copy(alpha = 0.12f)),
+                                                                        .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f)),
                                                                 contentAlignment = Alignment.Center,
                                                             ) {
                                                                 Crossfade(targetState = downloadState) { state ->

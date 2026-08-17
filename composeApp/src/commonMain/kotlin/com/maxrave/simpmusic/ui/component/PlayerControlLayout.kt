@@ -140,7 +140,7 @@ fun PlayerControlLayout(
                     // PlayCircle / PauseCircle are FILLED disc glyphs, so tinting them yellow gave a
                     // solid yellow puck. The house button is traced instead: black inside, the glyph
                     // and the ring both in the accent (白い熊, 2026-08-16). Stock keeps the discs.
-                    if (skUi.enabled) {
+                    if (skUi.enabled && skUi.tracedTransport) {
                         Box(
                             Modifier
                                 .size(bigIcon.first)
