@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.ThumbDown
 import com.maxrave.simpmusic.ui.icon.ThumbUp
@@ -42,6 +43,7 @@ fun VoteLyricsDialog(
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
+        modifier = Modifier.skDialogFrame(),
         containerColor = rememberSurfaceDarkColors().container,
         titleContentColor = rememberSurfaceDarkColors().content,
         textContentColor = rememberSurfaceDarkColors().content,

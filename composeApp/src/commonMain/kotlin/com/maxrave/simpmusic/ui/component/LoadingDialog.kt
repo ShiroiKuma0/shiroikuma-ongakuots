@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.maxrave.simpmusic.shiroikuma.skDialogBorder
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.simpmusic.ui.theme.typo
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.Res
@@ -41,6 +43,7 @@ fun LoadingDialog(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.large,
+                    border = skDialogBorder(),
                     color = rememberSurfaceDarkColors().container,
                     contentColor = rememberSurfaceDarkColors().content,
                     tonalElevation = AlertDialogDefaults.TonalElevation,

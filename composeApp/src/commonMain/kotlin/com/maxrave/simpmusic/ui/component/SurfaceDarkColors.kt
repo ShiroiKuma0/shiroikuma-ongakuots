@@ -4,6 +4,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.simpmusic.ui.theme.LocalForceDarkText
 
 /**
@@ -30,6 +32,20 @@ data class SurfaceDarkColors(
 @Composable
 fun rememberSurfaceDarkColors(): SurfaceDarkColors {
     val cs = MaterialTheme.colorScheme
+    // shiroikuma fork: the force-dark branch below is a hardcoded #242424/white/grey set that no
+    // colour scheme reaches — which is why the immersive screens (artist, album, playlist, the
+    // player and every sheet opened from them) stayed grey-on-white while the rest of the app went
+    // black-yellow. With our theme on, both branches come from the UI page's own slots.
+    val sk = LocalOngakuUi.current
+    if (sk.enabled) {
+        return SurfaceDarkColors(
+            container = sk.c(ColorSlot.SURFACE),
+            handle = sk.c(ColorSlot.BORDER),
+            content = sk.c(ColorSlot.TEXT),
+            subtitle = sk.c(ColorSlot.TEXT_DIM),
+            disabled = sk.c(ColorSlot.TEXT_DISABLED),
+        )
+    }
     return if (LocalForceDarkText.current) {
         SurfaceDarkColors(
             container = Color(0xFF242424),

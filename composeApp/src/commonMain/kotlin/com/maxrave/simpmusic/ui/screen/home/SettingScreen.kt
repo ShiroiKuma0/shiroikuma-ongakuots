@@ -94,6 +94,8 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.eygraber.uri.toKmpUri
+import com.maxrave.simpmusic.shiroikuma.skDialogBorder
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.common.LIMIT_CACHE_SIZE
 import com.maxrave.common.QUALITY
 import com.maxrave.common.SUPPORTED_LANGUAGE
@@ -2575,6 +2577,7 @@ fun SettingScreen(
     if (basisAlertData != null) {
         val alertBasicState = basisAlertData ?: return
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             onDismissRequest = { viewModel.setBasicAlertData(null) },
             title = {
                 Text(
@@ -2625,6 +2628,7 @@ fun SettingScreen(
         var pendingHex by rememberSaveable { mutableStateOf(customThemeColorHex.takeLast(6)) }
         val parsedColor = parseThemeColorHex(pendingHex)
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             onDismissRequest = { showColorPickerDialog = false },
             title = { Text(text = stringResource(Res.string.custom_color), style = typo().titleSmall) },
             text = {
@@ -2690,6 +2694,7 @@ fun SettingScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
+                border = skDialogBorder(),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 tonalElevation = AlertDialogDefaults.TonalElevation,
                 shadowElevation = 1.dp,
@@ -2852,6 +2857,7 @@ fun SettingScreen(
         val alertState = alertData ?: return
         // AlertDialog
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             onDismissRequest = { viewModel.setAlertData(null) },
             title = {
                 Text(
@@ -3200,6 +3206,7 @@ private fun ImportProgressDialog(
 ) {
     val finished = progress is ImportProgress.Success || progress is ImportProgress.Error
     AlertDialog(
+        modifier = Modifier.skDialogFrame(),
         onDismissRequest = { if (finished) onDismiss() },
         properties =
             DialogProperties(

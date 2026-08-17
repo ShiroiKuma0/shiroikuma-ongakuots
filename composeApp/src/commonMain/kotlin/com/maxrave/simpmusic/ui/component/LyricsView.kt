@@ -112,6 +112,9 @@ import com.maxrave.simpmusic.extension.animateScrollAndAnchorItemTop
 import com.maxrave.simpmusic.extension.animateScrollAndCentralizeItem
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.hsvToColor
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.skLyricsBackground
 import com.maxrave.simpmusic.extension.parseRichSyncWords
 import com.maxrave.simpmusic.ui.icon.Info
 import com.maxrave.simpmusic.ui.icon.MoreVert
@@ -209,6 +212,36 @@ private val DimTranslatedColor = Color(0xFF97971A).copy(alpha = 0.3f)
 private val DimRomanizedCurrentColor = Color.White.copy(alpha = 0.7f)
 private val DimRomanizedColor = Color.LightGray.copy(alpha = 0.3f)
 private val DimRichPendingColor = Color.LightGray.copy(alpha = 0.6f)
+
+// shiroikuma fork: the three dim colours above are module-level literals, so no colour scheme ever
+// reached them — the lyrics stayed grey on a black sheet. With our theme on, a line that is NOT
+// being sung is the house yellow and the line that IS stays white: white against yellow is what
+// marks the current line, rather than bright against faint. 白い熊, 2026-08-16.
+@Composable
+private fun dimOriginal(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT) else DimOriginalColor
+}
+
+@Composable
+private fun dimTranslated(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT_DIM) else DimTranslatedColor
+}
+
+/** The not-yet-sung tail of the line being sung, in a word-by-word lyric. */
+@Composable
+private fun dimRichPending(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT) else DimRichPendingColor
+}
+
+/** The sung line, and the sung words within it. Deliberately white even in the house theme. */
+@Composable
+private fun lyricCurrent(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE) else Color.White
+}
 
 private data class TimedLineIndex(
     val index: Int,
@@ -322,7 +355,7 @@ fun LyricsView(
     onLineClick: (Float) -> Unit,
     modifier: Modifier = Modifier,
     showScrollShadows: Boolean = false,
-    backgroundColor: Color = Color(0xFF242424),
+    backgroundColor: Color = skLyricsBackground(),
     // Optional trailing slot rendered as the LAST list item, so a caller's caption scrolls with
     // the lyrics instead of sitting anchored below them. Null by default: every existing caller
     // renders exactly as before.
@@ -682,7 +715,7 @@ fun LyricsLineItem(
                 Text(
                     text = originalWords,
                     style = typo().headlineLarge,
-                    color = if (isCurrent) Color.White else DimOriginalColor,
+                    color = if (isCurrent) lyricCurrent() else dimOriginal(),
                 )
                 if (romanizedWords != null) {
                     Text(
@@ -698,7 +731,7 @@ fun LyricsLineItem(
                     Text(
                         text = translatedWords,
                         style = typo().bodyMedium,
-                        color = if (isCurrent) Color.Yellow else DimTranslatedColor,
+                        color = if (isCurrent) Color.Yellow else dimTranslated(),
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -713,7 +746,7 @@ fun LyricsLineItem(
             Text(
                 text = originalWords,
                 style = typo().headlineMedium,
-                color = DimOriginalColor,
+                color = dimOriginal(),
             )
             if (romanizedWords != null) {
                 Text(
@@ -726,7 +759,7 @@ fun LyricsLineItem(
                 Text(
                     text = translatedWords,
                     style = typo().bodyMedium,
-                    color = DimTranslatedColor,
+                    color = dimTranslated(),
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -830,7 +863,7 @@ fun RichSyncLyricsLineItem(
             Text(
                 text = translatedWords,
                 style = translatedStyleOverride ?: typo().bodyMedium,
-                color = translatedColorOverride ?: if (isCurrent) Color.Yellow else DimTranslatedColor,
+                color = translatedColorOverride ?: if (isCurrent) Color.Yellow else dimTranslated(),
             )
         }
 
@@ -861,7 +894,7 @@ private fun AnimatedWord(
         )
 
     if (!isCurrent) {
-        Text(text = word, style = style, color = pendingColorOverride ?: DimOriginalColor)
+        Text(text = word, style = style, color = pendingColorOverride ?: dimOriginal())
         return
     }
 
@@ -1031,7 +1064,7 @@ private fun AnimatedWord(
 fun FullscreenLyricsSheet(
     sharedViewModel: SharedViewModel,
     navController: NavController,
-    color: Color = Color(0xFF242424),
+    color: Color = skLyricsBackground(),
     onDismiss: () -> Unit,
 ) {
     // The Apple Music renderer applies its own gutter inside LyricsView — it has to, because the
@@ -1308,7 +1341,7 @@ fun FullscreenLyricsSheet(
                         Text(
                             text = screenDataState.nowPlayingTitle,
                             style = typo().labelSmall,
-                            color = Color.White,
+                            color = lyricCurrent(),
                             maxLines = 1,
                             modifier =
                                 Modifier
@@ -1448,7 +1481,7 @@ fun FullscreenLyricsSheet(
                                 Text(
                                     text = stringResource(Res.string.unavailable),
                                     style = typo().bodyMedium,
-                                    color = Color.White,
+                                    color = lyricCurrent(),
                                     textAlign = TextAlign.Center,
                                 )
                             }
