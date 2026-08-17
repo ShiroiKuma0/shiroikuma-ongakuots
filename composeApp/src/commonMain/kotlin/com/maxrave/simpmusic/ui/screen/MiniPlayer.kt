@@ -191,7 +191,7 @@ fun MiniPlayer(
         // With liquid glass the surface follows the theme (light = frosted white → black text);
         // without it, the surface is the artwork colour, so follow the backdrop luminance.
         targetValue =
-            if (skUi.enabled) {
+            if (skUi.enabled && skUi.housePill) {
                 skUi.c(ColorSlot.TEXT)
             } else if (useGlassSurface) {
                 if (isDarkTheme) Color.White else Color.Black
@@ -335,20 +335,20 @@ fun MiniPlayer(
         // visible one.
         val miniPlayerShape =
             when {
-                skUi.enabled -> RoundedCornerShape(skUi.cornerRadiusDp.dp)
+                skUi.enabled && skUi.housePill -> RoundedCornerShape(skUi.cornerRadiusDp.dp)
                 isLiquidGlassEnabled == DataStoreManager.TRUE -> CircleShape
                 else -> RoundedCornerShape(12.dp)
             }
         val skPillColor =
             when {
-                skUi.enabled -> skUi.c(ColorSlot.PLAYER_BG)
+                skUi.enabled && skUi.housePill -> skUi.c(ColorSlot.PLAYER_BG)
                 isLiquidGlassEnabled == DataStoreManager.TRUE -> Color.Transparent
                 else -> background.value
             }
         Card(
             shape = miniPlayerShape,
             border =
-                if (skUi.enabled && skUi.borderWidthDp > 0) {
+                if (skUi.enabled && skUi.housePill && skUi.frames && skUi.borderWidthDp > 0) {
                     BorderStroke(skUi.borderWidthDp.dp, skUi.c(ColorSlot.BORDER))
                 } else {
                     null

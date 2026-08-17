@@ -182,6 +182,71 @@ fun OngakuUiScreen(
                 ) { state.resetAll() }
             }
 
+            // ---- Fork behaviour ---------------------------------------------------------------------
+            // Not appearance: what the fork DOES differently. Each defaults to the fork's behaviour,
+            // and turning one off restores upstream's — which also makes this section a way to see
+            // exactly what the fork changed, one switch at a time.
+            item { SectionHeader("Fork behaviour") }
+            item { GroupLabel(1, "Backgrounds") }
+            item {
+                SwitchRow(
+                    2,
+                    "Flat player backdrop",
+                    "Off: the player ramps out of the cover's dominant colour, as upstream does.",
+                    ui.flatPlayerBackdrop,
+                ) { on -> state.edit { it.copy(flatPlayerBackdrop = on) } }
+            }
+            item {
+                SwitchRow(
+                    2,
+                    "Flat page backgrounds",
+                    "Off: album, artist and playlist pages take their colour from the artwork.",
+                    ui.flatPageBackground,
+                ) { on -> state.edit { it.copy(flatPageBackground = on) } }
+            }
+            item { GroupLabel(1, "Controls") }
+            item {
+                SwitchRow(
+                    2,
+                    "Traced transport button",
+                    "Off: upstream's filled play/pause disc instead of a ring around a bare glyph.",
+                    ui.tracedTransport,
+                ) { on -> state.edit { it.copy(tracedTransport = on) } }
+            }
+            item {
+                SwitchRow(
+                    2,
+                    "Traced action buttons",
+                    "Off: the album and artist Play pill and round actions are filled solid.",
+                    ui.tracedActions,
+                ) { on -> state.edit { it.copy(tracedActions = on) } }
+            }
+            item {
+                SwitchRow(
+                    2,
+                    "House mini player",
+                    "Off: the pill follows the artwork palette and picks its text by luminance.",
+                    ui.housePill,
+                ) { on -> state.edit { it.copy(housePill = on) } }
+            }
+            item { GroupLabel(1, "Edges") }
+            item {
+                SwitchRow(
+                    2,
+                    "Band side rules",
+                    "The left and right lines down the content strip and the player sheet.",
+                    ui.sideRules,
+                ) { on -> state.edit { it.copy(sideRules = on) } }
+            }
+            item {
+                SwitchRow(
+                    2,
+                    "Frames",
+                    "Borders around cards, sheets and dialogs. Border thickness below sizes them.",
+                    ui.frames,
+                ) { on -> state.edit { it.copy(frames = on) } }
+            }
+
             // ---- Colours -------------------------------------------------------------------------
             item { SectionHeader("Colours") }
             item { ColorPreview() }

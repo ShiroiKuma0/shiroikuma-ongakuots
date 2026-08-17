@@ -166,6 +166,26 @@ data class OngakuUi(
     val rowPaddingDp: Int = 2,
     /** Colours picked before, newest first — the one-click boxes above the RGBA sliders. */
     val recent: List<SkRgba> = emptyList(),
+
+    // ---- what the fork DOES, as opposed to what it looks like -----------------------------------
+    // 白い熊's standing instruction is that this page hold "all our changes and modifiable configs",
+    // so each of the fork's behavioural departures from stock is a switch rather than a decision
+    // baked into the code. Every one defaults to the fork's behaviour; turning it off restores
+    // upstream's, which also makes each one a way to see exactly what the fork changed.
+    /** Off: the player ramps its backdrop out of the cover's dominant colour, as upstream does. */
+    val flatPlayerBackdrop: Boolean = true,
+    /** Off: the album / artist / playlist pages take their background from the cover art. */
+    val flatPageBackground: Boolean = true,
+    /** Off: the mini-player pill follows the artwork palette and picks its text by luminance. */
+    val housePill: Boolean = true,
+    /** Off: the transport button is upstream's filled play/pause disc. */
+    val tracedTransport: Boolean = true,
+    /** Off: the round and pill actions on the album/artist pages are filled, as upstream draws them. */
+    val tracedActions: Boolean = true,
+    /** The left and right rules on the content band. */
+    val sideRules: Boolean = true,
+    /** Frames around cards, sheets and dialogs — separate from border thickness, which sizes them. */
+    val frames: Boolean = true,
 ) {
     fun color(slot: ColorSlot): SkRgba = colors[slot.id] ?: slot.default
 
