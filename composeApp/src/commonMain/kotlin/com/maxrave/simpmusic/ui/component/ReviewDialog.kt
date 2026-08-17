@@ -15,6 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.Modifier
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.simpmusic.ui.theme.seed
 import com.maxrave.simpmusic.ui.theme.typo
 import org.jetbrains.compose.resources.painterResource
@@ -29,6 +31,7 @@ fun ReviewDialog(
 ) {
     val uriHandler = LocalUriHandler.current
     AlertDialog(
+        modifier = Modifier.skDialogFrame(),
         properties =
             DialogProperties(
                 dismissOnBackPress = false,

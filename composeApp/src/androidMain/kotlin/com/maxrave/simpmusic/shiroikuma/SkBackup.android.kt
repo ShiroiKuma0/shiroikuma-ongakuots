@@ -47,11 +47,16 @@ object SkBackup {
     /** Thrown out of the write loop when a cancel lands; the partial file is removed by the caller. */
     class Cancelled : Exception("cancelled")
 
-    /** Progress as the export walks its categories. [index] is a 1-based POSITION, per the contract. */
+    /**
+     * Progress as the export walks its categories. [index] is a 1-based POSITION — the category
+     * being written, not the count finished — because that is what moves the caller's highlight.
+     * [bytes] is the second counter: how much of the archive is on disk so far.
+     */
     class Progress(
         val cat: SkBackupCat,
         val index: Int,
         val total: Int,
+        val bytes: Long,
     )
 
     private fun ctx(): Context = getKoin().get<Context>().applicationContext
@@ -80,7 +85,10 @@ object SkBackup {
             val chosen = cats.ifEmpty { SkBackupCat.entries.filter { it.defaultSelected } }
             var written = 0
 
-            ZipOutputStream(out.buffered()).use { zip ->
+            // Counted on the way out, so progress can report real bytes written rather than an
+            // estimate — the caller shows them beside the category count.
+            val counter = CountingOutputStream(out)
+            ZipOutputStream(counter.buffered()).use { zip ->
                 zip.putNextEntry(ZipEntry("manifest.json"))
                 zip.write(
                     buildString {
@@ -97,7 +105,8 @@ object SkBackup {
 
                 chosen.forEachIndexed { i, cat ->
                     if (cancelled()) throw Cancelled()
-                    onProgress(Progress(cat, i + 1, chosen.size))
+                    zip.flush()
+                    onProgress(Progress(cat, i + 1, chosen.size, counter.count))
                     when (cat) {
                         SkBackupCat.UI -> {
                             zip.putNextEntry(ZipEntry("ui.json"))
@@ -251,4 +260,31 @@ object SkBackup {
             }
             ImportResult(found.toList(), needsRestart)
         }
+}
+
+/** Counts what actually reaches the sink, so the export can report bytes without stat-ing a SAF file. */
+private class CountingOutputStream(
+    private val sink: OutputStream,
+) : OutputStream() {
+    @Volatile
+    var count: Long = 0L
+        private set
+
+    override fun write(b: Int) {
+        sink.write(b)
+        count++
+    }
+
+    override fun write(
+        b: ByteArray,
+        off: Int,
+        len: Int,
+    ) {
+        sink.write(b, off, len)
+        count += len
+    }
+
+    override fun flush() = sink.flush()
+
+    override fun close() = sink.close()
 }

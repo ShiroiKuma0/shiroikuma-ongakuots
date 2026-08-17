@@ -59,6 +59,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import coil3.toUri
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.domain.data.player.GenericMediaItem
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.manager.DataStoreManager.Values.TRUE
@@ -89,6 +90,7 @@ import com.maxrave.simpmusic.ui.navigation.graph.AppNavigationGraph
 import com.maxrave.simpmusic.ui.screen.MiniPlayer
 import com.maxrave.simpmusic.ui.screen.player.NowPlayingScreen
 import com.maxrave.simpmusic.ui.screen.player.NowPlayingScreenContent
+import com.maxrave.simpmusic.shiroikuma.skSideBorders
 import com.maxrave.simpmusic.ui.theme.AppTheme
 import com.maxrave.simpmusic.ui.theme.ForceDarkContent
 import com.maxrave.simpmusic.ui.theme.desktopPanelDark
@@ -543,7 +545,12 @@ fun App(viewModel: SharedViewModel = koinInject()) {
                                     } else {
                                         Modifier
                                     },
-                                ),
+                                )
+                                // shiroikuma fork: the content strip beside the navigation rail is
+                                // a panel over black, and on a black theme it had no edges at all.
+                                // Put here rather than on each screen so every destination gets
+                                // them, and a screen added later cannot forget.
+                                .skSideBorders(),
                         ) {
                             Box(
                                 Modifier
@@ -697,6 +704,7 @@ fun App(viewModel: SharedViewModel = koinInject()) {
                 if (sleepTimerState.isDone) {
                     Logger.w("MainActivity", "Sleep Timer Done: $sleepTimerState")
                     AlertDialog(
+                        modifier = Modifier.skDialogFrame(),
                         properties =
                             DialogProperties(
                                 dismissOnBackPress = false,
@@ -733,6 +741,7 @@ fun App(viewModel: SharedViewModel = koinInject()) {
                 if (shouldShowUpdateDialog) {
                     val response = updateData ?: return@Scaffold
                     AlertDialog(
+                        modifier = Modifier.skDialogFrame(),
                         properties =
                             DialogProperties(
                                 dismissOnBackPress = false,
@@ -854,6 +863,7 @@ fun App(viewModel: SharedViewModel = koinInject()) {
                 if (showNotificationPermissionDialog) {
                     var doNotShowAgain by remember { mutableStateOf(false) }
                     AlertDialog(
+                        modifier = Modifier.skDialogFrame(),
                         onDismissRequest = {
                             viewModel.dismissNotificationPermissionDialog(doNotShowAgain)
                         },

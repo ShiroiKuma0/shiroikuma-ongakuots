@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.ui.component.rememberHolderPainter
 import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -250,7 +251,7 @@ fun PodcastScreen(
                                             Text(
                                                 text = data.title,
                                                 style = typo().titleLarge,
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 maxLines = 2,
                                             )
                                             Column(
@@ -300,7 +301,7 @@ fun PodcastScreen(
                                                             Text(
                                                                 text = data.author.name,
                                                                 style = typo().labelSmall,
-                                                                color = Color.White,
+                                                                color = skOnPlayer(),
                                                             )
                                                         }
                                                     }
@@ -380,7 +381,7 @@ fun PodcastScreen(
                                                         data.listEpisode.size.toString(),
                                                         "",
                                                     ),
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 style = typo().bodyMedium,
                                                 modifier = Modifier.padding(vertical = 8.dp),
                                             )

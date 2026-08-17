@@ -107,6 +107,8 @@ import coil3.request.crossfade
 import coil3.toBitmap
 import com.kyant.backdrop.highlight.Highlight
 import com.kmpalette.rememberPaletteState
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
 import com.maxrave.common.LOCAL_PLAYLIST_ID
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.data.entities.LocalPlaylistEntity
@@ -591,7 +593,7 @@ fun LocalPlaylistScreen(
                                         Text(
                                             text = uiState.title,
                                             style = typo().titleLarge,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                             maxLines = 2,
                                             textAlign = TextAlign.Center,
                                         )
@@ -599,7 +601,7 @@ fun LocalPlaylistScreen(
                                         Text(
                                             text = stringResource(Res.string.your_playlist),
                                             style = typo().titleSmall,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                             textAlign = TextAlign.Center,
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
@@ -713,7 +715,7 @@ fun LocalPlaylistScreen(
                                             Icon(
                                                 imageVector = SimpIcons.MoreVert,
                                                 contentDescription = "More",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                             )
                                         }
                                     }
@@ -1086,7 +1088,7 @@ fun LocalPlaylistScreen(
                                                 Modifier
                                                     .size(48.dp)
                                                     .clip(CircleShape)
-                                                    .background(Color.White.copy(alpha = 0.12f))
+                                                    .background(skOnPlayer().copy(alpha = 0.12f))
                                                     .clickable {
                                                         viewModel.onUIEvent(LocalPlaylistUIEvent.ShuffleClick)
                                                     },
@@ -1095,7 +1097,7 @@ fun LocalPlaylistScreen(
                                             Icon(
                                                 imageVector = SimpIcons.Shuffle,
                                                 contentDescription = "Shuffle",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                                 modifier = Modifier.size(22.dp),
                                             )
                                         }
@@ -1105,7 +1107,7 @@ fun LocalPlaylistScreen(
                                                     .height(48.dp)
                                                     .widthIn(min = 110.dp)
                                                     .clip(CircleShape)
-                                                    .background(Color.White)
+                                                    .background(skOnPlayer())
                                                     .clickable {
                                                         if (isThisPlaying) {
                                                             sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -1140,7 +1142,7 @@ fun LocalPlaylistScreen(
                                                 Modifier
                                                     .size(48.dp)
                                                     .clip(CircleShape)
-                                                    .background(Color.White.copy(alpha = 0.12f)),
+                                                    .background(skOnPlayer().copy(alpha = 0.12f)),
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Crossfade(targetState = downloadState) { state ->
@@ -1203,7 +1205,7 @@ fun LocalPlaylistScreen(
                                                         ) {
                                                             Icon(
                                                                 imageVector = SimpIcons.DownloadForOffline,
-                                                                tint = Color.White,
+                                                                tint = skOnPlayer(),
                                                                 contentDescription = "Download",
                                                                 modifier = Modifier.size(22.dp),
                                                             )
@@ -1221,7 +1223,7 @@ fun LocalPlaylistScreen(
                                             (uiState.trackCount).toString(),
                                             "",
                                         ),
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     style = typo().bodyMedium,
                                     modifier = Modifier.padding(vertical = 8.dp),
                                 )
@@ -1238,7 +1240,7 @@ fun LocalPlaylistScreen(
                                                     stringResource(
                                                         Res.string.suggest,
                                                     ),
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 modifier =
                                                     Modifier
                                                         .padding(vertical = 8.dp)
@@ -1252,7 +1254,7 @@ fun LocalPlaylistScreen(
                                             ) {
                                                 Text(
                                                     text = stringResource(Res.string.reload),
-                                                    color = Color.White,
+                                                    color = skOnPlayer(),
                                                     modifier =
                                                         Modifier.align(
                                                             Alignment.CenterVertically,
@@ -1430,7 +1432,7 @@ fun LocalPlaylistScreen(
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 72.dp, end = 16.dp),
                                 thickness = 0.5.dp,
-                                color = Color.White.copy(alpha = 0.12f),
+                                color = skOnPlayer().copy(alpha = 0.12f),
                             )
                         }
                     }
@@ -1577,6 +1579,7 @@ fun LocalPlaylistScreen(
     }
     if (showSyncAlertDialog) {
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             containerColor = rememberSurfaceDarkColors().container,
             titleContentColor = rememberSurfaceDarkColors().content,
             textContentColor = rememberSurfaceDarkColors().content,
@@ -1602,6 +1605,7 @@ fun LocalPlaylistScreen(
     }
     if (showUnsyncAlertDialog) {
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             containerColor = rememberSurfaceDarkColors().container,
             titleContentColor = rememberSurfaceDarkColors().content,
             textContentColor = rememberSurfaceDarkColors().content,

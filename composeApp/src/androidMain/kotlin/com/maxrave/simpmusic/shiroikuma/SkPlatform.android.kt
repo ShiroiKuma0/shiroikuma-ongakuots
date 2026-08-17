@@ -1,5 +1,7 @@
 package com.maxrave.simpmusic.shiroikuma
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -10,8 +12,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Typeface
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import com.maxrave.logger.Logger
+import com.maxrave.simpmusic.shiroikuma.automation.AutomationAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform.getKoin
@@ -164,4 +169,26 @@ internal fun skRestartApp() {
     val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
     context.startActivity(Intent.makeRestartActivityTask(intent?.component))
     Runtime.getRuntime().exit(0)
+}
+
+actual object SkAutomation {
+    actual fun enabled(): Boolean = AutomationAuth.enabled(ctx())
+
+    actual fun setEnabled(on: Boolean) = AutomationAuth.setEnabled(ctx(), on)
+
+    actual fun token(): String = AutomationAuth.token(ctx())
+
+    actual fun regenerate(): String = AutomationAuth.regenerate(ctx())
+
+    actual fun abbreviated(token: String): String = AutomationAuth.abbreviated(token)
+}
+
+@Composable
+actual fun rememberSkCopier(): (String, String) -> Unit {
+    val context = LocalContext.current
+    return { label, text ->
+        val cm = context.getSystemService(ClipboardManager::class.java)
+        cm?.setPrimaryClip(ClipData.newPlainText(label, text))
+        Toast.makeText(context, "$label copied", Toast.LENGTH_SHORT).show()
+    }
 }

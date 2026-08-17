@@ -73,6 +73,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kyant.backdrop.highlight.Highlight
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.common.Config
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.data.model.home.Content
@@ -211,7 +212,7 @@ fun ArtistScreen(
 
     // Accent color for the action buttons, sourced from the artist name-logo image's dominant
     // color (hidden catalog). Falls back to white until the logo loads (or if none exists).
-    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: Color.White
+    val artistAccent = artistLogo?.bgColorHex?.hexToColorOrNull() ?: skOnPlayer()
 
     val hazeState = rememberHazeState(blurEnabled = true)
     val lazyState = rememberLazyListState()
@@ -707,7 +708,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.popular),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -723,7 +724,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -783,7 +784,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.singles),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -804,7 +805,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -851,7 +852,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.albums),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -872,7 +873,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -919,7 +920,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.videos),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -939,7 +940,7 @@ private fun ArtistSections(
                             ButtonDefaults
                                 .textButtonColors()
                                 .copy(
-                                    contentColor = Color.White,
+                                    contentColor = skOnPlayer(),
                                 ),
                     ) {
                         Text(stringResource(Res.string.more), style = typo().bodySmall)
@@ -1005,7 +1006,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.featured_inArtist),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier =
                             Modifier
                                 .weight(1f)
@@ -1053,7 +1054,7 @@ private fun ArtistSections(
                     Text(
                         text = stringResource(Res.string.related_artists),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                         modifier =
                             Modifier
                                 .weight(1f)
@@ -1112,7 +1113,7 @@ private fun ArtistSections(
             Text(
                 text = stringResource(Res.string.description),
                 style = typo().labelMedium,
-                color = Color.White,
+                color = skOnPlayer(),
                 modifier =
                     Modifier
                         .weight(1f)

@@ -66,6 +66,8 @@ import com.maxrave.simpmusic.ui.screen.player.content.NowPlayingContentSpotify
 import com.maxrave.simpmusic.ui.screen.player.content.NowPlayingContentState
 import com.maxrave.simpmusic.ui.screen.player.content.PlayerBackdropColor
 import com.maxrave.simpmusic.ui.screen.player.content.toAudioCodecLabel
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.simpmusic.viewModel.LyricsProvider
 import com.maxrave.simpmusic.viewModel.NowPlayingBottomSheetUIEvent
 import com.maxrave.simpmusic.viewModel.NowPlayingBottomSheetViewModel
@@ -388,15 +390,24 @@ fun NowPlayingScreenContent(
             }
     }
 
+    // shiroikuma fork: the player's backdrop is a settable slot rather than the fixed near-black
+    // #121212. Resolved once here so the gradient's end colour, the fade target and the area below
+    // the gradient stay exactly equal — a seam between them is visible on a flat black.
+    val skUi = LocalOngakuUi.current
+    val playerBackdrop = if (skUi.enabled) skUi.c(ColorSlot.PLAYER_BG) else PlayerBackdropColor
+
     LaunchedEffect(Unit) {
         snapshotFlow { paletteState.palette }
             .distinctUntilChanged()
             .collectLatest {
                 spotShadowColor = it.getColorFromPalette()
-                startColor.animateTo(it.getColorFromPalette())
+                // With our theme on the player sits on flat black rather than a ramp out of the
+                // cover's dominant colour — that ramp is what kept the whole sheet grey-blue, and
+                // nothing drawn on it could then be relied on to read.
+                startColor.animateTo(if (skUi.enabled) playerBackdrop else it.getColorFromPalette())
                 // Lands on the same backdrop colour the fade and the area below the gradient
                 // use, so the palette ramp resolves into the surface instead of a black patch.
-                endColor.animateTo(PlayerBackdropColor)
+                endColor.animateTo(playerBackdrop)
             }
     }
 
@@ -434,8 +445,14 @@ fun NowPlayingScreenContent(
         label = "rainbowHue",
     )
     val rainbowColor = hsvToColor(rainbowHue, 1f, 1f)
+    val skSeek = LocalOngakuUi.current
     val sliderTrackColor by animateColorAsState(
-        targetValue = if (timelineState.isCrossfading) rainbowColor else Color.White,
+        targetValue =
+            when {
+                timelineState.isCrossfading -> rainbowColor
+                skSeek.enabled -> skSeek.c(ColorSlot.PROGRESS)
+                else -> Color.White
+            },
         animationSpec = tween(300),
         label = "sliderCrossfadeColor",
     )

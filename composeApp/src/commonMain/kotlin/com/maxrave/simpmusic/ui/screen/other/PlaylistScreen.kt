@@ -85,6 +85,7 @@ import coil3.request.crossfade
 import coil3.toBitmap
 import com.kyant.backdrop.highlight.Highlight
 import com.kmpalette.rememberPaletteState
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.utils.toSongEntity
@@ -458,7 +459,7 @@ fun PlaylistScreen(
                                                         Text(
                                                             text = data.title,
                                                             style = typo().titleLarge,
-                                                            color = Color.White,
+                                                            color = skOnPlayer(),
                                                             maxLines = 2,
                                                             textAlign = TextAlign.Center,
                                                         )
@@ -485,7 +486,7 @@ fun PlaylistScreen(
                                                                 Text(
                                                                     text = data.author.name,
                                                                     style = typo().titleSmall,
-                                                                    color = Color.White,
+                                                                    color = skOnPlayer(),
                                                                     textAlign = TextAlign.Center,
                                                                 )
                                                             }
@@ -551,7 +552,7 @@ fun PlaylistScreen(
                                                                 showSearchBar = !showSearchBar
                                                             },
                                                         ) {
-                                                            Icon(SimpIcons.Search, null, tint = Color.White)
+                                                            Icon(SimpIcons.Search, null, tint = skOnPlayer())
                                                         }
                                                         IconButton(
                                                             onClick = onPlaylistMoreClick,
@@ -559,7 +560,7 @@ fun PlaylistScreen(
                                                             Icon(
                                                                 imageVector = SimpIcons.MoreVert,
                                                                 contentDescription = "More",
-                                                                tint = Color.White,
+                                                                tint = skOnPlayer(),
                                                             )
                                                         }
                                                     }
@@ -893,7 +894,7 @@ fun PlaylistScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(Color.White.copy(alpha = 0.12f))
+                                                                        .background(skOnPlayer().copy(alpha = 0.12f))
                                                                         .clickable {
                                                                             viewModel.onUIEvent(PlaylistUIEvent.Shuffle)
                                                                         },
@@ -902,7 +903,7 @@ fun PlaylistScreen(
                                                                 Icon(
                                                                     imageVector = SimpIcons.Shuffle,
                                                                     contentDescription = "Shuffle",
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                     modifier = Modifier.size(22.dp),
                                                                 )
                                                             }
@@ -913,7 +914,7 @@ fun PlaylistScreen(
                                                                     .height(48.dp)
                                                                     .widthIn(min = 110.dp)
                                                                     .clip(CircleShape)
-                                                                    .background(Color.White)
+                                                                    .background(skOnPlayer())
                                                                     .clickable {
                                                                         if (isThisPlaying) {
                                                                             sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -945,7 +946,7 @@ fun PlaylistScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(Color.White.copy(alpha = 0.12f)),
+                                                                        .background(skOnPlayer().copy(alpha = 0.12f)),
                                                                 contentAlignment = Alignment.Center,
                                                             ) {
                                                                 Crossfade(targetState = downloadState) { state ->
@@ -1011,7 +1012,7 @@ fun PlaylistScreen(
                                                                             ) {
                                                                                 Icon(
                                                                                     imageVector = SimpIcons.DownloadForOffline,
-                                                                                    tint = Color.White,
+                                                                                    tint = skOnPlayer(),
                                                                                     contentDescription = "Download",
                                                                                     modifier = Modifier.size(22.dp),
                                                                                 )
@@ -1055,7 +1056,7 @@ fun PlaylistScreen(
                                                                 "",
                                                             )
                                                         },
-                                                    color = Color.White,
+                                                    color = skOnPlayer(),
                                                     style = typo().bodyMedium,
                                                     modifier = Modifier.padding(vertical = 8.dp),
                                                 )
@@ -1129,7 +1130,7 @@ fun PlaylistScreen(
                                     HorizontalDivider(
                                         modifier = Modifier.padding(start = 72.dp, end = 16.dp),
                                         thickness = 0.5.dp,
-                                        color = Color.White.copy(alpha = 0.12f),
+                                        color = skOnPlayer().copy(alpha = 0.12f),
                                     )
                                 }
                             }
@@ -1255,7 +1256,7 @@ fun PlaylistScreen(
                                     showSearchBar = !showSearchBar
                                 },
                             ) {
-                                Icon(SimpIcons.Close, null, tint = Color.White)
+                                Icon(SimpIcons.Close, null, tint = skOnPlayer())
                             }
                         }
                     }
@@ -1400,7 +1401,7 @@ fun PlaylistScreen(
                                     showSearchBar = !showSearchBar
                                 },
                             ) {
-                                Icon(SimpIcons.Search, null, tint = Color.White)
+                                Icon(SimpIcons.Search, null, tint = skOnPlayer())
                             }
                         },
                         colors =

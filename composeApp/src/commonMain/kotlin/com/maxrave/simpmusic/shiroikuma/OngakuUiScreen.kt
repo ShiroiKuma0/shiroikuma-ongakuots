@@ -85,6 +85,9 @@ fun OngakuUiScreen(
     var showExim by remember { mutableStateOf(false) }
     var dirLabel by remember { mutableStateOf(SkBackupDir.label()) }
     var latest by remember { mutableStateOf<SkLatestBackup?>(null) }
+    var automationOn by remember { mutableStateOf(SkAutomation.enabled()) }
+    var token by remember { mutableStateOf(SkAutomation.token()) }
+    val copy = rememberSkCopier()
 
     // The folder is queried for its newest archive as the page opens — the same question 白い熊 would
     // otherwise open a file manager to answer — and again whenever the panel closes.
@@ -130,6 +133,33 @@ fun OngakuUiScreen(
                     latest?.let { "${it.name}  ·  ${skHumanSize(it.size)}" }
                         ?: if (dirLabel == null) "No folder set, so nothing can be exported yet." else "None in this folder yet.",
                     warn = dirLabel == null,
+                )
+            }
+
+            // Per the 保存復元 contract the automation controls belong in THIS section, directly
+            // under the export rows — not in a section of their own — so every sister app looks the
+            // same and the switch is found where backup lives.
+            item {
+                SwitchRow(
+                    1,
+                    "Automation export",
+                    "Let 白い熊 自由作業盤 trigger this app's export over the token-gated intent.",
+                    automationOn,
+                ) { on ->
+                    SkAutomation.setEnabled(on)
+                    automationOn = on
+                }
+            }
+            item {
+                TokenRow(
+                    2,
+                    token,
+                    enabled = automationOn,
+                    onCopy = { copy("Automation token", token) },
+                    onRegenerate = {
+                        token = SkAutomation.regenerate()
+                        copy("New automation token", token)
+                    },
                 )
             }
 
@@ -506,6 +536,38 @@ private fun InfoRow(
             color = if (warn) ui.c(ColorSlot.WARN) else ui.c(ColorSlot.TEXT),
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/**
+ * The automation token: tap the row to copy the whole thing, Regenerate on the right. Only the
+ * abbreviation is ever shown — enough to tell which token a row is holding, not enough to use.
+ */
+@Composable
+private fun TokenRow(
+    level: Int,
+    token: String,
+    enabled: Boolean,
+    onCopy: () -> Unit,
+    onRegenerate: () -> Unit,
+) {
+    val ui = LocalOngakuUi.current
+    val dim = ui.c(ColorSlot.TEXT_DIM)
+    RowScaffold(level, onClick = { if (enabled) onCopy() }) {
+        Column(Modifier.weight(1f)) {
+            Text("Token", fontSize = 15.sp, color = if (enabled) ui.c(ColorSlot.TEXT) else dim)
+            Text(
+                if (enabled) "${SkAutomation.abbreviated(token)}  ·  tap to copy" else "Turn automation on to use the token",
+                fontSize = 11.sp,
+                color = dim,
+            )
+        }
+        Text(
+            "Regenerate",
+            Modifier.clickable(enabled = enabled) { onRegenerate() },
+            fontSize = 12.sp,
+            color = if (enabled) ui.c(ColorSlot.ACCENT) else dim,
         )
     }
 }

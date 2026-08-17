@@ -47,6 +47,9 @@ private val BLACK = SkRgba(0, 0, 0)
 /** `#FFFF00` — the house yellow, the same one the launcher icon is traced in. */
 private val YELLOW = SkRgba(255, 255, 0)
 
+/** White. Used by exactly one slot, and deliberately. */
+private val WHITE = SkRgba(255, 255, 255)
+
 /** The one red on the page: an unset backup folder, and any failure. */
 val SkWarnRed = SkRgba(255, 82, 82)
 
@@ -111,7 +114,9 @@ enum class ColorSlot(
 
     // ---- semantic --------------------------------------------------------------------------------
     FAVOURITE("favourite", ColorGroup.SEMANTIC, "Favourite", "The like heart when it is filled", YELLOW),
-    LYRIC_ACTIVE("lyric_active", ColorGroup.SEMANTIC, "Active lyric", "The line currently being sung", YELLOW),
+    // White on purpose: the lyrics themselves are the house yellow, so the line being sung is
+    // marked by going white rather than by the rest going faint (白い熊, 2026-08-16).
+    LYRIC_ACTIVE("lyric_active", ColorGroup.SEMANTIC, "Active lyric", "The line currently being sung", WHITE),
     WARN("warn", ColorGroup.SEMANTIC, "Warning", "Failures, and an unset backup folder", SkWarnRed),
     SHIMMER_BG("shimmer_bg", ColorGroup.SEMANTIC, "Placeholder", "The block shown while content loads", SkRgba(26, 26, 26)),
     SHIMMER_LINE("shimmer_line", ColorGroup.SEMANTIC, "Placeholder sheen", "The sweep across a loading block", SkRgba(46, 46, 46)),
@@ -216,13 +221,19 @@ data class OngakuUi(
             onSurface = text,
             surfaceVariant = surfaceHi,
             onSurfaceVariant = dim,
-            surfaceTint = accent,
+            // Material lightens an elevated surface by blending `surfaceTint` into it. With the
+            // accent there, every card, sheet and app bar drifted off black towards the tint — the
+            // grey that survived the first pass. Pinning it to the surface makes the overlay a
+            // no-op, so a raised surface is raised by its border, not by turning grey.
+            surfaceTint = surface,
             surfaceBright = surfaceHi,
             surfaceDim = bg,
             surfaceContainerLowest = bg,
             surfaceContainerLow = surface,
             surfaceContainer = surface,
-            surfaceContainerHigh = surfaceHi,
+            // Material 3 draws an AlertDialog's container from surfaceContainerHigh, so this is
+            // what makes every dialog in the app black rather than a raised grey.
+            surfaceContainerHigh = c(ColorSlot.MENU_BG),
             surfaceContainerHighest = surfaceHi,
             outline = border,
             outlineVariant = divider,

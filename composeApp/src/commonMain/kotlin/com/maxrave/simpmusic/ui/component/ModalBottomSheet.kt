@@ -89,6 +89,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import com.maxrave.simpmusic.shiroikuma.skDialogBorder
+import com.maxrave.simpmusic.shiroikuma.skDialogFrame
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -309,6 +313,7 @@ fun InfoPlayerBottomSheet(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.large,
+                    border = skDialogBorder(),
                     color = rememberSurfaceDarkColors().container,
                     tonalElevation = AlertDialogDefaults.TonalElevation,
                     shadowElevation = 1.dp,
@@ -1504,6 +1509,7 @@ fun NowPlayingBottomSheet(
 
     if (sleepTimerWarning) {
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             containerColor = rememberSurfaceDarkColors().container,
             onDismissRequest = { sleepTimerWarning = false },
             confirmButton = {
@@ -1546,6 +1552,7 @@ fun NowPlayingBottomSheet(
         }
 
         AlertDialog(
+            modifier = Modifier.skDialogFrame(),
             onDismissRequest = { mainLyricsProvider = false },
             containerColor = rememberSurfaceDarkColors().container,
             title = {
@@ -2067,6 +2074,13 @@ fun HeartCheckBox(
                     painter = painterResource(Res.drawable.baseline_favorite_24),
                     contentDescription = "Favorite checked",
                     modifier = Modifier.fillMaxSize().padding(4.dp),
+                    // The filled heart is a drawable carrying its own pink; nothing tinted it, which
+                    // is why it stayed the one non-house colour on the player. The slot is settable
+                    // on the UI page under Semantic.
+                    colorFilter =
+                        LocalOngakuUi.current.let { sk ->
+                            if (sk.enabled) ColorFilter.tint(sk.c(ColorSlot.FAVOURITE)) else null
+                        },
                 )
             } else {
                 Image(
