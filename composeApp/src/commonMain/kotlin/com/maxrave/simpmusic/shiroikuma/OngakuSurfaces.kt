@@ -235,6 +235,44 @@ fun Modifier.skTracedAction(
     }
 }
 
+/**
+ * The TRANSLATION of the line being sung, wherever it is rendered — the lyrics sheet, the player's
+ * inline lyric strip, the Apple Music and M3 Expressive players. Upstream paints it `Color.Yellow`,
+ * which on the house theme is the colour of every line that is NOT being sung, so the translation
+ * of the current line came out indistinguishable from the rest. It follows LYRIC_ACTIVE instead.
+ *
+ * One definition on purpose: the same rule sat in four files, and four copies drift.
+ */
+@Composable
+fun skTranslatedLyric(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE) else Color.Yellow
+}
+
+/**
+ * A progress/seek bar and the track behind it. Upstream reaches for Gray-on-DarkGray in the player
+ * and the lyrics sheet — grey on grey, which all but vanishes once the surface is flat black.
+ * Each caller passes its own stock value so a build with the theme off is untouched.
+ */
+@Composable
+fun skProgress(fallback: Color): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.PROGRESS) else fallback
+}
+
+@Composable
+fun skProgressTrack(fallback: Color): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.PROGRESS_TRACK) else fallback
+}
+
+/** A raised panel inside the player — the artist card, a sheet container. */
+@Composable
+fun skSurface(fallback: Color): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.SURFACE) else fallback
+}
+
 /** Content drawn on a traced action — yellow on our black, black on upstream's white fill. */
 @Composable
 fun skOnAction(): Color {

@@ -82,6 +82,9 @@ import coil3.request.crossfade
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 import com.maxrave.domain.mediaservice.handler.RepeatState
+import com.maxrave.simpmusic.shiroikuma.skPlayerBackdrop
+import com.maxrave.simpmusic.shiroikuma.skTranslatedLyric
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.PlatformCastButton
 import com.maxrave.simpmusic.expect.ui.isPlatformCastAvailable
@@ -255,7 +258,7 @@ private fun NowPlayingM3ExpressiveLayout(
                 // Tonal design: the page is a plain surface — the artwork card carries the
                 // color. While a canvas is active (showHideMiddleLayout is false exactly
                 // then) the page goes flat black instead, exactly like Classic.
-                .background(if (state.showHideMiddleLayout) colorScheme.surface else Color.Black),
+                .background(if (state.showHideMiddleLayout) colorScheme.surface else skPlayerBackdrop(Color.Black)),
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 // === 4. Artwork pager — same state/sync as Classic, card presentation ===
@@ -330,12 +333,12 @@ private fun NowPlayingM3ExpressiveLayout(
                         Text(
                             text = stringResource(Res.string.now_playing_upper),
                             style = typo().bodyMedium,
-                            color = Color.White,
+                            color = skOnPlayer(),
                         )
                         Text(
                             text = state.screenData.playlistName,
                             style = typo().labelMedium,
-                            color = Color.White,
+                            color = skOnPlayer(),
                             textAlign = TextAlign.Center,
                             maxLines = 1,
                             modifier =
@@ -446,7 +449,7 @@ private fun NowPlayingM3ExpressiveLayout(
                                 Text(
                                     text = lineText,
                                     style = typo().labelSmall,
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     maxLines = 1,
                                     modifier =
                                         Modifier
@@ -629,8 +632,8 @@ private fun NowPlayingM3ExpressiveLayout(
                                                 .fillMaxSize()
                                                 .background(
                                                     smoothScrimBrush(
-                                                        from = Color.Black.copy(alpha = 0f),
-                                                        to = Color.Black.copy(alpha = 0.85f),
+                                                        from = skPlayerBackdrop(Color.Black).copy(alpha = 0f),
+                                                        to = skPlayerBackdrop(Color.Black).copy(alpha = 0.85f),
                                                     ),
                                                 ),
                                     )
@@ -672,7 +675,7 @@ private fun NowPlayingM3ExpressiveLayout(
                                                                 ).focusable(),
                                                         text = lineText,
                                                         style = typo().bodyMedium,
-                                                        color = Color.White,
+                                                        color = skOnPlayer(),
                                                         maxLines = 1,
                                                     )
                                                     val translatedLineText =
@@ -696,7 +699,7 @@ private fun NowPlayingM3ExpressiveLayout(
                                                                     ).focusable(),
                                                             text = translatedLineText,
                                                             style = typo().bodyMedium,
-                                                            color = Color.Yellow,
+                                                            color = skTranslatedLyric(),
                                                             maxLines = 1,
                                                         )
                                                     }
@@ -767,7 +770,7 @@ private fun ExpressiveTrackInfoRow(
             Text(
                 text = state.screenData.nowPlayingTitle,
                 style = typo().titleMedium,
-                color = Color.White,
+                color = skOnPlayer(),
                 maxLines = 1,
                 modifier =
                     Modifier

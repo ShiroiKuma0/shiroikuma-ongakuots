@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.ui.icon.ArrowForwardIos
 import simpmusic.composeapp.generated.resources.analytics_avg_per_day
 import simpmusic.composeapp.generated.resources.analytics_busiest_day
@@ -85,7 +86,10 @@ import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import com.maxrave.simpmusic.extension.getScreenSizeInfo
 import com.maxrave.simpmusic.extension.getStringBlocking
 import com.maxrave.simpmusic.extension.smoothScrimBrush
+import com.maxrave.simpmusic.extension.immersiveBackgroundOf
 import com.maxrave.simpmusic.extension.toImmersiveBackground
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
 import com.maxrave.simpmusic.ui.component.AddToPlaylistModalBottomSheet
 import com.maxrave.simpmusic.ui.component.CenterLoadingBox
 import com.maxrave.simpmusic.ui.component.EndOfPage
@@ -226,9 +230,18 @@ fun AnalyticsScreen(
     // The last colour that actually resolved. Reading paletteState.palette straight would paint the
     // page black for the whole duration of every generate(), because null is what it reads until the
     // result is Success — and Color.Black is what a null palette resolves to.
-    var pageBackground by remember { mutableStateOf(Color.Black) }
-    LaunchedEffect(paletteState.palette) {
-        paletteState.palette?.let { pageBackground = it.toImmersiveBackground() }
+    // shiroikuma fork: with our theme on the page is flat, like every other immersive page. The
+    // decision is read HERE, in composable scope, because the effect below does not run in one —
+    // which is why this calls immersiveBackgroundOf() rather than the composable wrapper.
+    val skUi = LocalOngakuUi.current
+    val skFlatPage = if (skUi.enabled && skUi.flatPageBackground) skUi.c(ColorSlot.BG) else null
+    var pageBackground by remember { mutableStateOf(skFlatPage ?: Color.Black) }
+    LaunchedEffect(paletteState.palette, skFlatPage) {
+        if (skFlatPage != null) {
+            pageBackground = skFlatPage
+        } else {
+            paletteState.palette?.let { pageBackground = it.immersiveBackgroundOf() }
+        }
     }
 
     if (showSelectionSheet) {
@@ -285,7 +298,7 @@ fun AnalyticsScreen(
     // The glass buttons refract whatever the list has drawn, so the LIST is the backdrop source
     // and the buttons are its SIBLINGS. Nesting them inside the source is the render-feedback
     // loop that kills the RuntimeShader — see the note in AlbumScreen.
-    val headerBackdrop = rememberBackdrop(Color.Black)
+    val headerBackdrop = rememberBackdrop(skFlatPage ?: Color.Black)
 
     Box(
         modifier =
@@ -428,7 +441,7 @@ fun AnalyticsScreen(
                 },
                 onOpenActions = { showSelectionSheet = true },
                 modifier = Modifier.align(Alignment.TopCenter),
-                containerColor = Color.Black,
+                containerColor = skFlatPage ?: Color.Black,
             )
         }
 
@@ -500,11 +513,11 @@ private fun DayRangePill(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(text = label, style = typo().labelSmall, color = Color.White, maxLines = 1)
+            Text(text = label, style = typo().labelSmall, color = skOnPlayer(), maxLines = 1)
             Icon(
                 imageVector = SimpIcons.KeyboardArrowDown,
                 contentDescription = null,
-                tint = Color.White,
+                tint = skOnPlayer(),
                 modifier = Modifier.size(18.dp),
             )
         }
@@ -752,7 +765,7 @@ private fun LandscapeHeader(
                 Text(
                     text = stringResource(Res.string.top_song),
                     style = typo().titleLarge,
-                    color = Color.White,
+                    color = skOnPlayer(),
                     maxLines = 1,
                 )
                 Spacer(Modifier.height(6.dp))
@@ -855,7 +868,7 @@ private fun StepArrow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (enabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
+            tint = if (enabled) skOnPlayer() else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
             modifier = Modifier.size(16.dp),
         )
     }
@@ -881,7 +894,7 @@ private fun HeadlineCount(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("${stats.plays}", style = typo().titleLarge, color = Color.White, maxLines = 1)
+            Text("${stats.plays}", style = typo().titleLarge, color = skOnPlayer(), maxLines = 1)
             Text(stringResource(Res.string.songs_played), style = typo().bodyMedium, maxLines = 1)
         }
         if (delta != null) {
@@ -962,7 +975,7 @@ private fun QuickFactsSection(
                                 verticalAlignment = Alignment.Bottom,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                Text(value, style = typo().labelMedium, color = Color.White, maxLines = 2)
+                                Text(value, style = typo().labelMedium, color = skOnPlayer(), maxLines = 2)
                                 if (delta != null) {
                                     Text(
                                         text = if (delta >= 0) "+$delta%" else "$delta%",
@@ -1229,7 +1242,7 @@ private fun TopTracksSection(
                         Text(
                             text = "${pair.first.playCount} ${stringResource(Res.string.lower_plays)}",
                             style = typo().bodySmall,
-                            color = Color.White,
+                            color = skOnPlayer(),
                             maxLines = 1,
                         )
                         Text(

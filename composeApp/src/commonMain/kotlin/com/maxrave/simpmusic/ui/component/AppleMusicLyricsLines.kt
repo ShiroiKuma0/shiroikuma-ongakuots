@@ -1,5 +1,7 @@
 package com.maxrave.simpmusic.ui.component
 
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -77,7 +79,21 @@ private const val PRE_ROLL_LINE_ALPHA = 0.6f
 // grey against the white of what has already been sung, or the wipe carries no contrast and the
 // line never reads as lighting up. Classic's DimRichPendingColor is LightGray at 60%, far too
 // close to white for that.
-internal val AppleMusicPendingWordColor = Color(0xFF8E8E8E)
+internal val AppleMusicPendingWordColor: Color
+    @Composable get() {
+        val ui = LocalOngakuUi.current
+        // shiroikuma fork: the fork's lyric inversion applies here exactly as in the Classic
+        // renderer — the part NOT yet sung is the house yellow and the sung part goes white, so
+        // the wipe reads as white travelling across yellow rather than grey lighting up.
+        return if (ui.enabled) ui.c(ColorSlot.TEXT) else Color(0xFF8E8E8E)
+    }
+
+/** The sung half of the wipe, and the line being sung. LYRIC_ACTIVE — white by default. */
+@Composable
+internal fun appleMusicSungColor(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE) else Color.White
+}
 
 /**
  * Apple sets lyrics far larger than body copy — a line fills most of the width and wraps after a
@@ -121,7 +137,11 @@ internal val AppleMusicMainToSubGap = 12.dp
 internal val AppleMusicLyricPaddingX = 20.dp
 
 internal val AppleMusicLyricCornerRadius = 8.dp
-internal val AppleMusicLyricPressedBackground = Color.White.copy(alpha = 0.067f)
+internal val AppleMusicLyricPressedBackground: Color
+    @Composable get() {
+        val ui = LocalOngakuUi.current
+        return if (ui.enabled) ui.c(ColorSlot.TEXT).copy(alpha = 0.067f) else Color.White.copy(alpha = 0.067f)
+    }
 
 // FlowRow lays wrapped words out itself and ignores lineHeight entirely, so the rich-sync path
 // needs the same leading expressed as explicit spacing between its rows — and it has to stay
@@ -132,16 +152,28 @@ internal val AppleMusicWrappedLineSpacing = 2.dp
 
 // White, like Apple — NOT the Classic renderer's yellow. Slightly under full opacity so the
 // translation still reads as secondary to the line it translates.
-internal val AppleMusicTranslatedColor = Color.White.copy(alpha = 0.78f)
+internal val AppleMusicTranslatedColor: Color
+    @Composable get() {
+        val ui = LocalOngakuUi.current
+        return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE).copy(alpha = 0.78f) else Color.White.copy(alpha = 0.78f)
+    }
 
 // A shade under the translation's: on a line carrying original + reading + translation, the
 // reading is the one you stop needing once you know the song, so it recedes first.
-internal val AppleMusicRomanizedColor = Color.White.copy(alpha = 0.62f)
+internal val AppleMusicRomanizedColor: Color
+    @Composable get() {
+        val ui = LocalOngakuUi.current
+        return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE).copy(alpha = 0.62f) else Color.White.copy(alpha = 0.62f)
+    }
 
 // The line NOT being sung is grey, full stop — white at reduced opacity is still white on a dark
 // page, which is why every line looked equally lit no matter how the alpha was tuned. This is the
 // single biggest signal separating the sung line from the rest; blur and opacity only refine it.
-internal val AppleMusicInactiveLineColor = Color(0xFF9B9B9B)
+internal val AppleMusicInactiveLineColor: Color
+    @Composable get() {
+        val ui = LocalOngakuUi.current
+        return if (ui.enabled) ui.c(ColorSlot.TEXT) else Color(0xFF9B9B9B)
+    }
 
 // Passing this to a rich-synced line is what ENABLES AMLL's emphasis maths in AnimatedWord; the
 // alpha and radius here are placeholders, because that code computes both from the word's own
@@ -150,7 +182,8 @@ internal val AppleMusicInactiveLineColor = Color(0xFF9B9B9B)
 // Deliberately NOT applied to line-synced lyrics: those carry no per-word timing, so there is no
 // sustain to reflect, and a constant halo there is pure decoration — which is what made the first
 // attempt look wrong.
-internal val AppleMusicActiveLineGlow = Shadow(color = Color.White, offset = Offset.Zero, blurRadius = 0f)
+internal val AppleMusicActiveLineGlow: Shadow
+    @Composable get() = Shadow(color = appleMusicSungColor(), offset = Offset.Zero, blurRadius = 0f)
 
 // No glow constant for line-synced lyrics on purpose. Without per-word timing there is no single
 // word to flare, and lighting the whole line instead just makes it look smudged — the sung line is
@@ -252,7 +285,7 @@ fun AppleMusicLyricsLineItem(
             // edge as every other line, and a short line must not drift toward the middle.
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Start,
-            color = if (isCurrent) Color.White else AppleMusicInactiveLineColor,
+            color = if (isCurrent) appleMusicSungColor() else AppleMusicInactiveLineColor,
             style =
                 typo().headlineLarge.copy(
                     fontSize = AppleMusicLyricFontSize,

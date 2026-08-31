@@ -708,7 +708,7 @@ fun LocalPlaylistScreen(
                                             Icon(
                                                 imageVector = SimpIcons.Search,
                                                 contentDescription = "Search in playlist",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                             )
                                         }
                                         IconButton(
@@ -780,7 +780,7 @@ fun LocalPlaylistScreen(
                                             Text(
                                                 text = uiState.title,
                                                 style = typo().headlineSmall,
-                                                color = Color.White,
+                                                color = skOnPlayer(),
                                                 maxLines = 2,
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
@@ -837,7 +837,7 @@ fun LocalPlaylistScreen(
                                                         Modifier
                                                             .size(48.dp)
                                                             .clip(CircleShape)
-                                                            .background(Color.White.copy(alpha = 0.12f))
+                                                            .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f))
                                                             .clickable {
                                                                 viewModel.onUIEvent(LocalPlaylistUIEvent.ShuffleClick)
                                                             },
@@ -846,7 +846,7 @@ fun LocalPlaylistScreen(
                                                     Icon(
                                                         imageVector = SimpIcons.Shuffle,
                                                         contentDescription = "Shuffle",
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                         modifier = Modifier.size(22.dp),
                                                     )
                                                 }
@@ -856,7 +856,7 @@ fun LocalPlaylistScreen(
                                                             .height(48.dp)
                                                             .widthIn(min = 110.dp)
                                                             .clip(CircleShape)
-                                                            .background(Color.White)
+                                                            .skTracedAction(CircleShape, skOnPlayer())
                                                             .clickable {
                                                                 if (isThisPlaying) {
                                                                     sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -875,13 +875,13 @@ fun LocalPlaylistScreen(
                                                                     SimpIcons.PlayArrow
                                                                 },
                                                             contentDescription = null,
-                                                            tint = Color.Black,
+                                                            tint = skOnAction(),
                                                             modifier = Modifier.size(22.dp),
                                                         )
                                                         Spacer(modifier = Modifier.width(4.dp))
                                                         Text(
                                                             text = if (isThisPlaying) "Pause" else "Play",
-                                                            color = Color.Black,
+                                                            color = skOnAction(),
                                                             style = typo().labelLarge,
                                                         )
                                                     }
@@ -891,7 +891,7 @@ fun LocalPlaylistScreen(
                                                         Modifier
                                                             .size(48.dp)
                                                             .clip(CircleShape)
-                                                            .background(Color.White.copy(alpha = 0.12f)),
+                                                            .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f)),
                                                     contentAlignment = Alignment.Center,
                                                 ) {
                                                     Crossfade(targetState = downloadState) { state ->
@@ -954,7 +954,7 @@ fun LocalPlaylistScreen(
                                                                 ) {
                                                                     Icon(
                                                                         imageVector = SimpIcons.DownloadForOffline,
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                         contentDescription = "Download",
                                                                         modifier = Modifier.size(22.dp),
                                                                     )
@@ -1046,7 +1046,7 @@ fun LocalPlaylistScreen(
                                         Icon(
                                             imageVector = SimpIcons.Search,
                                             contentDescription = "Search in playlist",
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                         )
                                     }
                                     IconButton(
@@ -1055,7 +1055,7 @@ fun LocalPlaylistScreen(
                                         Icon(
                                             imageVector = SimpIcons.MoreVert,
                                             contentDescription = "More",
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                         )
                                     }
                                 }
@@ -1352,7 +1352,7 @@ fun LocalPlaylistScreen(
                                                             "Change order"
                                                         },
                                                     style = typo().bodySmall,
-                                                    color = Color.White,
+                                                    color = skOnPlayer(),
                                                 )
                                             }
                                         }
@@ -1712,7 +1712,7 @@ fun LocalPlaylistScreen(
                             viewModel.setSearchQuery("")
                         },
                     ) {
-                        Icon(SimpIcons.Close, null, tint = Color.White)
+                        Icon(SimpIcons.Close, null, tint = skOnPlayer())
                     }
                 }
             }

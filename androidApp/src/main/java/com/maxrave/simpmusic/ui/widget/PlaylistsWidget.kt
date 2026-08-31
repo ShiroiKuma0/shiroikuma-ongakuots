@@ -65,6 +65,9 @@ import com.maxrave.domain.data.entities.SongEntity
 import com.maxrave.domain.data.type.RecentlyType
 import com.maxrave.domain.repository.CommonRepository
 import com.maxrave.domain.utils.toTrack
+import com.maxrave.simpmusic.shiroikuma.skWidgetOn
+import com.maxrave.simpmusic.shiroikuma.rememberOngakuUiForWidget
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.MainActivity
 import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.extension.getColorFromPalette
@@ -139,12 +142,18 @@ class PlaylistsWidget :
 
         provideContent {
             GlanceTheme {
+                // shiroikuma fork: a widget renders outside AppTheme, so LocalOngakuUi is absent
+                // here — the palette is read from the blob the UI page persists. See
+                // SkWidgetTheme.rememberOngakuUiForWidget.
+                val skUi by rememberOngakuUiForWidget()
                 val controllerState by sharedViewModel.controllerState.collectAsState()
                 val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsState()
 
                 val paletteState = rememberPaletteState()
                 var artwork by remember { mutableStateOf<Bitmap?>(null) }
                 var bgColor by remember { mutableStateOf(Color.Black) }
+                val skBg =
+                    if (skUi.enabled && skUi.flatPageBackground) skUi.c(ColorSlot.BG) else bgColor
                 var tiles by remember { mutableStateOf<List<PlaylistTile>>(emptyList()) }
 
                 val thumbUrl by remember { derivedStateOf { screenDataState.thumbnailURL } }
@@ -182,7 +191,7 @@ class PlaylistsWidget :
                     modifier =
                         GlanceModifier
                             .fillMaxSize()
-                            .background(ColorProvider(bgColor.darkened()))
+                            .background(ColorProvider(skBg.darkened()))
                             // The whole widget opens the app. Only the artwork and the five
                             // covers used to be tappable, so a press on the title, on the label
                             // or on any gap between them fell straight through to the launcher.
@@ -230,7 +239,7 @@ class PlaylistsWidget :
                                 maxLines = 1,
                                 style =
                                     TextStyle(
-                                        color = ColorProvider(Color.White),
+                                        color = ColorProvider(skWidgetOn()),
                                         fontSize = 15.sp,
                                         fontWeight = FontWeight.Medium,
                                     ),
@@ -240,7 +249,7 @@ class PlaylistsWidget :
                                 maxLines = 1,
                                 style =
                                     TextStyle(
-                                        color = ColorProvider(Color.White),
+                                        color = ColorProvider(skWidgetOn()),
                                         fontSize = 12.sp,
                                     ),
                             )
@@ -251,7 +260,7 @@ class PlaylistsWidget :
                                 Image(
                                     provider = ImageProvider(R.drawable.rounded_skip_previous_24),
                                     contentDescription = "Previous",
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                    colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                     modifier =
                                         GlanceModifier
                                             .size(26.dp)
@@ -268,7 +277,7 @@ class PlaylistsWidget :
                                             ImageProvider(R.drawable.rounded_play_arrow_24)
                                         },
                                     contentDescription = if (controllerState.isPlaying) "Pause" else "Play",
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                    colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                     modifier =
                                         GlanceModifier
                                             .size(32.dp)
@@ -280,7 +289,7 @@ class PlaylistsWidget :
                                 Image(
                                     provider = ImageProvider(R.drawable.rounded_skip_next_24),
                                     contentDescription = "Next",
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                    colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                     modifier =
                                         GlanceModifier
                                             .size(26.dp)
@@ -305,7 +314,7 @@ class PlaylistsWidget :
                             GlanceModifier
                                 .fillMaxWidth()
                                 .defaultWeight()
-                                .background(ColorProvider(bgColor.darkened()))
+                                .background(ColorProvider(skBg.darkened()))
                                 .padding(horizontal = 12.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -313,7 +322,7 @@ class PlaylistsWidget :
                             text = context.getString(R.string.widget_recently_added),
                             style =
                                 TextStyle(
-                                    color = ColorProvider(Color.White),
+                                    color = ColorProvider(skWidgetOn()),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                 ),
@@ -449,7 +458,7 @@ private fun PlaylistCover(
         } ?: Image(
             provider = ImageProvider(R.drawable.rounded_playlist_play_24),
             contentDescription = tile.title,
-            colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+            colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
             modifier = GlanceModifier.size(22.dp),
         )
     }

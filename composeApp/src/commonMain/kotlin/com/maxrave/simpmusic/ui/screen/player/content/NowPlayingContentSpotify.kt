@@ -108,6 +108,12 @@ import coil3.request.crossfade
 import com.kmpalette.rememberPaletteState
 import com.maxrave.common.Config.MAIN_PLAYER
 import com.maxrave.domain.mediaservice.handler.RepeatState
+import com.maxrave.simpmusic.shiroikuma.skPlayerBackdrop
+import com.maxrave.simpmusic.shiroikuma.skSurface
+import com.maxrave.simpmusic.shiroikuma.skProgressTrack
+import com.maxrave.simpmusic.shiroikuma.skProgress
+import com.maxrave.simpmusic.shiroikuma.skTranslatedLyric
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.MediaPlayerView
 import com.maxrave.simpmusic.expect.ui.MediaPlayerViewWithSubtitle
@@ -302,7 +308,7 @@ fun NowPlayingContentSpotify(
                                 )
                             }
                     } else {
-                        Modifier.background(Color.Black)
+                        Modifier.background(skPlayerBackdrop(Color.Black))
                     },
                 ),
         ) {
@@ -334,9 +340,13 @@ fun NowPlayingContentSpotify(
                     // (onSuccess), so we use the SAME bitmap that's painted on screen —
                     // matches the outer Column's palette extraction characteristics.
                     val pagePaletteState = rememberPaletteState()
+                    // shiroikuma fork: the page gradient starts on the player backdrop slot rather
+                    // than raw black, so a PLAYER_BG that is not black does not flash black first.
+                    // Read out here — remember{} is not composable scope.
+                    val pageBackdrop = skPlayerBackdrop(Color.Black)
                     val pageStartColor =
                         remember(pageTrack?.videoId) {
-                            Animatable(Color.Black)
+                            Animatable(pageBackdrop)
                         }
                     LaunchedEffect(pagePaletteState, pageTrack?.videoId) {
                         snapshotFlow { pagePaletteState.palette }
@@ -455,7 +465,7 @@ fun NowPlayingContentSpotify(
                                                 .background(
                                                     smoothScrimBrush(
                                                         from = overlay,
-                                                        to = Color.Black,
+                                                        to = skPlayerBackdrop(Color.Black),
                                                         startFraction = 0.2f,
                                                     ),
                                                 ),
@@ -479,8 +489,8 @@ fun NowPlayingContentSpotify(
                                                 .fillMaxSize()
                                                 .background(
                                                     smoothScrimBrush(
-                                                        from = Color.Black.copy(alpha = 0f),
-                                                        to = Color.Black,
+                                                        from = skPlayerBackdrop(Color.Black).copy(alpha = 0f),
+                                                        to = skPlayerBackdrop(Color.Black),
                                                         startFraction = 0.92f,
                                                         endFraction = 0.97f,
                                                     ),
@@ -650,7 +660,7 @@ fun NowPlayingContentSpotify(
                                                                 Icon(
                                                                     imageVector = SimpIcons.Fullscreen,
                                                                     contentDescription = "",
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                 )
                                                             }
                                                             Row(
@@ -675,7 +685,7 @@ fun NowPlayingContentSpotify(
                                                                 ) {
                                                                     Icon(
                                                                         imageVector = SimpIcons.Replay5,
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                         contentDescription = "",
                                                                         modifier =
                                                                             Modifier
@@ -699,7 +709,7 @@ fun NowPlayingContentSpotify(
                                                                 ) {
                                                                     Icon(
                                                                         imageVector = SimpIcons.Forward5,
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                         contentDescription = "",
                                                                         modifier =
                                                                             Modifier
@@ -723,7 +733,7 @@ fun NowPlayingContentSpotify(
                                                                                 SimpIcons.Subtitles
                                                                             },
                                                                         contentDescription = "",
-                                                                        tint = Color.White,
+                                                                        tint = skOnPlayer(),
                                                                     )
                                                                 }
                                                             }
@@ -823,12 +833,12 @@ fun NowPlayingContentSpotify(
                             Text(
                                 text = stringResource(Res.string.now_playing_upper),
                                 style = typo().bodyMedium,
-                                color = Color.White,
+                                color = skOnPlayer(),
                             )
                             Text(
                                 text = state.screenData.playlistName,
                                 style = typo().labelMedium,
-                                color = Color.White,
+                                color = skOnPlayer(),
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 modifier =
@@ -849,7 +859,7 @@ fun NowPlayingContentSpotify(
                             Icon(
                                 imageVector = state.dismissIcon,
                                 contentDescription = "",
-                                tint = Color.White,
+                                tint = skOnPlayer(),
                             )
                         }
                     },
@@ -860,7 +870,7 @@ fun NowPlayingContentSpotify(
                             Icon(
                                 imageVector = SimpIcons.MoreVert,
                                 contentDescription = "",
-                                tint = Color.White,
+                                tint = skOnPlayer(),
                             )
                         }
                     },
@@ -948,7 +958,7 @@ fun NowPlayingContentSpotify(
                                     Text(
                                         text = lineText,
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                         maxLines = 1,
                                         modifier =
                                             Modifier
@@ -1012,8 +1022,8 @@ fun NowPlayingContentSpotify(
                                                                         ).clip(
                                                                             RoundedCornerShape(8.dp),
                                                                         ),
-                                                                color = Color.Gray,
-                                                                trackColor = Color.DarkGray,
+                                                                color = skProgress(Color.Gray),
+                                                                trackColor = skProgressTrack(Color.DarkGray),
                                                                 strokeCap = StrokeCap.Round,
                                                             )
                                                         }
@@ -1030,7 +1040,7 @@ fun NowPlayingContentSpotify(
                                                                         ).clip(
                                                                             RoundedCornerShape(8.dp),
                                                                         ),
-                                                                color = Color.Gray,
+                                                                color = skProgress(Color.Gray),
                                                                 trackColor =
                                                                     Color.Gray.copy(
                                                                         alpha = 0.6f,
@@ -1220,14 +1230,14 @@ fun NowPlayingContentSpotify(
                                                     actions.onShowInfo()
                                                 },
                                             ) {
-                                                Icon(imageVector = SimpIcons.Info, tint = Color.White, contentDescription = "")
+                                                Icon(imageVector = SimpIcons.Info, tint = skOnPlayer(), contentDescription = "")
                                             }
                                             // Cyan rather than colorScheme.primary: this screen is force-dark whatever
                                             // the app theme is, so a light-theme primary would sink into the black
                                             // backdrop. Mirrors the `if (forceDark) Color.Cyan` rule in FullWidthItems.
                                             PlatformCastButton(
                                                 modifier = Modifier.size(24.dp),
-                                                tint = if (state.castState.isRemote) Color.Cyan else Color.White,
+                                                tint = if (state.castState.isRemote) Color.Cyan else skOnPlayer(),
                                             )
                                             AnimatedVisibility(visible = state.castState.isRemote) {
                                                 Text(
@@ -1261,7 +1271,7 @@ fun NowPlayingContentSpotify(
                                             ) {
                                                 Icon(
                                                     imageVector = SimpIcons.PlaylistAdd,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "Add to Playlist",
                                                 )
                                             }
@@ -1279,7 +1289,7 @@ fun NowPlayingContentSpotify(
                                             ) {
                                                 Icon(
                                                     imageVector = SimpIcons.QueueMusic,
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     contentDescription = "",
                                                 )
                                             }
@@ -1361,7 +1371,7 @@ fun NowPlayingContentSpotify(
                                                                     ).focusable(),
                                                             text = lineText,
                                                             style = typo().bodyMedium,
-                                                            color = Color.White,
+                                                            color = skOnPlayer(),
                                                             maxLines = 1,
                                                         )
                                                         val translatedLineText =
@@ -1385,7 +1395,7 @@ fun NowPlayingContentSpotify(
                                                                         ).focusable(),
                                                                 text = translatedLineText,
                                                                 style = typo().bodyMedium,
-                                                                color = Color.Yellow,
+                                                                color = skTranslatedLyric(),
                                                                 maxLines = 1,
                                                             )
                                                         }
@@ -1426,7 +1436,7 @@ fun NowPlayingContentSpotify(
                                         Text(
                                             text = stringResource(Res.string.lyrics),
                                             style = typo().labelMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                         )
                                         if (state.screenData.lyricsData?.translatedLyrics?.second == LyricsProvider.AI) {
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -1447,7 +1457,7 @@ fun NowPlayingContentSpotify(
                                                     Icon(
                                                         imageVector = SimpIcons.ThumbsUpDown,
                                                         contentDescription = stringResource(Res.string.rate_lyrics),
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                         modifier = Modifier.size(16.dp),
                                                     )
                                                 }
@@ -1461,7 +1471,7 @@ fun NowPlayingContentSpotify(
                                                 Icon(
                                                     imageVector = SimpIcons.Share,
                                                     contentDescription = stringResource(Res.string.share_lyrics),
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                     modifier = Modifier.size(16.dp),
                                                 )
                                             }
@@ -1478,7 +1488,7 @@ fun NowPlayingContentSpotify(
                                                         .height(20.dp)
                                                         .wrapContentWidth(),
                                             ) {
-                                                Text(text = stringResource(Res.string.show), color = Color.White)
+                                                Text(text = stringResource(Res.string.show), color = skOnPlayer())
                                             }
                                         }
                                     }
@@ -1566,7 +1576,7 @@ fun NowPlayingContentSpotify(
                                 shape = RoundedCornerShape(8.dp),
                                 colors =
                                     CardDefaults.elevatedCardColors().copy(
-                                        containerColor = Color(0xFF212121),
+                                        containerColor = skSurface(Color(0xFF212121)),
                                     ),
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -1616,7 +1626,7 @@ fun NowPlayingContentSpotify(
                                         Text(
                                             text = stringResource(Res.string.artists),
                                             style = typo().labelMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                             modifier =
                                                 Modifier
                                                     .align(Alignment.TopStart)
@@ -1632,13 +1642,13 @@ fun NowPlayingContentSpotify(
                                         Text(
                                             text = state.screenData.songInfoData?.author ?: "",
                                             style = typo().titleMedium,
-                                            color = Color.White,
+                                            color = skOnPlayer(),
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = state.screenData.songInfoData?.subscribers ?: "",
                                             style = typo().bodySmall,
-                                            color = Color.White.copy(alpha = 0.7f),
+                                            color = skOnPlayer().copy(alpha = 0.7f),
                                         )
                                     }
                                 }
@@ -1663,7 +1673,7 @@ fun NowPlayingContentSpotify(
                                     Text(
                                         text = stringResource(Res.string.published_at, state.screenData.songInfoData?.uploadDate ?: ""),
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
@@ -1673,7 +1683,7 @@ fun NowPlayingContentSpotify(
                                                 "%,d".format(state.screenData.songInfoData?.viewCount),
                                             ),
                                         style = typo().labelMedium,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
@@ -1689,7 +1699,7 @@ fun NowPlayingContentSpotify(
                                     Text(
                                         text = stringResource(Res.string.description),
                                         style = typo().labelSmall,
-                                        color = Color.White,
+                                        color = skOnPlayer(),
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     DescriptionView(
@@ -1773,7 +1783,7 @@ fun NowPlayingContentSpotify(
                                 Text(
                                     text = state.screenData.nowPlayingTitle,
                                     style = typo().bodyMedium,
-                                    color = Color.White,
+                                    color = skOnPlayer(),
                                     maxLines = 1,
                                     modifier =
                                         Modifier
@@ -1828,7 +1838,7 @@ fun NowPlayingContentSpotify(
                                 Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(18.dp),
-                                        color = Color.LightGray,
+                                        color = skProgress(Color.LightGray),
                                         strokeWidth = 3.dp,
                                     )
                                 }
@@ -1855,8 +1865,8 @@ fun NowPlayingContentSpotify(
                                         color = Color.Transparent,
                                         shape = RoundedCornerShape(4.dp),
                                     ),
-                            color = Color.White,
-                            trackColor = Color.Gray.copy(alpha = 0.4f),
+                            color = skOnPlayer(),
+                            trackColor = skProgressTrack(Color.Gray.copy(alpha = 0.4f)),
                             strokeCap = StrokeCap.Round,
                             drawStopIndicator = {},
                         )
@@ -1927,7 +1937,7 @@ private fun NowPlayingTrackInfoRow(
                 text = state.screenData.nowPlayingTitle,
                 style = typo().titleMedium,
                 maxLines = 1,
-                color = Color.White,
+                color = skOnPlayer(),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -1991,7 +2001,7 @@ private fun NowPlayingTrackInfoRow(
                             actions.onAddToYouTubeLiked()
                         },
                     ) {
-                        Icon(imageVector = SimpIcons.CheckCircle, tint = Color.White, contentDescription = "")
+                        Icon(imageVector = SimpIcons.CheckCircle, tint = skOnPlayer(), contentDescription = "")
                     }
                 } else {
                     IconButton(
@@ -2008,7 +2018,7 @@ private fun NowPlayingTrackInfoRow(
                     ) {
                         Icon(
                             imageVector = SimpIcons.AddCircleOutline,
-                            tint = Color.White,
+                            tint = skOnPlayer(),
                             contentDescription = "",
                         )
                     }

@@ -72,6 +72,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.maxrave.domain.data.player.GenericCastState
 import com.maxrave.domain.mediaservice.handler.ControlState
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
 import com.maxrave.simpmusic.expect.ui.PlatformCastButton
@@ -131,10 +133,21 @@ internal fun appleMusicGradientColorAt(
     }
 }
 
-internal val AppleMusicTextSecondary = Color.White.copy(alpha = 0.72f)
-internal val AppleMusicPillInactive = Color.White.copy(alpha = 0.24f)
-internal val AppleMusicTrackInactive = Color.White.copy(alpha = 0.26f)
-internal val AppleMusicTrackActive = Color.White.copy(alpha = 0.92f)
+// shiroikuma fork: these four were module-level `val`s holding raw white — the same shape as the
+// lyrics' module-level dim greys, and just as unreachable by any colour scheme. They are composable
+// property getters now, so every existing call site is unchanged while the colour follows our TEXT
+// slot; with the fork theme off skOnPlayer() returns the stock white, so stock renders unchanged.
+internal val AppleMusicTextSecondary: Color
+    @Composable get() = skOnPlayer().copy(alpha = 0.72f)
+
+internal val AppleMusicPillInactive: Color
+    @Composable get() = skOnPlayer().copy(alpha = 0.24f)
+
+internal val AppleMusicTrackInactive: Color
+    @Composable get() = skOnPlayer().copy(alpha = 0.26f)
+
+internal val AppleMusicTrackActive: Color
+    @Composable get() = skOnPlayer().copy(alpha = 0.92f)
 
 @Immutable
 internal data class AppleMusicTypography(
@@ -178,7 +191,7 @@ internal fun rememberAppleMusicTypography(): AppleMusicTypography {
         times = t.bodyMedium,
         badge = t.bodySmall,
         footer = t.bodySmall,
-        idleLyric = t.bodyMedium.copy(color = Color.White),
+        idleLyric = t.bodyMedium.copy(color = skOnPlayer()),
         idleTranslated = t.bodyMedium.copy(color = Color.Yellow),
     )
 }
@@ -253,7 +266,7 @@ internal fun AppleMusicGlyphButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     size: Dp = 24.dp,
-    tint: Color = Color.White,
+    tint: Color = skOnPlayer(),
 ) {
     IconButton(
         onClick = onClick,
@@ -295,7 +308,7 @@ internal fun AppleMusicHeaderActions(
                     Icon(
                         imageVector = if (liked) SimpIcons.CheckCircle else SimpIcons.AddCircleOutline,
                         contentDescription = "",
-                        tint = Color.White,
+                        tint = skOnPlayer(),
                     )
                 }
             }
@@ -318,7 +331,7 @@ internal fun AppleMusicHeaderActions(
                 Icon(
                     imageVector = if (liked) SimpIcons.Star else SimpIcons.StarBorder,
                     contentDescription = "",
-                    tint = Color.White,
+                    tint = skOnPlayer(),
                     modifier = Modifier.size(32.dp),
                 )
             }
@@ -547,20 +560,20 @@ internal fun AppleMusicTimesRow(
                     modifier =
                         Modifier
                             .clip(RoundedCornerShape(9.dp))
-                            .background(Color.White.copy(alpha = 0.16f))
+                            .skTracedAction(RoundedCornerShape(9.dp), skOnPlayer().copy(alpha = 0.16f))
                             .padding(horizontal = 10.dp, vertical = 4.dp),
                 ) {
                     Icon(
                         imageVector = SimpIcons.GraphicEq,
                         contentDescription = "",
-                        tint = Color.White.copy(alpha = 0.9f),
+                        tint = skOnPlayer().copy(alpha = 0.9f),
                         modifier = Modifier.size(15.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     // orEmpty(), not codec!!: the null check drives the alpha above rather than
                     // guarding this branch, so there is nothing here for the compiler to
                     // smart-cast. It also renders while alpha is 0, which is the point.
-                    Text(text = codec.orEmpty(), style = typography.badge.copy(color = Color.White.copy(alpha = 0.9f)))
+                    Text(text = codec.orEmpty(), style = typography.badge.copy(color = skOnPlayer().copy(alpha = 0.9f)))
                 }
             }
         }
@@ -597,7 +610,7 @@ internal fun AppleMusicTransportRow(
             Icon(
                 imageVector = SimpIcons.FastRewind,
                 contentDescription = "",
-                tint = Color.White.copy(alpha = if (controllerState.isPreviousAvailable) 1f else 0.4f),
+                tint = skOnPlayer().copy(alpha = if (controllerState.isPreviousAvailable) 1f else 0.4f),
                 modifier = Modifier.size(46.dp),
             )
         }
@@ -617,7 +630,7 @@ internal fun AppleMusicTransportRow(
                 Icon(
                     imageVector = if (isPlaying) SimpIcons.Pause else SimpIcons.PlayArrow,
                     contentDescription = "",
-                    tint = Color.White,
+                    tint = skOnPlayer(),
                     modifier = Modifier.size(66.dp),
                 )
             }
@@ -629,7 +642,7 @@ internal fun AppleMusicTransportRow(
             Icon(
                 imageVector = SimpIcons.FastForward,
                 contentDescription = "",
-                tint = Color.White.copy(alpha = if (controllerState.isNextAvailable) 1f else 0.4f),
+                tint = skOnPlayer().copy(alpha = if (controllerState.isNextAvailable) 1f else 0.4f),
                 modifier = Modifier.size(46.dp),
             )
         }
@@ -693,9 +706,9 @@ internal fun AppleMusicDockButton(
             contentDescription = "",
             tint =
                 when {
-                    !enabled -> Color.White.copy(alpha = 0.4f)
+                    !enabled -> skOnPlayer().copy(alpha = 0.4f)
                     active -> activeContentColor
-                    else -> Color.White.copy(alpha = 0.85f)
+                    else -> skOnPlayer().copy(alpha = 0.85f)
                 },
             modifier = Modifier.size(22.dp),
         )
@@ -737,7 +750,7 @@ internal fun AppleMusicDock(
             Box(modifier = Modifier.appleMusicPressInflate().size(40.dp), contentAlignment = Alignment.Center) {
                 PlatformCastButton(
                     modifier = Modifier.size(22.dp),
-                    tint = if (castState.isRemote) activeColor else Color.White,
+                    tint = if (castState.isRemote) activeColor else skOnPlayer(),
                 )
             }
         }

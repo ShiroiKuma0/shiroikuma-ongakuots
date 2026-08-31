@@ -114,6 +114,10 @@ import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.hsvToColor
 import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
+import com.maxrave.simpmusic.shiroikuma.skProgress
+import com.maxrave.simpmusic.shiroikuma.skProgressTrack
+import com.maxrave.simpmusic.shiroikuma.skTranslatedLyric
 import com.maxrave.simpmusic.shiroikuma.skLyricsBackground
 import com.maxrave.simpmusic.extension.parseRichSyncWords
 import com.maxrave.simpmusic.ui.icon.Info
@@ -243,6 +247,28 @@ private fun lyricCurrent(): Color {
     return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE) else Color.White
 }
 
+/**
+ * The romanization guide, which sits between the original and its translation in meaning and so
+ * does the same visually: it follows whichever of those two the line is currently in, dimmed. Two
+ * values because the sung line lifts everything on it.
+ */
+@Composable
+private fun romanizedCurrent(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.LYRIC_ACTIVE).copy(alpha = 0.7f) else DimRomanizedCurrentColor
+}
+
+@Composable
+private fun romanizedDim(): Color {
+    val ui = LocalOngakuUi.current
+    return if (ui.enabled) ui.c(ColorSlot.TEXT).copy(alpha = 0.55f) else DimRomanizedColor
+}
+
+/**
+ * The lyric sheet's own progress/seek colour and the track behind it. Upstream uses Gray on
+ * DarkGray and a white slider, none of which any colour scheme reaches — and grey on grey all but
+ * vanishes once the sheet is flat black.
+ */
 private data class TimedLineIndex(
     val index: Int,
     val startTimeMs: Long,
@@ -724,14 +750,14 @@ fun LyricsLineItem(
                         // Neither the original's white nor the translation's yellow: a reading is a
                         // third KIND of thing, and giving it the translation's colour would read as
                         // two translations stacked.
-                        color = if (isCurrent) DimRomanizedCurrentColor else DimRomanizedColor,
+                        color = if (isCurrent) romanizedCurrent() else romanizedDim(),
                     )
                 }
                 if (translatedWords != null) {
                     Text(
                         text = translatedWords,
                         style = typo().bodyMedium,
-                        color = if (isCurrent) Color.Yellow else dimTranslated(),
+                        color = if (isCurrent) skTranslatedLyric() else dimTranslated(),
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -752,7 +778,7 @@ fun LyricsLineItem(
                 Text(
                     text = romanizedWords,
                     style = typo().bodyMedium,
-                    color = DimRomanizedColor,
+                    color = romanizedDim(),
                 )
             }
             if (translatedWords != null) {
@@ -854,7 +880,7 @@ fun RichSyncLyricsLineItem(
             Text(
                 text = romanizedWords,
                 style = translatedStyleOverride ?: typo().bodyMedium,
-                color = if (isCurrent) DimRomanizedCurrentColor else DimRomanizedColor,
+                color = if (isCurrent) romanizedCurrent() else romanizedDim(),
             )
         }
 
@@ -863,7 +889,7 @@ fun RichSyncLyricsLineItem(
             Text(
                 text = translatedWords,
                 style = translatedStyleOverride ?: typo().bodyMedium,
-                color = translatedColorOverride ?: if (isCurrent) Color.Yellow else dimTranslated(),
+                color = translatedColorOverride ?: if (isCurrent) skTranslatedLyric() else dimTranslated(),
             )
         }
 
@@ -1013,7 +1039,10 @@ private fun AnimatedWord(
                     } else {
                         (1f - abs(wordProgress - charCenter) / reach).coerceIn(0f, 1f)
                     }
-                val restingColor = pendingColorOverride ?: DimRichPendingColor
+                val restingColor = pendingColorOverride ?: dimRichPending()
+                // The swept/sung characters. Hoisted out of the `when` below so the composable
+                // call is unconditional.
+                val sungColor = lyricCurrent()
                 Box {
                     // Glow: transparent ink, so only the Shadow lands and it follows the glyph
                     // outline instead of boxing the character.
@@ -1047,8 +1076,8 @@ private fun AnimatedWord(
                         style = style,
                         color =
                             when {
-                                charPast -> Color.White
-                                charActive -> lerp(restingColor, Color.White, charProgress)
+                                charPast -> sungColor
+                                charActive -> lerp(restingColor, sungColor, charProgress)
                                 else -> restingColor
                             },
                     )
@@ -1100,11 +1129,17 @@ fun FullscreenLyricsSheet(
         mutableStateOf(false)
     }
 
+    // shiroikuma fork: the gradient tail is pure black upstream, so the sheet ramps off its own
+    // background. With the flat-player-backdrop behaviour on it stays on `color` the whole way,
+    // like the player backdrop; with the flag off, upstream's ramp is back.
+    val skUi = LocalOngakuUi.current
+    val gradientTail = if (skUi.enabled && skUi.flatPlayerBackdrop) color else Color.Black
+
     // Animated gradient colors - SMOOTH ANIMATION
     val startColor = remember { Animatable(color) }
     val midColor1 = remember { Animatable(color.copy(alpha = 0.95f)) }
     val midColor2 = remember { Animatable(color.copy(alpha = 0.85f)) }
-    val endColor = remember { Animatable(Color.Black) }
+    val endColor = remember { Animatable(gradientTail) }
 
     // Dynamic gradient animation - MULTIPLE DIRECTIONS
     // Replaces the previous `while(true) { delay(16) }` loop with a Compose
@@ -1166,7 +1201,7 @@ fun FullscreenLyricsSheet(
         }
         launch {
             endColor.animateTo(
-                targetValue = Color.Black,
+                targetValue = gradientTail,
                 animationSpec = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
             )
         }
@@ -1223,10 +1258,10 @@ fun FullscreenLyricsSheet(
         onDismissRequest = {
             onDismiss()
         },
-        containerColor = Color.Black,
+        containerColor = color,
         contentColor = Color.Transparent,
         dragHandle = {},
-        scrimColor = Color.Black.copy(alpha = .5f),
+        scrimColor = color.copy(alpha = .5f),
         sheetState = sheetState,
         modifier =
             Modifier
@@ -1255,7 +1290,7 @@ fun FullscreenLyricsSheet(
         )
         val rainbowColor = hsvToColor(rainbowHue, 1f, 1f)
         val sliderTrackColor by animateColorAsState(
-            targetValue = if (timelineState.isCrossfading) rainbowColor else Color.White,
+            targetValue = if (timelineState.isCrossfading) rainbowColor else skOnPlayer(),
             animationSpec = tween(300),
             label = "sliderCrossfadeColor",
         )
@@ -1386,7 +1421,7 @@ fun FullscreenLyricsSheet(
                             Text(
                                 text = screenDataState.artistName,
                                 style = typo().bodySmall,
-                                color = Color.White.copy(alpha = 0.7f),
+                                color = skOnPlayer().copy(alpha = 0.7f),
                                 maxLines = 1,
                                 modifier =
                                     Modifier
@@ -1418,7 +1453,7 @@ fun FullscreenLyricsSheet(
                             Icon(
                                 imageVector = SimpIcons.Share,
                                 contentDescription = stringResource(Res.string.share_lyrics),
-                                tint = Color.White,
+                                tint = skOnPlayer(),
                             )
                         }
                     }
@@ -1430,7 +1465,7 @@ fun FullscreenLyricsSheet(
                         Icon(
                             imageVector = SimpIcons.MoreVert,
                             contentDescription = "",
-                            tint = Color.White,
+                            tint = skOnPlayer(),
                         )
                     }
                 }
@@ -1518,8 +1553,8 @@ fun FullscreenLyricsSheet(
                                                     ).clip(
                                                         RoundedCornerShape(8.dp),
                                                     ),
-                                            color = Color.Gray,
-                                            trackColor = Color.DarkGray,
+                                            color = skProgress(Color.Gray),
+                                            trackColor = skProgressTrack(Color.DarkGray),
                                             strokeCap = StrokeCap.Round,
                                         )
                                     }
@@ -1536,8 +1571,8 @@ fun FullscreenLyricsSheet(
                                                     ).clip(
                                                         RoundedCornerShape(8.dp),
                                                     ),
-                                            color = Color.Gray,
-                                            trackColor = Color.DarkGray,
+                                            color = skProgress(Color.Gray),
+                                            trackColor = skProgressTrack(Color.DarkGray),
                                             strokeCap = StrokeCap.Round,
                                             drawStopIndicator = {},
                                         )
@@ -1597,8 +1632,8 @@ fun FullscreenLyricsSheet(
                                             },
                                         colors =
                                             SliderDefaults.colors().copy(
-                                                thumbColor = Color.White,
-                                                activeTrackColor = Color.White,
+                                                thumbColor = skProgress(Color.White),
+                                                activeTrackColor = skProgress(Color.White),
                                                 inactiveTrackColor = Color.Transparent,
                                             ),
                                         enabled = true,
@@ -1699,7 +1734,7 @@ fun FullscreenLyricsSheet(
                                             showControlButtons = true
                                         },
                                     ) {
-                                        Icon(imageVector = SimpIcons.Info, tint = Color.White, contentDescription = "")
+                                        Icon(imageVector = SimpIcons.Info, tint = skOnPlayer(), contentDescription = "")
                                     }
                                     Row(
                                         Modifier.align(Alignment.CenterEnd),
@@ -1720,7 +1755,7 @@ fun FullscreenLyricsSheet(
                                         ) {
                                             Icon(
                                                 imageVector = SimpIcons.QueueMusic,
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                                 contentDescription = "",
                                             )
                                         }

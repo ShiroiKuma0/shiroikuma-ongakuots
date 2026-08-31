@@ -1,5 +1,7 @@
 package com.maxrave.simpmusic.ui.component
 
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -36,7 +38,10 @@ class HeartBurstState internal constructor(
     private val scope: CoroutineScope,
 ) {
     internal val bursts = mutableStateListOf<HeartBurst>()
-    internal var colors: List<Color> = HeartBurstDefaults.colors
+    // Upstream's palette as the plain initialiser — a class field is not composable scope. The
+    // composable HeartBurst overload overwrites this with HeartBurstDefaults.colors before any
+    // burst can fire, so the fork palette is what actually reaches the screen.
+    internal var colors: List<Color> = HeartBurstDefaults.stockColors
 
     /** One burst, now. Call from the tap that LIKES (i.e. while the heart is still unchecked). */
     fun fire() {
@@ -120,8 +125,32 @@ fun Modifier.heartBurst(
 }
 
 object HeartBurstDefaults {
-    /** Gold, warm white, and pink glitter — reads against both dark and artwork backdrops. */
-    val colors: List<Color> =
+    /**
+     * Gold, warm white, and pink glitter — reads against both dark and artwork backdrops.
+     *
+     * shiroikuma fork: with our theme on the burst is struck from the house slots instead — the
+     * like heart's own colour, the accent and the page text, at three weights — so the one moment
+     * the app throws confetti is not also the one moment it goes pink. A composable getter, so
+     * every call site is unchanged and a stock build gets upstream's palette verbatim.
+     */
+    val colors: List<Color>
+        @Composable get() {
+            val ui = LocalOngakuUi.current
+            return if (ui.enabled) {
+                listOf(
+                    ui.c(ColorSlot.FAVOURITE),
+                    ui.c(ColorSlot.ACCENT),
+                    ui.c(ColorSlot.ACCENT).copy(alpha = 0.7f),
+                    ui.c(ColorSlot.TEXT),
+                    ui.c(ColorSlot.LYRIC_ACTIVE),
+                )
+            } else {
+                stockColors
+            }
+        }
+
+    /** Upstream's palette, verbatim — the fallback, and the initialiser for non-composable scope. */
+    val stockColors: List<Color> =
         listOf(
             Color(0xFFFFD54F),
             Color(0xFFFFF59D),

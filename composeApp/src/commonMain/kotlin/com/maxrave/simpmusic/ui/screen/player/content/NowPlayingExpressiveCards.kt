@@ -77,6 +77,8 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.maxrave.common.Config.MAIN_PLAYER
+import com.maxrave.simpmusic.shiroikuma.skPlayerBackdrop
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.MediaPlayerView
 import com.maxrave.simpmusic.expect.ui.MediaPlayerViewWithSubtitle
@@ -245,7 +247,7 @@ internal fun ExpressiveArtworkCardPage(
                                 .background(
                                     smoothScrimBrush(
                                         from = overlay,
-                                        to = Color.Black,
+                                        to = skPlayerBackdrop(Color.Black),
                                         startFraction = 0.2f,
                                     ),
                                 ),
@@ -257,8 +259,8 @@ internal fun ExpressiveArtworkCardPage(
                                 .fillMaxSize()
                                 .background(
                                     smoothScrimBrush(
-                                        from = Color.Black.copy(alpha = 0f),
-                                        to = Color.Black,
+                                        from = skPlayerBackdrop(Color.Black).copy(alpha = 0f),
+                                        to = skPlayerBackdrop(Color.Black),
                                         startFraction = 0.92f,
                                         endFraction = 0.97f,
                                     ),
@@ -411,7 +413,7 @@ internal fun ExpressiveArtworkCardPage(
                                                     contentDescription = "",
                                                     // Over-video control, not a semantic surface
                                                     // foreground — stays white like Classic.
-                                                    tint = Color.White,
+                                                    tint = skOnPlayer(),
                                                 )
                                             }
                                             Row(
@@ -436,7 +438,7 @@ internal fun ExpressiveArtworkCardPage(
                                                 ) {
                                                     Icon(
                                                         imageVector = SimpIcons.Replay5,
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                         contentDescription = "",
                                                         modifier =
                                                             Modifier
@@ -460,7 +462,7 @@ internal fun ExpressiveArtworkCardPage(
                                                 ) {
                                                     Icon(
                                                         imageVector = SimpIcons.Forward5,
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                         contentDescription = "",
                                                         modifier =
                                                             Modifier
@@ -484,7 +486,7 @@ internal fun ExpressiveArtworkCardPage(
                                                                 SimpIcons.Subtitles
                                                             },
                                                         contentDescription = "",
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                     )
                                                 }
                                             }
@@ -551,7 +553,7 @@ internal fun ExpressiveBelowTheFold(
                         Text(
                             text = stringResource(Res.string.lyrics),
                             style = typo().labelMedium,
-                            color = Color.White,
+                            color = skOnPlayer(),
                         )
                         if (state.screenData.lyricsData?.translatedLyrics?.second == LyricsProvider.AI) {
                             Spacer(modifier = Modifier.width(8.dp))
@@ -602,7 +604,7 @@ internal fun ExpressiveBelowTheFold(
                                         .height(20.dp)
                                         .wrapContentWidth(),
                             ) {
-                                Text(text = stringResource(Res.string.show), color = Color.White)
+                                Text(text = stringResource(Res.string.show), color = skOnPlayer())
                             }
                         }
                     }
@@ -733,7 +735,7 @@ internal fun ExpressiveBelowTheFold(
                             text = stringResource(Res.string.artists),
                             style = typo().labelMedium,
                             // Over the photo scrim, not on a semantic surface.
-                            color = Color.White,
+                            color = skOnPlayer(),
                             modifier =
                                 Modifier
                                     .align(Alignment.TopStart)
@@ -749,13 +751,13 @@ internal fun ExpressiveBelowTheFold(
                         Text(
                             text = state.screenData.songInfoData?.author ?: "",
                             style = typo().titleMedium,
-                            color = Color.White,
+                            color = skOnPlayer(),
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = state.screenData.songInfoData?.subscribers ?: "",
                             style = typo().bodySmall,
-                            color = Color.White.copy(alpha = 0.7f),
+                            color = skOnPlayer().copy(alpha = 0.7f),
                         )
                     }
                 }
@@ -777,7 +779,7 @@ internal fun ExpressiveBelowTheFold(
                     Text(
                         text = stringResource(Res.string.published_at, state.screenData.songInfoData?.uploadDate ?: ""),
                         style = typo().labelSmall,
-                        color = Color.White,
+                        color = skOnPlayer(),
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -787,7 +789,7 @@ internal fun ExpressiveBelowTheFold(
                                 "%,d".format(state.screenData.songInfoData?.viewCount),
                             ),
                         style = typo().labelMedium,
-                        color = Color.White,
+                        color = skOnPlayer(),
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -803,7 +805,7 @@ internal fun ExpressiveBelowTheFold(
                     Text(
                         text = stringResource(Res.string.description),
                         style = typo().labelSmall,
-                        color = Color.White,
+                        color = skOnPlayer(),
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     DescriptionView(
@@ -907,7 +909,7 @@ internal fun ExpressiveCollapsedToolbar(
                             Text(
                                 text = state.screenData.nowPlayingTitle,
                                 style = typo().bodyMedium,
-                                color = Color.White,
+                                color = skOnPlayer(),
                                 maxLines = 1,
                                 modifier =
                                     Modifier

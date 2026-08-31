@@ -419,7 +419,7 @@ fun ArtistScreen(
                                                 Text(
                                                     text = state.data.title ?: stringResource(Res.string.unknown),
                                                     style = typo().titleLarge,
-                                                    color = Color.White,
+                                                    color = skOnPlayer(),
                                                     maxLines = 2,
                                                     textAlign = TextAlign.Center,
                                                 )
@@ -594,7 +594,7 @@ fun ArtistScreen(
                                         Icon(
                                             imageVector = SimpIcons.ArrowBackIosNew,
                                             contentDescription = "Back",
-                                            tint = Color.White,
+                                            tint = skOnPlayer(),
                                             modifier = Modifier.size(20.dp),
                                         )
                                     }

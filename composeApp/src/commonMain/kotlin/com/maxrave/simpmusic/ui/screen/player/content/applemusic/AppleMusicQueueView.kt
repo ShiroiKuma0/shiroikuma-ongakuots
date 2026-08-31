@@ -56,6 +56,7 @@ import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
 import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.mediaservice.handler.RepeatState
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
 import com.maxrave.simpmusic.ui.component.DraggableItem
 import com.maxrave.simpmusic.ui.component.QueueItemBottomSheet
@@ -369,7 +370,7 @@ private fun AppleMusicQueuePill(
         Icon(
             imageVector = icon,
             contentDescription = "",
-            tint = if (active) activeContent else Color.White,
+            tint = if (active) activeContent else skOnPlayer(),
             modifier = Modifier.size(20.dp),
         )
     }
@@ -438,8 +439,8 @@ private fun AppleMusicContinuePlayingHeader(
                         // page rather than a grey slab: this row has no surface of its own, and
                         // Material's default unchecked track paints one.
                         uncheckedTrackColor = Color.Transparent,
-                        uncheckedBorderColor = Color.White.copy(alpha = 0.45f),
-                        uncheckedThumbColor = Color.White.copy(alpha = 0.75f),
+                        uncheckedBorderColor = skOnPlayer().copy(alpha = 0.45f),
+                        uncheckedThumbColor = skOnPlayer().copy(alpha = 0.75f),
                     ),
                 modifier = Modifier.appleMusicPressInflate(pressedScale = 1.08f),
             )
