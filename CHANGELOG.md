@@ -10,6 +10,47 @@ Fork versions read `<upstream>+<base date>.<HH-MM UTC>.g<sha8>+<build>`: the mid
 upstream commit the build sits on, and moves only on a sync. The installed `versionCode` is
 `<upstream code> * 10000 + <build>`, independent of the pin.
 
+## 白い熊 音楽乙 2.0.0+2026-08-31.19-05.ge290d734+013 — 2026-08-31
+
+**Upstream sync.** The pin moves from `62472bfa` (2026-08-28) to `e290d734` (2026-08-31) — 7 commits
+on `upstream/dev` and 4 in the `core` fork. Upstream's own `version-name` and `version-code` did
+**not** move (still 2.0.0 / 57): this is post-release bug-fixing on the bleeding branch, which is
+exactly the case the fork's version pin exists to make visible. versionCode `570013`.
+
+The rebase cost the fork nothing. One conflict — upstream inserted two new strings directly after
+`canvas_info`, which our de-branding had rewritten — plus the usual submodule pointer. The
+unthemed-literal census held at **5**, unchanged, so upstream added no new grey this time and all
+four load-bearing theming invariants still hold.
+
+### What we picked up
+
+- **Animated album artwork as a second canvas source** — opt-in, off by default, and notably
+  **account-free**: it plays Apple Music's animated album cover in the slot a Spotify Canvas fills,
+  reusing the AM token plumbing that already existed for artist name-logos. Falls back to Spotify
+  Canvas, then to the still cover. Adds `music.apple.com` as a fetch host.
+- **The middle extraction tier was being skipped entirely.** A stale on-device player table yields a
+  signature that is well-formed and merely 403'd by the CDN — nothing throws, so the app dropped
+  straight past `api.pipepipe.dev` to BravePipe, precisely in the case that tier exists for. Now
+  three separate extractions. This is the fix most likely to matter for playback here.
+- **A settings row was erasing a stored flag on every visit.** `SettingItem`'s `onDisable` fired from
+  a `LaunchedEffect(isEnable)`, and the gate is a `StateFlow` filled asynchronously — so the first
+  composition always read "not loaded yet" as "signed out". Clearing a login-gated flag now belongs
+  to the logout itself.
+- **Unsynced lyrics no longer blur the whole sheet.** Every unsynced line still carries a
+  `startTimeMs` of literal `"0"`, which parses fine, so "the last line at or before now" answered
+  with the last line of the song from the first second onward and everything else blurred to
+  maximum. One distinct timestamp now means unsynced.
+- Long setting descriptions are no longer clipped mid-glyph; unticked SponsorBlock categories save;
+  and the artwork pager no longer parks between two pages when the radio appends to the queue (its
+  effect was keyed on the queue size, and a changing key cancels the scroll in flight).
+
+### Fork work in this build
+
+The colour pass that followed the 2.0.0 restructure is committed here rather than left in the
+working tree — see its own commit for the detail. In short: the word-by-word lyric renderer, the
+Apple Music lyric palette, the three players' backdrops, Analytics, the three new widgets and the
+like burst all reach the fork's slots now, and the census went 107 → 5.
+
 ## 白い熊 音楽乙 2.0.0+2026-08-28.15-40.g62472bfa+012 — 2026-08-29
 
 Same upstream base as `+011`; this is the colour work that build left undone. versionCode `570012`.
@@ -372,6 +413,20 @@ Upstream's notes are folded in here on each sync, newest first. At fork time the
 `upstream/dev` at `9155f673` (2026-08-15 17:42 UTC), one release past **v1.7.0** (versionCode 56,
 released 2026-08-07). Upstream's full release history:
 <https://github.com/maxrave-dev/SimpMusic/releases>.
+
+### SimpMusic `dev` after v2.0.0 — versionCode still 57 (upstream, 2026-08-31)
+
+No release and no version bump; upstream keeps no changelog file for bleeding-branch work, so this
+is taken from the commits themselves:
+
+- `feat(canvas)` — animated album artwork alongside Spotify Canvas, with Apple Music as the source
+  and no account required; falls back to Canvas, then to the still cover
+- `fix(extractor)` — try the `api.pipepipe.dev` tier before falling back to BravePipe, as three
+  separate extractions rather than one
+- `fix(settings)` — reset login-gated flags at logout instead of on display; save unticked
+  SponsorBlock categories; stop cutting off long setting descriptions
+- `fix(lyrics)` — stop blurring the whole sheet when lyrics are not time-synced
+- `fix(player)` — stop the queue growing from cancelling the artwork pager animation
 
 ### SimpMusic v2.0.0 — versionCode 57 (upstream, 2026-08-28)
 
