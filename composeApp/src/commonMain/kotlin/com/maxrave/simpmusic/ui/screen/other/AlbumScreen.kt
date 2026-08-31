@@ -456,7 +456,7 @@ fun AlbumScreen(
                                                         Text(
                                                             text = uiState.title,
                                                             style = typo().headlineSmall,
-                                                            color = Color.White,
+                                                            color = skOnPlayer(),
                                                             maxLines = 2,
                                                         )
                                                         Spacer(modifier = Modifier.height(4.dp))
@@ -507,14 +507,14 @@ fun AlbumScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(Color.White.copy(alpha = 0.12f))
+                                                                        .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f))
                                                                         .clickable { viewModel.shuffle() },
                                                                 contentAlignment = Alignment.Center,
                                                             ) {
                                                                 Icon(
                                                                     imageVector = SimpIcons.Shuffle,
                                                                     contentDescription = "Shuffle",
-                                                                    tint = Color.White,
+                                                                    tint = skOnPlayer(),
                                                                     modifier = Modifier.size(22.dp),
                                                                 )
                                                             }
@@ -524,7 +524,7 @@ fun AlbumScreen(
                                                                         .height(48.dp)
                                                                         .widthIn(min = 110.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(Color.White)
+                                                                        .skTracedAction(CircleShape, skOnPlayer())
                                                                         .clickable {
                                                                             if (isThisPlaying) {
                                                                                 sharedViewModel.onUIEvent(UIEvent.PlayPause)
@@ -541,13 +541,13 @@ fun AlbumScreen(
                                                                         imageVector =
                                                                             if (isThisPlaying) SimpIcons.Pause else SimpIcons.PlayArrow,
                                                                         contentDescription = null,
-                                                                        tint = Color.Black,
+                                                                        tint = skOnAction(),
                                                                         modifier = Modifier.size(22.dp),
                                                                     )
                                                                     Spacer(modifier = Modifier.width(4.dp))
                                                                     Text(
                                                                         text = if (isThisPlaying) "Pause" else "Play",
-                                                                        color = Color.Black,
+                                                                        color = skOnAction(),
                                                                         style = typo().labelLarge,
                                                                     )
                                                                 }
@@ -557,7 +557,7 @@ fun AlbumScreen(
                                                                     Modifier
                                                                         .size(48.dp)
                                                                         .clip(CircleShape)
-                                                                        .background(Color.White.copy(alpha = 0.12f)),
+                                                                        .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.12f)),
                                                                 contentAlignment = Alignment.Center,
                                                             ) {
                                                                 Crossfade(targetState = uiState.downloadState) { state ->
@@ -621,7 +621,7 @@ fun AlbumScreen(
                                                                             ) {
                                                                                 Icon(
                                                                                     imageVector = SimpIcons.DownloadForOffline,
-                                                                                    tint = Color.White,
+                                                                                    tint = skOnPlayer(),
                                                                                     contentDescription = "Download",
                                                                                     modifier = Modifier.size(22.dp),
                                                                                 )
@@ -683,7 +683,7 @@ fun AlbumScreen(
                                                     Icon(
                                                         imageVector = SimpIcons.MoreVert,
                                                         contentDescription = "More",
-                                                        tint = Color.White,
+                                                        tint = skOnPlayer(),
                                                     )
                                                 }
                                             }

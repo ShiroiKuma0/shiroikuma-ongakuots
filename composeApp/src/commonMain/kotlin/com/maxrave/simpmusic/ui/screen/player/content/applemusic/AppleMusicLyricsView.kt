@@ -43,6 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.maxrave.domain.manager.DataStoreManager
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
 import com.maxrave.simpmusic.expect.ui.isLyricsBlurSupported
 import com.maxrave.simpmusic.ui.component.AppleMusicLyricPaddingX
@@ -315,11 +317,11 @@ private fun AppleMusicFloatingCircleButton(
                 .appleMusicPressInflate()
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.24f))
+                .skTracedAction(CircleShape, skOnPlayer().copy(alpha = 0.24f))
                 .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(imageVector = icon, contentDescription = "", tint = Color.White, modifier = Modifier.size(18.dp))
+        Icon(imageVector = icon, contentDescription = "", tint = skOnPlayer(), modifier = Modifier.size(18.dp))
     }
 }
 

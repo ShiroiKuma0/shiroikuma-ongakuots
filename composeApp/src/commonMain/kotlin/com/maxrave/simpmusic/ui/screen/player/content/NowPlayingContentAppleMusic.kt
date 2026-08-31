@@ -70,6 +70,9 @@ import coil3.request.crossfade
 import com.kyant.backdrop.highlight.Highlight
 import com.maxrave.common.Config.MAIN_PLAYER
 import com.maxrave.domain.mediaservice.handler.RepeatState
+import com.maxrave.simpmusic.shiroikuma.skPlayerBackdrop
+import com.maxrave.simpmusic.shiroikuma.skTracedAction
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
 import com.maxrave.simpmusic.expect.ui.MediaPlayerView
@@ -208,9 +211,9 @@ fun NowPlayingContentAppleMusic(
     // Backdrop source for the Desktop dismiss button below. The glass layers MUST be a sibling of
     // the button, never its parent: nesting the button inside the source is the render-feedback
     // loop that crashes the RuntimeShader.
-    val panelBackdrop = rememberBackdrop(Color.Black)
+    val panelBackdrop = rememberBackdrop(skPlayerBackdrop(Color.Black))
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Box(modifier = Modifier.fillMaxSize().background(skPlayerBackdrop(Color.Black))) {
         Box(modifier = Modifier.matchParentSize().layerBackdrop(panelBackdrop)) {
             // Apple frosts the COVER ART into the page background — the colour and the soft blotches
             // of the artwork stay visible through it. A flat tinted gradient, which is what this used
@@ -350,7 +353,7 @@ fun NowPlayingContentAppleMusic(
                         Modifier
                             .size(width = 36.dp, height = 5.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(Color.White.copy(alpha = 0.35f)),
+                            .skTracedAction(RoundedCornerShape(50), skOnPlayer().copy(alpha = 0.35f)),
                 )
             }
         }
@@ -859,7 +862,7 @@ private fun AppleMusicArtworkPage(
                                         onClick = { actions.onEnterFullscreenVideo() },
                                         modifier = Modifier.align(Alignment.TopEnd),
                                     ) {
-                                        Icon(imageVector = SimpIcons.Fullscreen, contentDescription = "", tint = Color.White)
+                                        Icon(imageVector = SimpIcons.Fullscreen, contentDescription = "", tint = skOnPlayer())
                                     }
                                     Row(
                                         modifier = Modifier.align(Alignment.Center).fillMaxWidth(),
@@ -872,7 +875,7 @@ private fun AppleMusicArtworkPage(
                                             Icon(
                                                 imageVector = SimpIcons.Replay5,
                                                 contentDescription = "",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                                 modifier = Modifier.size(36.dp).alpha(0.8f),
                                             )
                                         }
@@ -883,7 +886,7 @@ private fun AppleMusicArtworkPage(
                                             Icon(
                                                 imageVector = SimpIcons.Forward5,
                                                 contentDescription = "",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                                 modifier = Modifier.size(36.dp).alpha(0.8f),
                                             )
                                         }
@@ -896,7 +899,7 @@ private fun AppleMusicArtworkPage(
                                             Icon(
                                                 imageVector = if (showSubtitle) SimpIcons.SubtitlesOff else SimpIcons.Subtitles,
                                                 contentDescription = "",
-                                                tint = Color.White,
+                                                tint = skOnPlayer(),
                                             )
                                         }
                                     }

@@ -520,6 +520,16 @@ fun Palette?.toImmersiveBackground(): Color {
     // sleeve gives a grey-blue page. With our theme on the page is flat black, like everywhere else.
     val sk = LocalOngakuUi.current
     if (sk.enabled && sk.flatPageBackground) return sk.c(ColorSlot.BG)
+    return immersiveBackgroundOf()
+}
+
+/**
+ * The stock derivation on its own, with no fork override and no composable context — for callers
+ * that run outside composition, such as inside a `LaunchedEffect`. Anything reachable from a
+ * composable should call [toImmersiveBackground] instead, which applies the fork's flat page
+ * background; a caller using this one must resolve that itself, in composable scope.
+ */
+fun Palette?.immersiveBackgroundOf(): Color {
     val p = this ?: return Color.Black
     val rgb =
         p.getDominantColor(0).takeIf { it != 0 }

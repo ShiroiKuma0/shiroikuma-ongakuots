@@ -54,6 +54,9 @@ import com.maxrave.common.Config
 import com.maxrave.domain.repository.AnalyticsRepository
 import com.maxrave.domain.repository.ArtistRepository
 import com.maxrave.domain.repository.SongRepository
+import com.maxrave.simpmusic.shiroikuma.skWidgetOn
+import com.maxrave.simpmusic.shiroikuma.rememberOngakuUiForWidget
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.MainActivity
 import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.extension.getColorFromPalette
@@ -101,7 +104,7 @@ private const val TILE_DECODE_PX = 256
  * artwork's palette it has to be derived from white so it stays legible whatever the
  * cover happens to be. The palette colour is already chosen dark enough for white.
  */
-private val mutedOnPalette = Color.White.copy(alpha = 0.6f)
+private val mutedOnPalette = Color.White.copy(alpha = 0.6f) // stock; see skMuted below
 private val ARTIST_TILE_SIZE = 52.dp
 
 private data class SongTile(
@@ -156,6 +159,10 @@ class ListeningInsightsWidget :
 
         provideContent {
             GlanceTheme {
+                // shiroikuma fork: a widget renders outside AppTheme, so LocalOngakuUi is absent
+                // here — the palette is read from the blob the UI page persists. See
+                // SkWidgetTheme.rememberOngakuUiForWidget.
+                val skUi by rememberOngakuUiForWidget()
                 val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsState()
 
                 // The background is the palette of whatever is playing, the same source the
@@ -165,6 +172,8 @@ class ListeningInsightsWidget :
                 val paletteState = rememberPaletteState()
                 var paletteArtwork by remember { mutableStateOf<Bitmap?>(null) }
                 var bgColor by remember { mutableStateOf(Color.Black) }
+                val skBg =
+                    if (skUi.enabled && skUi.flatPageBackground) skUi.c(ColorSlot.BG) else bgColor
                 val thumbUrl by remember { derivedStateOf { screenDataState.thumbnailURL } }
 
                 LaunchedEffect(bgColor) { refresh(context) }
@@ -253,7 +262,7 @@ class ListeningInsightsWidget :
                         Image(
                             provider = ImageProvider(R.drawable.rounded_insights_24),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                            colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                             modifier = GlanceModifier.size(18.dp),
                         )
                         Spacer(GlanceModifier.width(8.dp))
@@ -261,7 +270,7 @@ class ListeningInsightsWidget :
                             text = context.getString(R.string.widget_insights_label),
                             style =
                                 TextStyle(
-                                    color = ColorProvider(Color.White),
+                                    color = ColorProvider(skWidgetOn()),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
                                 ),
@@ -301,7 +310,7 @@ class ListeningInsightsWidget :
                                         text = "${index + 1}",
                                         style =
                                             TextStyle(
-                                                color = ColorProvider(Color.White),
+                                                color = ColorProvider(skWidgetOn()),
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Medium,
                                             ),
@@ -371,7 +380,7 @@ private fun SectionLabel(text: String) {
         text = text,
         style =
             TextStyle(
-                color = ColorProvider(Color.White),
+                color = ColorProvider(skWidgetOn()),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
             ),
@@ -413,7 +422,7 @@ private fun Cover(
                     text = fallbackInitial,
                     style =
                         TextStyle(
-                            color = ColorProvider(Color.White),
+                            color = ColorProvider(skWidgetOn()),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                         ),
@@ -441,7 +450,7 @@ private fun RowScope.StatTile(
             text = value,
             style =
                 TextStyle(
-                    color = ColorProvider(Color.White),
+                    color = ColorProvider(skWidgetOn()),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                 ),

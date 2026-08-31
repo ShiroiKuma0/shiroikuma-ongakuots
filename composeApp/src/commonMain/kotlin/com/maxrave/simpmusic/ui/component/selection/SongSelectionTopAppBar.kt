@@ -10,6 +10,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.maxrave.simpmusic.shiroikuma.skOnPlayer
 import com.maxrave.simpmusic.ui.icon.Close
 import com.maxrave.simpmusic.ui.icon.MoreVert
 import com.maxrave.simpmusic.ui.icon.SelectAll
@@ -35,7 +36,7 @@ fun SongSelectionTopAppBar(
     onOpenActions: () -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = Color.Transparent,
-    contentColor: Color = Color.White,
+    contentColor: Color = skOnPlayer(),
     // Defaults to the status-bar inset, like any TopAppBar. Pass WindowInsets(0) when this bar is
     // STACKED above something that already consumes that inset — a Material SearchBar does, and two
     // of them in one Column reserve the status bar twice, which reads as a slab of dead padding.

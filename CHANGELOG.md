@@ -10,6 +10,138 @@ Fork versions read `<upstream>+<base date>.<HH-MM UTC>.g<sha8>+<build>`: the mid
 upstream commit the build sits on, and moves only on a sync. The installed `versionCode` is
 `<upstream code> * 10000 + <build>`, independent of the pin.
 
+## 白い熊 音楽乙 2.0.0+2026-08-28.15-40.g62472bfa+012 — 2026-08-29
+
+Same upstream base as `+011`; this is the colour work that build left undone. versionCode `570012`.
+
+### Lyrics
+
+- **The word-by-word renderer was entirely unthemed.** Upstream replaced our two-layer wipe with
+  AMLL's per-character emphasis, and neither end of it reached a slot: the resting text took the raw
+  `DimRichPendingColor` and the swept characters were literal white. Resting now goes through
+  `dimRichPending()` and the sweep through `lyricCurrent()`, so the fork's inversion — white
+  travelling across yellow — is back on the rich-synced path.
+- **The romanization guide** (new this release) added two more module-level literals; they have
+  `romanizedCurrent()` / `romanizedDim()` now, following the sung line and the page text.
+- **The translated line** was `Color.Yellow` in four places, which on the house theme is the colour
+  of every line that is *not* being sung — so the translation of the current line was
+  indistinguishable from the rest. One shared `skTranslatedLyric()` now serves the lyrics sheet, the
+  Classic player's inline strip, and the M3 Expressive player; it keeps upstream's yellow as the
+  stock fallback rather than `lyricCurrent()`'s white.
+- **The Apple Music lyric renderer** kept its palette in six module-level `val`s — pending word,
+  inactive line, translation, romanization, the press ripple and the active-line glow. All are
+  composable property getters now, so every call site is untouched.
+- **The lyrics sheet chrome**: the gradient tail no longer ramps to hard black (it holds the sheet
+  colour while the flat-player-backdrop behaviour is on), the container and scrim follow the sheet
+  colour, and the Gray-on-DarkGray buffering bar and white seek slider go through `skProgress()` /
+  `skProgressTrack()` — grey on grey all but vanished once the sheet was flat black.
+
+### Player
+
+- The three players' **backdrops and scrim termini** were hard black, so a `PLAYER_BG` set to
+  anything else would have shown black bands at the edges. They read `skPlayerBackdrop()` now. The
+  16:9 letterbox behind video is deliberately still black — that is a video convention, not a
+  surface.
+- The artist card's `#212121`, the buffering spinner's `LightGray` and the seek track's grey now
+  route through `skSurface()` / `skProgress()` / `skProgressTrack()`.
+
+### Everything else new upstream
+
+- **Wrapped, the equalizer, Listen Together and the selection sheet turned out to need nothing** —
+  they are written against `MaterialTheme.colorScheme`, so `applyTo()` already reaches them. Only
+  the selection top bar's `contentColor` default was a literal.
+- **Analytics** — content colours and both backdrops now follow the theme. The three categorical
+  chart series colours are left alone on purpose: they carry meaning by being *distinguishable*, and
+  collapsing them onto one house hue would destroy the chart.
+- **The three new widgets** render outside `AppTheme`, so `LocalOngakuUi` does not exist there — the
+  same problem `SkCarColors` has in `:media3`. Rather than mirror a DataStore key per slot, a new
+  `SkWidgetTheme` reads the single JSON blob the UI page already persists. Widget backgrounds now
+  follow the flat-page-background behaviour instead of the artwork palette, and their content
+  colours follow `TEXT`.
+- **The like burst** drew gold/pink/white confetti — the one moment the app went pink. With the
+  theme on it is struck from `FAVOURITE`, `ACCENT`, `TEXT` and `LYRIC_ACTIVE` instead.
+
+### Census
+
+`Color.White` across the player and immersive screens: **5**, unchanged from `+011` and all
+deliberate — three crossfade-shimmer gleams and two `lerp` computations. All four load-bearing
+theming invariants verified.
+
+## 白い熊 音楽乙 2.0.0+2026-08-28.15-40.g62472bfa+011 — 2026-08-29
+
+**Upstream sync.** The pin moves from `9155f673` (2026-08-15) to `62472bfa` (2026-08-28) — 86
+commits on `upstream/dev` and 27 in the `core` fork's upstream, carrying SimpMusic all the way from
+**1.7.0** to **2.0.0** (versionCode 56 → 57). Our versionCode is therefore `570011`. This is the
+largest upstream move since the fork began, and most of the work below is re-taking ground the
+restructure would otherwise have cost us silently.
+
+### The player was rebuilt underneath us
+
+Upstream split Now Playing into **three selectable styles**. `NowPlayingScreen.kt` went from 2629
+lines to 747: the classic body moved wholesale into `content/NowPlayingContentSpotify.kt`, joined by
+new **Apple Music** and **Material 3 Expressive** styles with their own lyrics view, queue view,
+wavy seek bar and transport row.
+
+Git merges that split cleanly and the fork loses the player — our theming was attached to the file
+that was gutted, not to the code that moved. So the shell keeps what still belongs there (the flat
+`PLAYER_BG` backdrop and the `PROGRESS` seek colour, both of which survived the merge), and the
+colour work was re-derived onto the new structure.
+
+### The re-theming pass
+
+The unthemed-literal census across the player and the immersive screens went **0 → 107** on the
+rebase (upstream's own base carries 178). It is back to **5**, all deliberate:
+
+- 63 content colours (`tint =` / `color =`, including the alpha variants) now route through
+  `skOnPlayer()`, which returns the stock white when the fork theme is off — so a stock build renders
+  exactly as upstream intended.
+- 12 solid and translucent action pills across the album, playlist, local-playlist and Apple Music
+  surfaces became `skTracedAction()`, and the three **Play pills** got `skOnAction()` content — they
+  were black-on-black once traced.
+- The four module-level `AppleMusic*` colour constants were raw white `val`s, the same shape as the
+  lyrics' module-level greys and just as unreachable by any colour scheme. They are **composable
+  property getters** now, so every call site is unchanged while the colour follows our `TEXT` slot.
+- Left alone on purpose: three crossfade-shimmer gradient heads (a pure-white gleam by design —
+  routing them through the text slot would erase the gleam against a yellow label) and two
+  `lerp(…, white, …)` colour computations.
+
+### Two regressions the rebase would not have flagged
+
+- **The blog-promo dialog came back** as an unresolved import in `HomeScreen.kt` — our removal of the
+  call site merged cleanly while upstream's import merged back in. Exactly the silent-loss shape the
+  sync greps exist to catch.
+- **`toImmersiveBackground()` is `@Composable` in this fork** (it reads `LocalOngakuUi` to flatten the
+  page), and upstream's rewritten Analytics screen calls it inside a `LaunchedEffect`. Split into a
+  plain `immersiveBackgroundOf()` for non-composable callers plus the composable wrapper; the
+  Analytics screen now resolves the fork's flat background in composable scope and uses it inside the
+  effect.
+
+### Reconciled by hand, not by git
+
+- **Settings item 0.** Upstream's new ambient glow tracks item 0's offset and folded a 64 dp spacer
+  into `user_interface` to make it tall enough. Our 白い熊 音楽乙 UI row *is* item 0, so it carries
+  the spacer now and `user_interface` keeps only its 16 dp gap — otherwise the glow switches branches
+  while still half-visible, and the gap doubles.
+- **The mini player** kept upstream's single shared `miniPlayerShape` (the Card and the clip below it
+  must not diverge) with our `housePill` flag folded into its definition.
+- **`PlayerControlLayout`** gained upstream's `plainPlayPause` / `horizontalPadding` / `activeColor`
+  parameters; our accent tint for active shuffle-repeat now falls back to `activeColor` rather than
+  the raw seed, so the new desktop capsule call site still gets its theme-aware colour.
+- **`AppTheme`** kept upstream's new `liquidGlassEnabled` parameter and soft app-wide ripple
+  alongside our slot-driven scheme and `LocalOngakuUi`.
+- **The four immersive screens.** Upstream replaced the platform-gated header with an
+  orientation-gated one and deleted the `isMobilePortrait` split entirely; our edits inside the
+  deleted branch went with it, and the theming was re-applied to what replaced it.
+- **`LyricsView`** kept our yellow-on-white inversion and the themed background, but upstream's
+  rewritten word-by-word renderer (AMLL emphasis, glow, per-character flare) replaces our two-layer
+  wipe. Our lyric colours are not yet inside that renderer.
+
+### Not yet themed
+
+Everything upstream added new: **Wrapped**, the **equalizer**, the three **widgets**, the rewritten
+**Analytics** charts, **Listen Together**, the selection bars, and the two new player styles beyond
+their content colours. None has a **Fork behaviour** flag yet either.
+
 ## 白い熊 音楽乙 1.7.0+2026-08-15.17-42.g9155f673+010 — 2026-08-17
 
 Still on upstream **1.7.0** at `upstream/dev` `9155f673` — upstream has not moved, so the pin is
@@ -240,3 +372,28 @@ Upstream's notes are folded in here on each sync, newest first. At fork time the
 `upstream/dev` at `9155f673` (2026-08-15 17:42 UTC), one release past **v1.7.0** (versionCode 56,
 released 2026-08-07). Upstream's full release history:
 <https://github.com/maxrave-dev/SimpMusic/releases>.
+
+### SimpMusic v2.0.0 — versionCode 57 (upstream, 2026-08-28)
+
+From `fastlane/metadata/android/en-US/changelogs/57.txt`:
+
+- Three Now Playing styles, including Apple Music
+- Ten-band equalizer with AutoEq headphone profiles
+- Wrapped: your year in music and monthly recaps
+- Lyrics romanization, word glow and share as image
+- Redesigned Analytics with charts and history
+- New turntable, playlist and insight widgets
+- Multi-select songs and search in your playlists
+- More reliable streaming with a local decoder
+- Listen Together: play music in sync with friends
+- Desktop: floating capsule player and glass UI
+
+Beyond the release note, this sync also carried: the Linux libmpv slice no longer bundling glib
+(PR #2359, closing the `java.awt.Desktop` breakage), high audio quality split into Opus and AAC,
+artist follows mirrored to the signed-in YouTube account, an audio-only option for radio queues,
+liquid glass reworked behind a `LocalLiquidGlassEnabled` gate with the classic bottom bar rebuilt in
+the glass capsule form, a softer app-wide ripple, the light page background moved to `#FAFAFA`, and
+two new `core` service modules — `:autoEqService` (AutoEq profiles from GitHub raw) and
+`:listenTogether` (Metrolist-compatible rooms, server supplied by the user). The Japanese
+romanization dictionary is fetched on demand rather than shipped, keeping ~13 MB out of the APK.
+

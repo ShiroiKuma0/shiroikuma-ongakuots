@@ -48,6 +48,9 @@ import coil3.request.placeholder
 import coil3.toBitmap
 import com.kmpalette.rememberPaletteState
 import com.maxrave.common.Config
+import com.maxrave.simpmusic.shiroikuma.skWidgetOn
+import com.maxrave.simpmusic.shiroikuma.rememberOngakuUiForWidget
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.MainActivity
 import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.extension.getColorFromPalette
@@ -103,6 +106,10 @@ class TurntableWidget :
 
         provideContent {
             GlanceTheme {
+                // shiroikuma fork: a widget renders outside AppTheme, so LocalOngakuUi is absent
+                // here — the palette is read from the blob the UI page persists. See
+                // SkWidgetTheme.rememberOngakuUiForWidget.
+                val skUi by rememberOngakuUiForWidget()
                 val controllerState by sharedViewModel.controllerState.collectAsState()
                 val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsState()
 
@@ -114,6 +121,8 @@ class TurntableWidget :
                 // transparent corners as part of the image and lands on a different colour.
                 var rawArtwork by remember { mutableStateOf<Bitmap?>(null) }
                 var bgColor by remember { mutableStateOf(Color.Black) }
+                val skBg =
+                    if (skUi.enabled && skUi.flatPageBackground) skUi.c(ColorSlot.BG) else bgColor
 
                 val thumbUrl by remember { derivedStateOf { screenDataState.thumbnailURL } }
 
@@ -195,7 +204,7 @@ class TurntableWidget :
                             Image(
                                 provider = ImageProvider(R.drawable.rounded_fast_rewind_24),
                                 contentDescription = "Previous",
-                                colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                 modifier =
                                     GlanceModifier
                                         .size(34.dp)
@@ -220,7 +229,7 @@ class TurntableWidget :
                                             ImageProvider(R.drawable.rounded_play_arrow_24)
                                         },
                                     contentDescription = if (controllerState.isPlaying) "Pause" else "Play",
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                    colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                     modifier =
                                         GlanceModifier
                                             .size(24.dp)
@@ -233,7 +242,7 @@ class TurntableWidget :
                             Image(
                                 provider = ImageProvider(R.drawable.rounded_fast_forward_24),
                                 contentDescription = "Next",
-                                colorFilter = ColorFilter.tint(ColorProvider(Color.White)),
+                                colorFilter = ColorFilter.tint(ColorProvider(skWidgetOn())),
                                 modifier =
                                     GlanceModifier
                                         .size(34.dp)
