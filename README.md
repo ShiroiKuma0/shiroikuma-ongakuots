@@ -13,7 +13,7 @@ no telemetry at all.
 
 Installs **side-by-side** with the official SimpMusic (app id `shiroikuma.ongakuots`).
 
-**📥 Latest release: [`1.7.0+2026-08-15.17-42.g9155f673+010`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
+**📥 Latest release: [`2.0.0+2026-08-31.19-05.ge290d734+013`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
 
 </div>
 
@@ -44,6 +44,17 @@ Not a theme you switch on — the default. Black surfaces, yellow text, yellow b
 the player and its traced transport button, the lyrics, the immersive artist/album/playlist pages,
 every dialog, the mini player, the navigation rail, the seek bar. The master switch falls back to
 stock Material with every edit kept, so the two can be compared without losing work.
+
+**It follows upstream, not the other way round.** SimpMusic 2.0.0 rebuilt the player into three
+selectable styles and rewrote the lyric renderer; the house look was re-derived onto all of it
+rather than left behind — the Classic, Material 3 Expressive and Apple Music players, the
+word-by-word lyric wipe, Wrapped, the equalizer, the rewritten Analytics, the three home-screen
+widgets and the like burst. A widget renders outside the app's own composition, so it reads the
+theme from the same store the settings page writes; nothing about it is a second palette.
+
+The lyrics carry a deliberate inversion: the line **not** being sung is yellow and the line being
+sung goes **white**, word by word — the current line is marked by going white against yellow rather
+than by everything else going faint.
 
 ---
 
