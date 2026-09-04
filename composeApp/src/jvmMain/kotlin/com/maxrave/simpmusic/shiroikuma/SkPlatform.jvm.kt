@@ -64,6 +64,13 @@ actual object SkAutomation {
 
     actual fun setEnabled(on: Boolean) = Unit
 
+    // Inert like the rest of this file, and false rather than true on purpose: there is no
+    // automation surface on desktop to gate, so claiming a token is required would describe a door
+    // that does not exist.
+    actual fun requireToken(): Boolean = false
+
+    actual fun setRequireToken(on: Boolean) = Unit
+
     actual fun token(): String = ""
 
     actual fun regenerate(): String = ""

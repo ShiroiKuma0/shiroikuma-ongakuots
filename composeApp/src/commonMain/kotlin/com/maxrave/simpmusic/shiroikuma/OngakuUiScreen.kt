@@ -86,6 +86,7 @@ fun OngakuUiScreen(
     var dirLabel by remember { mutableStateOf(SkBackupDir.label()) }
     var latest by remember { mutableStateOf<SkLatestBackup?>(null) }
     var automationOn by remember { mutableStateOf(SkAutomation.enabled()) }
+    var requireTokenOn by remember { mutableStateOf(SkAutomation.requireToken()) }
     var token by remember { mutableStateOf(SkAutomation.token()) }
     val copy = rememberSkCopier()
 
@@ -143,7 +144,7 @@ fun OngakuUiScreen(
                 SwitchRow(
                     1,
                     "Automation export",
-                    "Let 白い熊 自由作業盤 trigger this app's export over the token-gated intent.",
+                    "Let sister apps trigger this app's export, and let 白い熊 応用管理 back its data up and put it back.",
                     automationOn,
                 ) { on ->
                     SkAutomation.setEnabled(on)
@@ -151,16 +152,32 @@ fun OngakuUiScreen(
                 }
             }
             item {
-                TokenRow(
+                SwitchRow(
                     2,
-                    token,
+                    "Use authorization token?",
+                    "Off, any sister app may drive the automation. On, a caller must also present the token below. Either way the data door checks the caller's package and signing certificate.",
+                    requireTokenOn,
                     enabled = automationOn,
-                    onCopy = { copy("Automation token", token) },
-                    onRegenerate = {
-                        token = SkAutomation.regenerate()
-                        copy("New automation token", token)
-                    },
-                )
+                ) { on ->
+                    SkAutomation.setRequireToken(on)
+                    requireTokenOn = on
+                }
+            }
+            // Shown ONLY while the token is actually being asked for: a 48-character secret sitting
+            // under an off switch invites 白い熊 to paste it somewhere it will do nothing.
+            if (requireTokenOn) {
+                item {
+                    TokenRow(
+                        3,
+                        token,
+                        enabled = automationOn,
+                        onCopy = { copy("Automation token", token) },
+                        onRegenerate = {
+                            token = SkAutomation.regenerate()
+                            copy("New automation token", token)
+                        },
+                    )
+                }
             }
 
             // ---- Theme ---------------------------------------------------------------------------
@@ -658,23 +675,31 @@ private fun ActionRow(
     }
 }
 
+/**
+ * [enabled] exists for a row whose question only makes sense while another row is on — the token
+ * switch under 「Automation export」. It dims rather than disappears, so the control 白い熊 is
+ * looking for is still where it was.
+ */
 @Composable
 private fun SwitchRow(
     level: Int,
     label: String,
     about: String,
     checked: Boolean,
+    enabled: Boolean = true,
     onChange: (Boolean) -> Unit,
 ) {
     val ui = LocalOngakuUi.current
-    RowScaffold(level, onClick = { onChange(!checked) }) {
+    val dim = ui.c(ColorSlot.TEXT_DIM)
+    RowScaffold(level, onClick = { if (enabled) onChange(!checked) }) {
         Column(Modifier.weight(1f)) {
-            Text(label, fontSize = 15.sp, color = ui.c(ColorSlot.TEXT))
-            Text(about, fontSize = 11.sp, color = ui.c(ColorSlot.TEXT_DIM))
+            Text(label, fontSize = 15.sp, color = if (enabled) ui.c(ColorSlot.TEXT) else dim)
+            Text(about, fontSize = 11.sp, color = dim)
         }
         Switch(
             checked = checked,
             onCheckedChange = onChange,
+            enabled = enabled,
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = ui.c(ColorSlot.ON_ACCENT),

@@ -102,14 +102,31 @@ expect fun rememberSkFontImporter(onImported: (String) -> Unit): () -> Unit
 /**
  * The 保存復元 automation gate, as the UI page needs it.
  *
- * The contract puts these two controls **inside the Export/Import section**, directly under the
- * export rows — not in a section of their own — so every sister app looks the same and 白い熊 finds
- * the switch where backup lives.
+ * The contract puts these controls **inside the Export/Import section**, directly under the export
+ * rows — not in a section of their own — so every sister app looks the same and 白い熊 finds the
+ * switch where backup lives.
+ *
+ * **Why this is an `expect` and not simply the Android object.** The rows are drawn by
+ * `OngakuUiScreen`, which lives in `commonMain`, so the gate has to be reachable from common code
+ * even though every byte of it is Android — the store is `SharedPreferences` and the callers are
+ * broadcast and binder. That makes the pair of v2 flags a **three-file change**: this declaration,
+ * the Android actual that means it, and the desktop actual that keeps the `jvm` target compiling.
+ * Adding a member here and forgetting the third is a build failure in a target this fork never
+ * ships, which is exactly the kind that gets found late.
  */
 expect object SkAutomation {
+    /** Contract v2: default **ON**. The only way to close this app off. */
     fun enabled(): Boolean
 
     fun setEnabled(on: Boolean)
+
+    /**
+     * Contract v2: default **OFF**. When off, any sister app may drive the automation and a token
+     * that arrives anyway is ignored rather than refused.
+     */
+    fun requireToken(): Boolean
+
+    fun setRequireToken(on: Boolean)
 
     /** Generated lazily on first read, so the row always has something to show. */
     fun token(): String

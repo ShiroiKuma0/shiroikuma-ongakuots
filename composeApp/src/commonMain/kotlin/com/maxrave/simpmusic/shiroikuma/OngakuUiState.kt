@@ -41,16 +41,32 @@ class OngakuUiState(
     }
 
     fun update(next: OngakuUi) {
-        val sane = next.sane()
-        _ui.value = sane
-        scope.launch {
-            dataStore.putString(OngakuUi.KEY, OngakuUi.toJson(sane))
-            // The two Android Auto slots are mirrored into plain `#AARRGGBB` keys as well. The car
-            // app lives in :media3, which has no business parsing a Compose theme — one string each
-            // way is the whole contract. See media3's carapp/SkCarColors.kt.
-            dataStore.putString(KEY_CAR_PRIMARY, sane.color(ColorSlot.CAR_PRIMARY).hex())
-            dataStore.putString(KEY_CAR_SECONDARY, sane.color(ColorSlot.CAR_SECONDARY).hex())
-        }
+        _ui.value = next.sane()
+        scope.launch { persistNow() }
+    }
+
+    /**
+     * Write the current theme through and **wait for it**.
+     *
+     * [update] deliberately does not: it sets the in-memory value and lets the write follow on its
+     * own scope, which is what makes a slider repaint on the next frame instead of after a DataStore
+     * round-trip. That is right for a human dragging a control and **wrong for a restore**, because
+     * an automation import is followed immediately by 白い熊 応用管理 force-stopping this app — a
+     * SIGKILL, which a write still in flight does not survive. The theme would come back silently
+     * unrestored, with every other category correct and nothing reporting a failure.
+     *
+     * So the automation import path calls this and awaits it before answering `OK`. Reading
+     * `_ui.value` rather than taking a parameter means a racing edit persists the newer value, which
+     * is the one a later reader would have wanted anyway.
+     */
+    suspend fun persistNow() {
+        val sane = _ui.value
+        dataStore.putString(OngakuUi.KEY, OngakuUi.toJson(sane))
+        // The two Android Auto slots are mirrored into plain `#AARRGGBB` keys as well. The car app
+        // lives in :media3, which has no business parsing a Compose theme — one string each way is
+        // the whole contract. See media3's carapp/SkCarColors.kt.
+        dataStore.putString(KEY_CAR_PRIMARY, sane.color(ColorSlot.CAR_PRIMARY).hex())
+        dataStore.putString(KEY_CAR_SECONDARY, sane.color(ColorSlot.CAR_SECONDARY).hex())
     }
 
     fun edit(block: (OngakuUi) -> OngakuUi) = update(block(_ui.value))

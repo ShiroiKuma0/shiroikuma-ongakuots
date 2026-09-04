@@ -176,6 +176,10 @@ actual object SkAutomation {
 
     actual fun setEnabled(on: Boolean) = AutomationAuth.setEnabled(ctx(), on)
 
+    actual fun requireToken(): Boolean = AutomationAuth.requireToken(ctx())
+
+    actual fun setRequireToken(on: Boolean) = AutomationAuth.setRequireToken(ctx(), on)
+
     actual fun token(): String = AutomationAuth.token(ctx())
 
     actual fun regenerate(): String = AutomationAuth.regenerate(ctx())

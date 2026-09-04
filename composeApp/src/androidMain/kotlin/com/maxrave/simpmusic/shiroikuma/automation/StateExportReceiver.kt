@@ -13,7 +13,10 @@ import com.maxrave.simpmusic.shiroikuma.SkBackupCat
  * [StateExportService] and returns (EXPORT_STATE) — because a manifest receiver that outstays the
  * broadcast window is ANR'd and killed mid-export, which loses the archive *and* the reply.
  *
- * No `android:permission` on the receiver: the caller cannot hold one, so the token is the gate.
+ * No `android:permission` on the receiver, and under contract v2 no token either by default: this
+ * is the **unauthenticated** half of the surface, deliberately, because it only ever writes where it
+ * was told to and reports what it did. Everything that moves data through a caller-supplied
+ * descriptor lives behind [AutomationProvider], which knows who is calling.
  */
 class StateExportReceiver : BroadcastReceiver() {
     override fun onReceive(
@@ -30,14 +33,12 @@ class StateExportReceiver : BroadcastReceiver() {
                 val replyPackage = intent.getStringExtra("reply_package")
                 val replyId = intent.getStringExtra("reply_id")
 
-                // The two gate failures are reported separately: they debug differently, and a
-                // silent drop here would leave the caller waiting out its whole timeout.
-                if (!AutomationAuth.enabled(app)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:automation disabled")
-                    return
-                }
-                if (!AutomationAuth.isTokenValid(app, token)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:bad token")
+                // One gate, one place — AutomationAuth.refuse. It still answers "automation
+                // disabled" and "bad token" as distinct lines because they debug differently, and a
+                // silent drop here would leave the caller waiting out its whole timeout. A token
+                // sent when this app does not ask for one is ignored inside refuse, never refused.
+                AutomationAuth.refuse(app, token)?.let {
+                    reply(app, replyAction, replyPackage, replyId, it)
                     return
                 }
                 if (replyAction.isNullOrBlank() || replyPackage.isNullOrBlank() || replyId.isNullOrBlank()) return
@@ -49,12 +50,8 @@ class StateExportReceiver : BroadcastReceiver() {
                 val replyAction = intent.getStringExtra("reply_action")
                 val replyPackage = intent.getStringExtra("reply_package")
                 val replyId = intent.getStringExtra("reply_id")
-                if (!AutomationAuth.enabled(app)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:automation disabled")
-                    return
-                }
-                if (!AutomationAuth.isTokenValid(app, token)) {
-                    reply(app, replyAction, replyPackage, replyId, "ERROR:bad token")
+                AutomationAuth.refuse(app, token)?.let {
+                    reply(app, replyAction, replyPackage, replyId, it)
                     return
                 }
                 // `id<TAB>label`, with the third field (parent) empty and the fourth carrying the
@@ -71,8 +68,7 @@ class StateExportReceiver : BroadcastReceiver() {
                 // Fire-and-forget: no reply of its own — the one terminal reply belongs to the
                 // export it stopped. Safe to send at any time; when nothing is running it is a
                 // silent no-op, because the caller fires it without knowing how far we got.
-                if (!AutomationAuth.enabled(app)) return
-                if (!AutomationAuth.isTokenValid(app, token)) return
+                if (AutomationAuth.refuse(app, token) != null) return
                 ExportControl.requestCancel(intent.getStringExtra("reply_id"))
             }
         }
