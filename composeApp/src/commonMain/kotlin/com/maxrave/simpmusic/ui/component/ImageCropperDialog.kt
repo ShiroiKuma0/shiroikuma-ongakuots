@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.maxrave.simpmusic.shiroikuma.LocalOngakuUi
+import com.maxrave.simpmusic.shiroikuma.ColorSlot
 import com.maxrave.simpmusic.expect.ui.decodeImageBitmap
 import com.maxrave.simpmusic.expect.ui.toByteArray
 import kotlin.math.max
@@ -77,6 +79,14 @@ fun ImageCropperDialog(
         onDismiss()
         return
     }
+
+    // shiroikuma fork: the stage behind the picture and the crop frame's own outline. Read here
+    // because both are consumed inside a DrawScope below, which is not composable scope. The scrim
+    // is deliberately NOT themed — dimming the discarded area is what it is for, and a house colour
+    // over it would stop reading as "this part is being thrown away".
+    val skUi = LocalOngakuUi.current
+    val stageBackground = if (skUi.enabled) skUi.c(ColorSlot.BG) else Color.Black
+    val cropFrameColor = if (skUi.enabled) skUi.c(ColorSlot.ACCENT) else Color.White
 
     var frameSizePx by remember { mutableStateOf(0) }
     var stageHeightPx by remember { mutableStateOf(0) }
@@ -121,7 +131,7 @@ fun ImageCropperDialog(
                             .fillMaxWidth()
                             .aspectRatio(STAGE_ASPECT)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color.Black)
+                            .background(stageBackground)
                             .onSizeChanged { size ->
                                 if (size.width != frameSizePx && size.width > 0) {
                                     frameSizePx = size.width
@@ -181,7 +191,7 @@ fun ImageCropperDialog(
                             size = Size(size.width, frameTop),
                         )
                         drawRect(
-                            color = Color.White,
+                            color = cropFrameColor,
                             topLeft = Offset(0f, frameTop),
                             size = Size(size.width, size.width),
                             style = Stroke(width = 2.dp.toPx()),
