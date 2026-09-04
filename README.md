@@ -8,12 +8,12 @@
 
 A fork of [SimpMusic](https://github.com/maxrave-dev/SimpMusic) with **major additions**: a full
 black-and-yellow UI with every colour, font, size and shape settable in-app; external font import;
-a category-ZIP Export / Import; headless backup automation; Android Auto in the house colours; and
-no telemetry at all.
+a category-ZIP Export / Import; headless backup automation that can restore this app's data onto a
+wiped phone; Android Auto in the house colours; and no telemetry at all.
 
 Installs **side-by-side** with the official SimpMusic (app id `shiroikuma.ongakuots`).
 
-**📥 Latest release: [`2.0.0+2026-08-31.19-05.ge290d734+013`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
+**📥 Latest release: [`2.0.0+2026-08-31.19-55.ge600d8d3+016`](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-ongakuots/releases)
 
 </div>
 
@@ -87,12 +87,23 @@ restores through stock SimpMusic, and a stock archive restores here.
 
 ---
 
-## 🤖 Backup automation (保存復元)
+## 🤖 Backup automation (保存復元), and a restore that survives a wiped phone
 
-Implements the sister-app export contract: three token-gated broadcast actions, the export running in
-a foreground service with a wakelock, live progress with real counts, one guaranteed terminal reply,
-and a cancel that is safe to send at any time and always removes the partial file. Lets
-白い熊 自由作業盤 back this app up headlessly as part of a batch across every sister app.
+Implements the sister-app contract. The export half is three broadcast actions: the export runs in a
+foreground service under a wakelock, reports live progress in real counts, sends exactly one terminal
+reply, and takes a cancel that is safe at any moment and always removes the partial file. That is
+what lets 白い熊 自由作業盤 back this app up headlessly as part of a batch across every sister app.
+
+**Answering is the default.** The switch ships on and the authorization token is opt-in, because the
+case this exists to serve is a phone that has just been wiped — where nothing has been configured and
+nobody has pasted a secret anywhere. A token sent to an app that is not asking for one is ignored
+rather than refused, so a caller configured last year still works.
+
+The second half is a **data door**: a `ContentProvider` that identifies its caller three ways — exact
+package name, a uid cross-check, and a pinned signing certificate — and moves the archive through a
+file descriptor the caller opened rather than a path it named. That lets 白い熊 応用管理 back this app
+up *with its library* and put both back afterwards, so a clean phone can be returned to where it was
+without root.
 
 ---
 
@@ -121,7 +132,7 @@ daily blog-RSS notification worker, and its sponsor and review links are gone to
 | Package | `shiroikuma.ongakuots` — installs alongside | `com.maxrave.simpmusic` |
 | Look | black / yellow `#FFFF00`, fully settable in-app | Material You from a seed colour |
 | Fonts | any imported file, previewed in its own glyphs | bundled Poppins |
-| Backup | category ZIP + headless automation | single backup/restore file |
+| Backup | category ZIP + headless automation + data door for a clean-phone restore | single backup/restore file |
 | Fork changes | each one a switch, revertible to upstream's behaviour | n/a |
 | Telemetry | **none** | opt-out crash reporting in the full build |
 | In-app updater | removed | checks upstream's GitHub releases |

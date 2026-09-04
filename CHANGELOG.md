@@ -10,6 +10,117 @@ Fork versions read `<upstream>+<base date>.<HH-MM UTC>.g<sha8>+<build>`: the mid
 upstream commit the build sits on, and moves only on a sync. The installed `versionCode` is
 `<upstream code> * 10000 + <build>`, independent of the pin.
 
+## 白い熊 音楽乙 2.0.0+2026-08-31.19-55.ge600d8d3+016 — 2026-09-04
+
+**Backup automation, contract v2.** The upstream pin is unchanged (`e600d8d3`, upstream 2.0.0 / 57);
+this release is entirely our own. Two things changed and one is new: the automation answers by
+default, the token became optional, and a **data door** was added so 白い熊 応用管理 can back this app
+up *with its data* and put it back on a wiped phone. versionCode `570016`.
+
+### The gate — a switch that is on, and a token that is off
+
+- **`automation_enabled` now defaults to true and `automation_require_token` is new, defaulting to
+  false.** v1 shipped closed: a caller also had to present a 48-character secret pasted from this
+  app's settings into the caller's. That cannot survive a wipe, and the case this whole contract now
+  exists to serve is a clean phone where nothing has been configured and nobody has pasted anything.
+- **A token sent to an app that does not require one is ignored, never refused.** Tokens outlive the
+  setting they were pasted for, so refusing one would turn "a switch was turned off" into "half the
+  batch mysteriously fails".
+- **Both questions are answered in one place** — `AutomationAuth.refuse()` returns either null or the
+  exact `ERROR:` line — because two checks written out at each entry point is how "automation
+  disabled" and "bad token" drift apart across forty-two apps. All three broadcast actions and all
+  four provider methods go through it.
+- The 白い熊 音楽乙 UI page gains 「Use authorization token?」 under 「Automation export」, and **the
+  token row is shown only while it is on**: a 48-character secret sitting under an off switch invites
+  it to be pasted somewhere it will do nothing.
+
+### The data door — a provider, a verified caller, and a file descriptor
+
+- **A `ContentProvider` at `shiroikuma.ongakuots.automation`**, exported with no permission, offering
+  `describe` / `export` / `import` / `cancel`. A provider rather than another broadcast action for two
+  reasons: a broadcast cannot tell you who sent it, and a caller drawing a row per installed app needs
+  a synchronous answer.
+- **The caller is checked three ways** — an exact package name (never a prefix, since any sideloaded
+  app may call itself `shiroikuma.evil`), a uid cross-check against what the kernel reports, and a
+  pinned signing certificate, which is what closes the gap on a clean phone where the real caller may
+  not be installed yet.
+- **The payload travels through a `ParcelFileDescriptor` the caller opened** — not a path, not a URI.
+  A backup is not a stable directory while it is being written, encryption and checksums are computed
+  per known file, and a descriptor is a capability that expires when it is closed. A consequence worth
+  having: the automation path no longer needs All-Files-Access.
+- **`import` exists only here**, never as a broadcast action: an import overwrites the app's data, and
+  the broadcast receiver is exported with no permission.
+- Capability discovery is three manifest `<meta-data>` entries rather than a query intent, because a
+  frozen app cannot be asked anything and this one is frozen often.
+
+### What this app had to do differently
+
+- **A truncated archive is refused instead of half-restored.** The import spools to `cacheDir` and
+  requires the ZIP end-of-central-directory signature `50 4b 05 06` before unpacking a single entry.
+  Our import writes each entry as it streams, so a cut-off archive would otherwise replace the Room
+  database and leave the download index describing chunks that were never written. For the same reason
+  a cancel is honoured while spooling and refused once entries are being written — there is no safe
+  boundary to unwind on after that point.
+- **The archive is spooled, never buffered.** The `downloads` category is the whole ExoPlayer store,
+  so reading a backup into memory the way a settings-sized app can would fail outright.
+- **The data door shares the app's one export guard**, because an import closes the Room database and
+  replaces the file underneath anything reading it.
+- **A restore is made durable before it is reported successful.** The caller force-stops the app the
+  instant an import succeeds — it must, or a running process writes its cached state back out and
+  silently undoes the import. Most of what the import does is synchronous file copying, but the `ui`
+  category goes through a state holder that sets the in-memory value and lets the DataStore write
+  follow on its own scope. That is deliberate, and it is what makes a slider on the UI page repaint on
+  the next frame instead of after a round-trip — but it meant the theme could come back unrestored
+  with every other category correct and nothing reporting a failure. `OngakuUiState` gained an
+  awaitable `persistNow()`, which the import path waits on before answering.
+- **Progress has a heartbeat as well as a throttle.** They are opposite problems: the export engine
+  reports once per category, so `downloads` ticks once and then says nothing for as long as several
+  gigabytes take to compress — well past the two minutes after which a caller presumes the app dead.
+  The last true line is re-sent on a timer rather than a moving number being invented.
+- The service goes foreground unconditionally as its first statement, before any check that can
+  return, so a request rejected for a stale job id cannot raise
+  `ForegroundServiceDidNotStartInTimeException` against the app being backed up. A refused background
+  start closes the caller's descriptor instead of holding their file open for the life of the process.
+
+### Fixed on the way through
+
+- **The manifest's `<queries>` named only the upstream package.** Package visibility filters
+  `getPackageInfo`, so neither automation caller could be identified at all — both would have been
+  refused as `ERROR:caller signature unreadable`, and any reply to them would have failed silently on
+  Android 11+. Both callers are now named.
+
+## 白い熊 音楽乙 2.0.0+2026-08-31.19-55.ge600d8d3+014 — 2026-09-01
+
+**Upstream sync.** The pin moves from `e290d734` to `e600d8d3` — one commit on `upstream/dev` and
+one in the `core` fork, both halves of the same feature. Upstream's `version-name` and
+`version-code` are unchanged (2.0.0 / 57). versionCode `570014`.
+
+The rebase touched nothing of ours: the only conflict was the `core` submodule pointer, and
+`ModalBottomSheet.kt` merged clean despite carrying fourteen of our theming edits. The
+unthemed-literal census held at **5** and all four load-bearing invariants still hold.
+
+### What we picked up
+
+- **Playlist covers are cropped before use, and now survive the sync to YouTube.** A cover slot is
+  square, so an uncropped 16:9 photo was being squashed to fit; a new cropper dialog sits in front
+  of the picker. The cropped file is written into the app's own storage rather than reused from the
+  picker's URI — that one still points at the uncropped original, and on Android the read permission
+  granted for it does not outlive the process. It is named by **content hash**: a fixed name would be
+  overwritten in place and Coil, which caches by URL, would keep showing the old cover, while a
+  timestamp would leave a new file behind every time the same picture was re-picked. The `core` half
+  uploads the cover to the synced YouTube playlist.
+
+### Fork work in this build
+
+- **The new cropper dialog is in the house colours.** It shipped with a black stage, a
+  `Color.Black @ 60%` scrim and a white crop frame — none of which any colour scheme reaches, and it
+  sits in `ui/component/`, outside the directories the sync's census grep covers. The stage now
+  follows `BG` and the crop frame follows `ACCENT`. Both are read in composable scope and handed
+  down, because they are consumed inside a `DrawScope`, which is not one.
+- **The scrim is deliberately left dark.** Dimming the area being discarded is the whole reason the
+  cropper shows a stage taller than the square it cuts; a house colour over it would stop reading as
+  "this part is being thrown away".
+
 ## 白い熊 音楽乙 2.0.0+2026-08-31.19-05.ge290d734+013 — 2026-08-31
 
 **Upstream sync.** The pin moves from `62472bfa` (2026-08-28) to `e290d734` (2026-08-31) — 7 commits
@@ -413,6 +524,12 @@ Upstream's notes are folded in here on each sync, newest first. At fork time the
 `upstream/dev` at `9155f673` (2026-08-15 17:42 UTC), one release past **v1.7.0** (versionCode 56,
 released 2026-08-07). Upstream's full release history:
 <https://github.com/maxrave-dev/SimpMusic/releases>.
+
+### SimpMusic `dev` after v2.0.0 — versionCode still 57 (upstream, 2026-09-01)
+
+- `feat(playlist)` — crop a picked cover before it is used, and upload it to the synced YouTube
+  playlist (client half plus a `core` half: `ImageUploadResponse`, `EditPlaylistBody`, and the
+  `Ytmusic`/`YouTube` calls that carry it)
 
 ### SimpMusic `dev` after v2.0.0 — versionCode still 57 (upstream, 2026-08-31)
 
